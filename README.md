@@ -1,4 +1,4 @@
-![alt tag](https://github.com/jchristn/swiftstack/blob/main/assets/icon.ico)
+![alt tag](https://github.com/jchristn/swiftstack/blob/main/Assets/icon.ico?raw=true)
 
 # SwiftStack
 
