@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
+		<ApplicationIcon>icon.ico</ApplicationIcon>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
+		<DocumentationFile>SwiftStack.xml</DocumentationFile>
+		<Title>SwiftStack is an easy way to build REST APIs</Title>
+		<Authors>Joel Christner</Authors>
+		<Description>SwiftStack is an easy way to build REST APIs</Description>
+		<Copyright>(c)2025 Joel Christner</Copyright>
+		<PackageProjectUrl>https://github.com/jchristn/SwiftStack</PackageProjectUrl>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/jchristn/SwiftStack</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageTags>rest api fastapi server restful</PackageTags>
+		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
+		<Version>0.1.0</Version>
+		<AssemblyVersion>0.1.0</AssemblyVersion>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<IncludeSymbols>True</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <Content Include="icon.ico" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\Assets\icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\..\LICENSE.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Include="..\..\README.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="SerializationHelper" Version="2.0.2" />
+	  <PackageReference Include="SyslogLogging" Version="2.0.8" />
+	  <PackageReference Include="Watson" Version="6.3.5" />
+	</ItemGroup>
+
+</Project>
