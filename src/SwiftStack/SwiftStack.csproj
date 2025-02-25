@@ -5,9 +5,9 @@
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
-		<Title>SwiftStack is an easy way to build REST APIs</Title>
+		<Title>SwiftStack</Title>
 		<Authors>Joel Christner</Authors>
-		<Description>SwiftStack is an easy way to build REST APIs</Description>
+		<Description>SwiftStack is an opinionated and easy way to build REST APIs taking inspiration from elegant model shown in FastAPI in Python.</Description>
 		<Copyright>(c)2025 Joel Christner</Copyright>
 		<PackageProjectUrl>https://github.com/jchristn/SwiftStack</PackageProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
@@ -16,8 +16,7 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>rest api fastapi server restful</PackageTags>
 		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
-		<Version>0.1.0</Version>
-		<AssemblyVersion>0.1.0</AssemblyVersion>
+		<Version>0.1.1</Version>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -44,7 +43,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="SerializationHelper" Version="2.0.2" />
+	  <PackageReference Include="SerializationHelper" Version="2.0.3" />
 	  <PackageReference Include="SyslogLogging" Version="2.0.8" />
 	  <PackageReference Include="Watson" Version="6.3.5" />
 	</ItemGroup>

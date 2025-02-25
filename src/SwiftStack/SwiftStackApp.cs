@@ -187,6 +187,15 @@
         /// </summary>
         public SwiftStackApp()
         {
+            try
+            {
+                Console.WriteLine(
+                    Environment.NewLine + Constants.Logo + 
+                    Environment.NewLine + Constants.Copyright + 
+                    Environment.NewLine);
+            }
+            catch { }
+
             _ExceptionRoute = DefaultExceptionRoute;
         }
 

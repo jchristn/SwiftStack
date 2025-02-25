@@ -113,6 +113,21 @@
             SwiftStack application response.
             </summary>
         </member>
+        <member name="T:SwiftStack.Constants">
+            <summary>
+            Constants.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Constants.Logo">
+            <summary>
+            Logo.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Constants.Copyright">
+            <summary>
+            Copyright.
+            </summary>
+        </member>
         <member name="T:SwiftStack.RouteInfo">
             <summary>
             Route information.
