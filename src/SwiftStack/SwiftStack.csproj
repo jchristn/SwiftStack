@@ -2,6 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
+		<Version>0.1.2</Version>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
@@ -16,7 +17,6 @@
 		<RepositoryType>git</RepositoryType>
 		<PackageTags>rest api fastapi server restful</PackageTags>
 		<PackageReleaseNotes>Initial release</PackageReleaseNotes>
-		<Version>0.1.1</Version>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<IncludeSymbols>True</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>

@@ -5,21 +5,26 @@
     using System.Text;
 
     /// <summary>
-    /// Route information.
+    /// Authentication and authorization result.
     /// </summary>
-    public class RouteInfo
+    public class AuthResult
     {
         #region Public-Members
 
         /// <summary>
-        /// Boolean indicating if the route is a primitive route.
+        /// Authentication result.
         /// </summary>
-        public bool IsPrimitiveRoute { get; set; }
+        public AuthenticationResultEnum AuthenticationResult { get; set; } = AuthenticationResultEnum.Success;
 
         /// <summary>
-        /// Type of the request object.
+        /// Authorization result.
         /// </summary>
-        public Type RequestType { get; set; }
+        public AuthorizationResultEnum AuthorizationResult { get; set; } = AuthorizationResultEnum.Permitted;
+
+        /// <summary>
+        /// Metadata.
+        /// </summary>
+        public object Metadata { get; set; } = null;
 
         #endregion
 
@@ -30,9 +35,9 @@
         #region Constructors-and-Factories
 
         /// <summary>
-        /// Route information.
+        /// Authentication and authorization result.
         /// </summary>
-        public RouteInfo()
+        public AuthResult()
         {
 
         }

@@ -1,72 +1,83 @@
 ﻿namespace SwiftStack
 {
-    using SerializationHelper;
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
     using System.Text;
     using WatsonWebserver.Core;
+    using SerializationHelper;
+    using System.Linq;
 
     /// <summary>
-    /// SwiftStack application request.
+    /// Application request.
     /// </summary>
-    public class AppRequest<T> where T : class
+    public class AppRequest
     {
         #region Public-Members
 
         /// <summary>
-        /// Data to return after serialization.
+        /// The deserialized request data.
         /// </summary>
-        public T Data { get; set; } = null;
+        public object Data { get; set; }
 
         /// <summary>
-        /// HTTP context, if any.
+        /// HTTP context.
         /// </summary>
-        public HttpContextBase Http
-        {
-            get
-            {
-                return _Http;
-            }
-        }
+        public HttpContextBase Http { get; }
+
+        /// <summary>
+        /// Parameters from the route URL.
+        /// </summary>
+        public RequestParameters Parameters { get; }
+
+        /// <summary>
+        /// Query parameters.
+        /// </summary>
+        public RequestParameters Query { get; }
+
+        /// <summary>
+        /// Headers from the request.
+        /// </summary>
+        public RequestParameters Headers { get; }
+
+        /// <summary>
+        /// Serializer instance.
+        /// </summary>
+        public Serializer Serializer { get; }
 
         #endregion
 
         #region Private-Members
-
-        private HttpContextBase _Http = null;
-        private Serializer _Serializer = null;
 
         #endregion
 
         #region Constructors-and-Factories
 
         /// <summary>
-        /// SwiftStack application request.
+        /// Application request.
         /// </summary>
-        /// <param name="ctx">HTTP context.</param>
-        /// <param name="serializer">Serializer.</param>
-        /// <param name="isPrimitiveType">Boolean indicating if the request is using a primitive type.</param>
-        public AppRequest(HttpContextBase ctx, Serializer serializer, bool isPrimitiveType)
+        public AppRequest(HttpContextBase ctx, Serializer serializer, object data)
         {
-            _Http = ctx ?? throw new ArgumentNullException(nameof(ctx));
-            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            Http = ctx ?? throw new ArgumentNullException(nameof(ctx));
+            Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            Data = data;
 
-            if (!String.IsNullOrEmpty(ctx.Request.DataAsString))
-            {
-                if (isPrimitiveType)
-                {
-                    Data = (T)Convert.ChangeType(ctx.Request.DataAsString, typeof(T));
-                }
-                else
-                {
-                    Data = _Serializer.DeserializeJson<T>(ctx.Request.DataAsString);
-                }
-            }
+            Parameters = new RequestParameters(ctx.Request.Url.Parameters);
+            Query = new RequestParameters(ctx.Request.Query.Elements);
+            Headers = new RequestParameters(ctx.Request.Headers);
         }
 
         #endregion
 
         #region Public-Methods
+
+        /// <summary>
+        /// Cast data to a specific type.
+        /// </summary>
+        public T GetData<T>() where T : class
+        {
+            return Data as T;
+        }
 
         #endregion
 

@@ -16,42 +16,55 @@ If you would like to financially support my efforts, first of all, thank you!  P
 
 ## Simple Example
 
+Refer to the `Test` project and the `test.bat` batch file to test a simple example of SwiftStack.
+
 ```csharp
 using SwiftStack;
 
 SwiftStackApp app = new SwiftStackApp();
 
-// Register a route with no request body
 app.Route("GET", "/", async (req) =>
 {
-    return new AppResponse<string>
+    return "Hello world";
+});
+
+app.Route("POST", "/loopback", async (req) =>
+{
+    return req.Data;
+});
+
+app.Get("/search", async (req) =>
+{
+    string query = req.Query["q"];
+    if (query == null) query = "no query provided";
+    int page = int.TryParse(req.Query["page"] as string, out int p) ? p : 1;
+
+    return new
     {
-        Data = "Hello world",
-        Result = ApiResultEnum.Success
+        Query = query,
+        Page = page,
+        Message = $"Searching for '{query}' on page {page}"
     };
 });
 
-// Register a route with a primitive request and response body            
-app.Route<string, string>("POST", "/loopback", async (req) =>
+app.Put<User>("/user/{id}", async (req) =>
 {
-    return new AppResponse<string>
+    string id = req.Parameters["id"];
+    User user = req.GetData<User>();
+    return new User
     {
-        Data = req.Data,
-        Result = ApiResultEnum.Success
+        Id = id,
+        Email = user.Email,
+        Password = user.Password
     };
 });
 
-// Register a route with a class request and response body
-app.Route<User, User>("PUT", "/user/{id}", async (req) =>
+public class User
 {
-    string id = req.Http.Request.Url.Parameters.Get("id");
-    return new AppResponse<User>
-    {
-        Data = new User { Email = "user" + id + "@bar.com", Password = "password" },
-        Pretty = true,
-        Result = ApiResultEnum.Success
-    };
-});
+    public string Id { get; set; } = null;
+    public string Email { get; set; } = null;
+    public string Password { get; set; } = null;
+}
 ```
 
 ## Version History

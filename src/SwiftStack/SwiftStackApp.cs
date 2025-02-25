@@ -3,7 +3,9 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Runtime.CompilerServices;
+    using System.Text.Json;
     using System.Threading;
     using System.Threading.Tasks;
     using SerializationHelper;
@@ -136,6 +138,11 @@
         }
 
         /// <summary>
+        /// Authentication route.
+        /// </summary>
+        public Func<HttpContextBase, Task<AuthResult>> AuthenticationRoute { get; set; } = null;
+
+        /// <summary>
         /// JSON serializer.
         /// </summary>
         public Serializer Serializer
@@ -166,7 +173,6 @@
         private LoggingModule _Logger = null;
         private Serializer _Serializer = new Serializer();
 
-        private Dictionary<string, RouteInfo> _RouteTypes = new Dictionary<string, RouteInfo>();
         private List<ParameterRoute> _AuthenticatedRoutes = new List<ParameterRoute>();
         private List<ParameterRoute> _UnauthenticatedRoutes = new List<ParameterRoute>();
         private WebserverSettings _WebserverSettings = new WebserverSettings();
@@ -201,7 +207,7 @@
 
         #endregion
 
-        #region Public-Methods
+        #region Public-General-Methods
 
         /// <summary>
         /// Run the application.
@@ -307,166 +313,198 @@
             GC.SuppressFinalize(this);
         }
 
+        #endregion
+
+        #region Public-Route-Methods
+
         /// <summary>
-        /// Adds a route handler for requests with no request body and no response body.
+        /// Add a GET route.
         /// </summary>
-        /// <param name="method">HTTP method (GET, POST, etc)</param>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Route(
-            string method,
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Get(
             string path,
-            Func<AppRequest<object>, Task<AppResponse>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
         {
-            AddRouteInternal(method, path, handler, requiresAuthentication);
+            RegisterNoBodyRoute(HttpMethod.GET, path, handler, requireAuthentication);
         }
 
         /// <summary>
-        /// Adds a route handler for requests with no request body but returns a response body.
+        /// Add a POST route.
         /// </summary>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="method">HTTP method (GET, POST, etc)</param>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Route<TResponse>(
-            string method,
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Post<T>(
             string path,
-            Func<AppRequest<object>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false) where T : class
         {
-            AddRouteInternal(method, path, handler, requiresAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.POST, path, handler, requireAuthentication);
         }
 
         /// <summary>
-        /// Adds a route handler for requests with no data exchange.
+        /// Add a PUT route.
         /// </summary>
-        /// <param name="method">HTTP method (GET, POST, etc)</param>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Route(
-            string method,
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Put<T>(
             string path,
-            Func<Task<AppResponse>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false) where T : class
         {
-            AddRouteInternal(method, path, async (req) => await handler(), requiresAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.PUT, path, handler, requireAuthentication);
         }
 
         /// <summary>
-        /// Adds a route handler for requests that return data but take no input.
+        /// Add a PATCH route.
         /// </summary>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="method">HTTP method (GET, POST, etc)</param>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Route<TResponse>(
-            string method,
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Patch<T>(
             string path,
-            Func<Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false) where T : class
         {
-            AddRouteInternal(method, path, async (req) => await handler(), requiresAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.PATCH, path, handler, requireAuthentication);
         }
 
         /// <summary>
-        /// Adds a route handler for requests with both request and response bodies.
+        /// Add a DELETE route.
         /// </summary>
-        /// <typeparam name="TRequest">Type of request data</typeparam>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="method">HTTP method (GET, POST, etc)</param>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Route<TRequest, TResponse>(
-            string method,
-            string path,
-            Func<AppRequest<TRequest>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
-            where TRequest : class
-        {
-            AddRouteInternal(method, path, handler, requiresAuthentication);
-        }
-
-        /// <summary>
-        /// Adds a GET route handler that returns data.
-        /// </summary>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Get<TResponse>(
-            string path,
-            Func<AppRequest<object>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
-        {
-            Route<TResponse>("GET", path, handler, requiresAuthentication);
-        }
-
-        /// <summary>
-        /// Adds a POST route handler that accepts and returns data.
-        /// </summary>
-        /// <typeparam name="TRequest">Type of request data</typeparam>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Post<TRequest, TResponse>(
-            string path,
-            Func<AppRequest<TRequest>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
-            where TRequest : class
-        {
-            Route<TRequest, TResponse>("POST", path, handler, requiresAuthentication);
-        }
-
-        /// <summary>
-        /// Adds a PUT route handler that accepts and returns data.
-        /// </summary>
-        /// <typeparam name="TRequest">Type of request data</typeparam>
-        /// <typeparam name="TResponse">Type of response data</typeparam>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
-        public void Put<TRequest, TResponse>(
-            string path,
-            Func<AppRequest<TRequest>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication = false)
-            where TRequest : class
-        {
-            Route<TRequest, TResponse>("PUT", path, handler, requiresAuthentication);
-        }
-
-        /// <summary>
-        /// Adds a DELETE route handler.
-        /// </summary>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
         public void Delete(
             string path,
-            Func<AppRequest<object>, Task<AppResponse>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
         {
-            Route("DELETE", path, handler, requiresAuthentication);
+            RegisterNoBodyRoute(HttpMethod.DELETE, path, handler, requireAuthentication);
         }
 
         /// <summary>
-        /// Adds a HEAD route handler.
+        /// Add a DELETE route.
         /// </summary>
-        /// <param name="path">URL path starting with /</param>
-        /// <param name="handler">Request handler</param>
-        /// <param name="requiresAuthentication">Whether authentication is required</param>
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Delete<T>(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false) where T : class
+        {
+            RegisterBodyRoute<T>(HttpMethod.DELETE, path, handler, requireAuthentication);
+        }
+
+        /// <summary>
+        /// Add a HEAD route.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
         public void Head(
             string path,
-            Func<AppRequest<object>, Task<AppResponse>> handler,
-            bool requiresAuthentication = false)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
         {
-            Route("HEAD", path, handler, requiresAuthentication);
+            RegisterNoBodyRoute(HttpMethod.HEAD, path, handler, requireAuthentication);
+        }
+
+        /// <summary>
+        /// Add an OPTIONS route.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Options(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
+        {
+            RegisterNoBodyRoute(HttpMethod.OPTIONS, path, handler, requireAuthentication);
+        }
+
+        /// <summary>
+        /// Add a route.
+        /// </summary>
+        /// <param name="method">HTTP method.</param>
+        /// <param name="path">URL path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requestType">Request body type.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Route(
+            string method,
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Type requestType = null,
+            bool requireAuthentication = false)
+        {
+            if (String.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
+            if (!path.StartsWith("/")) throw new ArgumentException("Paths must start with /.");
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            if (requestType == null) requestType = typeof(object);
+
+            HttpMethod httpMethod = (HttpMethod)Enum.Parse(typeof(HttpMethod), method.ToUpper());
+
+            Func<HttpContextBase, Task> wrappedHandler = async (ctx) =>
+            {
+                try
+                {
+                    // Create request object based on requestType
+                    object requestObj = null;
+                    if (!String.IsNullOrEmpty(ctx.Request.DataAsString))
+                    {
+                        if (requestType == typeof(string))
+                        {
+                            requestObj = ctx.Request.DataAsString;
+                        }
+                        else if (requestType.IsPrimitive)
+                        {
+                            requestObj = Convert.ChangeType(ctx.Request.DataAsString, requestType);
+                        }
+                        else if (requestType == typeof(object))
+                        {
+                            // For raw object type, try to deserialize as dynamic JSON or use as string
+                            try
+                            {
+                                requestObj = _Serializer.DeserializeJson<object>(ctx.Request.DataAsString);
+                            }
+                            catch
+                            {
+                                requestObj = ctx.Request.DataAsString;
+                            }
+                        }
+                        else
+                        {
+                            // For specific types, we can't use a dynamic type parameter, 
+                            // but we can leave requestObj as null and just pass the raw string
+                            // The handler can deserialize it properly when needed
+                            requestObj = ctx.Request.DataAsString;
+                        }
+                    }
+
+                    AppRequest dynamicReq = new AppRequest(ctx, _Serializer, requestObj);
+                    object result = await handler(dynamicReq);
+                    await ProcessResult(ctx, result);
+                }
+                catch (Exception e)
+                {
+                    await HandleException(ctx, e);
+                }
+            };
+
+            List<ParameterRoute> routes = requireAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
+            routes.Add(new ParameterRoute(httpMethod, path, wrappedHandler, ExceptionRoute));
+            Log(Severity.Debug, "added route " + method + " " + path);
         }
 
         #endregion
@@ -475,200 +513,75 @@
 
         private void Log(Severity sev, string msg)
         {
-            if (!String.IsNullOrWhiteSpace(msg)) _Logger.Log(sev, _LogHeader + msg);
+            if (!String.IsNullOrWhiteSpace(msg) && _Logger != null) _Logger.Log(sev, _LogHeader + msg);
         }
 
-        private void AddRouteInternal(
-            string method,
+        private void RegisterRoute(
+            HttpMethod method,
             string path,
-            Func<AppRequest<object>, Task<AppResponse>> handler,
-            bool requiresAuthentication)
+            Func<HttpContextBase, Task> handler,
+            bool requireAuthentication)
         {
             if (String.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
             if (!path.StartsWith("/")) throw new ArgumentException("Paths must start with /.");
+            if (handler == null) throw new ArgumentNullException(nameof(handler));
 
-            var httpMethod = (HttpMethod)Enum.Parse(typeof(HttpMethod), method.ToUpper());
-
-            Func<HttpContextBase, Task> wrappedHandler = async (ctx) =>
-            {
-                try
-                {
-                    var request = new AppRequest<object>(ctx, _Serializer, false);
-                    var response = await handler(request);
-
-                    if (response.StatusCode.HasValue)
-                    {
-                        ctx.Response.StatusCode = response.StatusCode.Value;
-                    }
-
-                    foreach (string key in response.Headers.Keys)
-                    {
-                        ctx.Response.Headers[key] = response.Headers[key];
-                    }
-                }
-                catch (SwiftStackException ex)
-                {
-                    ctx.Response.StatusCode = GetStatusCodeForResult(ex.Result);
-                    var errorResponse = new AppResponse
-                    {
-                        Result = ex.Result,
-                        StatusCode = ctx.Response.StatusCode
-                    };
-                    var errorJson = _Serializer.SerializeJson(errorResponse);
-                    await ctx.Response.Send(errorJson);
-                }
-                catch (Exception e)
-                {
-                    Log(Severity.Warn, "uncaught exception of type " + e.GetType().ToString() + " in route " + method + " " + path + ":" + Environment.NewLine + e.ToString());
-                    ctx.Response.StatusCode = 500;
-                    await ctx.Response.Send();
-                }
-            };
-
-            var routes = requiresAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
-            routes.Add(new ParameterRoute(httpMethod, path, wrappedHandler, ExceptionRoute));
+            // Add route to appropriate collection
+            List<ParameterRoute> routes = requireAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
+            routes.Add(new ParameterRoute(method, path, handler, ExceptionRoute));
+            Log(Severity.Debug, "added route " + method + " " + path);
         }
 
-        // For no request body, with response body
-        private void AddRouteInternal<TResponse>(
-            string method,
+        private void RegisterNoBodyRoute(
+            HttpMethod method,
             string path,
-            Func<AppRequest<object>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication)
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication)
         {
-            if (String.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
-            if (!path.StartsWith("/")) throw new ArgumentException("Paths must start with /.");
-
-            var httpMethod = (HttpMethod)Enum.Parse(typeof(HttpMethod), method.ToUpper());
-
-            Func<HttpContextBase, Task> wrappedHandler = async (ctx) =>
+            Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
                 try
                 {
-                    AppRequest<object> req = new AppRequest<object>(ctx, _Serializer, false);
-                    AppResponse resp = await handler(req);
-
-                    if (resp.StatusCode.HasValue)
-                    {
-                        ctx.Response.StatusCode = resp.StatusCode.Value;
-                    }
-
-                    foreach (string key in resp.Headers.Keys)
-                    {
-                        ctx.Response.Headers[key] = resp.Headers[key];
-                    }
-
-                    if (resp.Data != null)
-                    {
-                        bool isPrimitive = typeof(TResponse) == typeof(string) ||
-                                         (typeof(TResponse) != null && typeof(TResponse).IsPrimitive);
-
-                        if (String.IsNullOrEmpty(ctx.Response.Headers["Content-Type"]))
-                        {
-                            ctx.Response.Headers.Add("Content-Type", isPrimitive ? "text/plain" : "application/json");
-                        }
-
-                        await WriteResponse(ctx, resp);
-                    }
-                    else
-                    {
-                        await WriteResponse(ctx, resp);
-                    }
+                    AppRequest dynamicReq = new AppRequest(ctx, _Serializer, null);
+                    object result = await handler(dynamicReq);
+                    await ProcessResult(ctx, result);
                 }
-                catch (SwiftStackException ex)
+                catch (Exception ex)
                 {
-                    ctx.Response.StatusCode = GetStatusCodeForResult(ex.Result);
-                    var errorResponse = new AppResponse
-                    {
-                        Result = ex.Result,
-                        StatusCode = ctx.Response.StatusCode
-                    };
-                    var errorJson = _Serializer.SerializeJson(errorResponse);
-                    await ctx.Response.Send(errorJson);
-                }
-                catch (Exception e)
-                {
-                    Log(Severity.Warn, "uncaught exception of type " + e.GetType().ToString() + " in route " + method + " " + path + ":" + Environment.NewLine + e.ToString());
-                    ctx.Response.StatusCode = 500;
-                    await ctx.Response.Send();
+                    await HandleException(ctx, ex);
                 }
             };
 
-            var routes = requiresAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
-            routes.Add(new ParameterRoute(httpMethod, path, wrappedHandler, ExceptionRoute));
+            RegisterRoute(method, path, routeHandler, requireAuthentication);
         }
 
-        // For request body and response body
-        private void AddRouteInternal<TRequest, TResponse>(
-            string method,
+        private void RegisterBodyRoute<T>(
+            HttpMethod method,
             string path,
-            Func<AppRequest<TRequest>, Task<AppResponse<TResponse>>> handler,
-            bool requiresAuthentication) where TRequest : class
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication) where T : class
         {
-            if (String.IsNullOrEmpty(path)) throw new ArgumentNullException(nameof(path));
-            if (!path.StartsWith("/")) throw new ArgumentException("Paths must start with /.");
-
-            var httpMethod = (HttpMethod)Enum.Parse(typeof(HttpMethod), method.ToUpper());
-
-            Func<HttpContextBase, Task> wrappedHandler = async (ctx) =>
+            Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
                 try
                 {
-                    bool isPrimitive = typeof(TRequest) == typeof(string) ||
-                                     (typeof(TRequest) != null && typeof(TRequest).IsPrimitive);
-
-                    AppRequest<TRequest> req = new AppRequest<TRequest>(ctx, _Serializer, isPrimitive);
-
-                    AppResponse resp = await handler(req);
-
-                    if (resp.StatusCode.HasValue)
+                    T requestData = null;
+                    if (!String.IsNullOrEmpty(ctx.Request.DataAsString))
                     {
-                        ctx.Response.StatusCode = resp.StatusCode.Value;
+                        requestData = _Serializer.DeserializeJson<T>(ctx.Request.DataAsString);
                     }
 
-                    foreach (string key in resp.Headers.Keys)
-                    {
-                        ctx.Response.Headers[key] = resp.Headers[key];
-                    }
-
-                    if (resp.Data != null)
-                    {
-                        bool isResponsePrimitive = typeof(TResponse) == typeof(string) ||
-                                                (typeof(TResponse) != null && typeof(TResponse).IsPrimitive);
-
-                        if (String.IsNullOrEmpty(ctx.Response.Headers["Content-Type"]))
-                        {
-                            ctx.Response.Headers.Add("Content-Type", isResponsePrimitive ? "text/plain" : "application/json");
-                        }
-
-                        await WriteResponse(ctx, resp);
-                    }
-                    else
-                    {
-                        await WriteResponse(ctx, resp);
-                    }
-                }
-                catch (SwiftStackException ex)
-                {
-                    ctx.Response.StatusCode = GetStatusCodeForResult(ex.Result);
-                    var errorResponse = new AppResponse
-                    {
-                        Result = ex.Result,
-                        StatusCode = ctx.Response.StatusCode
-                    };
-                    var errorJson = _Serializer.SerializeJson(errorResponse);
-                    await ctx.Response.Send(errorJson);
+                    AppRequest dynamicReq = new AppRequest(ctx, _Serializer, requestData);
+                    object result = await handler(dynamicReq);
+                    await ProcessResult(ctx, result);
                 }
                 catch (Exception e)
                 {
-                    Log(Severity.Warn, "uncaught exception of type " + e.GetType().ToString() + " in route " + method + " " + path + ":" + Environment.NewLine + e.ToString());
-                    ctx.Response.StatusCode = 500;
-                    await ctx.Response.Send();
+                    await HandleException(ctx, e);
                 }
             };
 
-            var routes = requiresAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
-            routes.Add(new ParameterRoute(httpMethod, path, wrappedHandler, ExceptionRoute));
+            RegisterRoute(method, path, routeHandler, requireAuthentication);
         }
 
         private async Task DefaultRoute(HttpContextBase ctx)
@@ -703,78 +616,145 @@
             await ctx.Response.Send();
         }
 
-        private int GetStatusCodeForResult(ApiResultEnum result)
+        private async Task HandleException(HttpContextBase ctx, Exception e)
         {
-            switch (result)
+            if (e is SwiftStackException swiftEx)
             {
-                case ApiResultEnum.Success:
-                    return 200;
-                case ApiResultEnum.Created:
-                    return 201;
-                case ApiResultEnum.NotFound:
-                    return 404;
-                case ApiResultEnum.NotAuthorized:
-                    return 401;
-                case ApiResultEnum.InternalError:
-                    return 500;
-                case ApiResultEnum.SlowDown:
-                    return 429;
-                case ApiResultEnum.Conflict:
-                    return 409;
-                default:
-                    return 500;
-            };
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = swiftEx.Result,
+                    Message = swiftEx.Message,
+                    Data = swiftEx.Data
+                };
+
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
+            else if (e is JsonException jsonEx)
+            {
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = ApiResultEnum.DeserializationError,
+                    Message = jsonEx.Message,
+                    Data = jsonEx.Data
+                };
+
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
+            else
+            {
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = ApiResultEnum.InternalError,
+                    Message = e.Message,
+                    Data = e.Data
+                };
+
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
         }
 
-        private async Task WriteResponse(HttpContextBase ctx, AppResponse resp)
+        private async Task ProcessResult(HttpContextBase ctx, object result)
         {
             try
             {
-                ctx.Response.StatusCode = resp.StatusCode.Value;
-
-                // Check if this is a generic AppResponse<T>
-                Type respType = resp.GetType();
-                bool isGeneric = respType.IsGenericType && respType.GetGenericTypeDefinition() == typeof(AppResponse<>);
-
-                object data = null;
-                if (isGeneric)
+                // Handle null result
+                if (result == null)
                 {
-                    // Get the Data property from the specific generic type
-                    var properties = respType.GetProperties();
-                    var dataProp = properties.FirstOrDefault(p => p.Name == "Data" && p.DeclaringType != typeof(AppResponse));
-                    if (dataProp != null)
-                    {
-                        data = dataProp.GetValue(resp);
-                    }
-                }
-                else
-                {
-                    data = resp.Data;
-                }
-
-                if (data == null)
-                {
+                    ctx.Response.StatusCode = 204; // No Content
                     await ctx.Response.Send();
                     return;
                 }
 
-                if (data is string || data.GetType().IsPrimitive)
+                // Handle string result
+                if (result is string stringResult)
                 {
-                    await ctx.Response.Send(data.ToString());
+                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                    await ctx.Response.Send(stringResult);
                     return;
                 }
-                else
+
+                // Handle primitive result
+                if (result != null && result.GetType().IsPrimitive)
                 {
-                    string json = _Serializer.SerializeJson(data, false);
-                    await ctx.Response.Send(json);
+                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                    await ctx.Response.Send(result.ToString());
                     return;
                 }
+
+                Type resultType = result.GetType();
+                if (resultType.Name.StartsWith("ValueTuple`"))
+                {
+                    PropertyInfo item1Prop = resultType.GetProperty("Item1");
+                    PropertyInfo item2Prop = resultType.GetProperty("Item2");
+
+                    if (item1Prop != null && item2Prop != null)
+                    {
+                        object item1 = item1Prop.GetValue(result);
+                        int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
+
+                        ctx.Response.StatusCode = statusCode;
+
+                        if (item1 != null)
+                        {
+                            ctx.Response.Headers.Add("Content-Type", "application/json");
+                            await ctx.Response.Send(_Serializer.SerializeJson(item1));
+                        }
+                        else
+                        {
+                            await ctx.Response.Send();
+                        }
+
+                        return;
+                    }
+                }
+
+                // Handle Tuple with 2 items (data, statusCode)
+                if (result.GetType().IsGenericType && result.GetType().GetGenericTypeDefinition() == typeof(Tuple<,>))
+                {
+                    PropertyInfo item1Prop = result.GetType().GetProperty("Item1");
+                    PropertyInfo item2Prop = result.GetType().GetProperty("Item2");
+
+                    if (item1Prop != null && item2Prop != null)
+                    {
+                        object item1 = item1Prop.GetValue(result);
+                        int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
+
+                        ctx.Response.StatusCode = statusCode;
+
+                        if (item1 != null)
+                        {
+                            if (item1 is string itemString)
+                            {
+                                ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                await ctx.Response.Send(itemString);
+                            }
+                            else if (item1.GetType().IsPrimitive)
+                            {
+                                ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                await ctx.Response.Send(item1.ToString());
+                            }
+                            else
+                            {
+                                ctx.Response.Headers.Add("Content-Type", "application/json");
+                                await ctx.Response.Send(_Serializer.SerializeJson(item1));
+                            }
+                        }
+                        else
+                        {
+                            await ctx.Response.Send();
+                        }
+
+                        return;
+                    }
+                }
+
+                // Default: treat as JSON
+                ctx.Response.Headers.Add("Content-Type", "application/json");
+                await ctx.Response.Send(_Serializer.SerializeJson(result));
             }
             catch (Exception e)
             {
-                Log(Severity.Warn, "exception in write response:" + Environment.NewLine + e.ToString());
-                ctx.Response.StatusCode = 500;
-                await ctx.Response.Send(e.Message);
+                await HandleException(ctx, e);
             }
         }
 

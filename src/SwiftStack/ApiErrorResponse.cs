@@ -3,18 +3,52 @@
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using System.Text.Json.Serialization;
 
     /// <summary>
-    /// SwiftStack exception.
+    /// API error response.
     /// </summary>
-    public class SwiftStackException : Exception
+    public class ApiErrorResponse
     {
         #region Public-Members
 
         /// <summary>
-        /// Result.
+        /// Status code.
         /// </summary>
-        public ApiResultEnum Result { get; set; } = ApiResultEnum.NotFound;
+        [JsonIgnore]
+        public int StatusCode
+        {
+            get
+            {
+                return ApiResultEnumToStatusCode(Error);
+            }
+        }
+
+        /// <summary>
+        /// Error code.
+        /// </summary>
+        public ApiResultEnum Error { get; set; } = ApiResultEnum.NotFound;
+
+        /// <summary>
+        /// Description.
+        /// </summary>
+        public string Description
+        {
+            get
+            {
+                return ApiResultEnumToDescription(Error);
+            }
+        }
+
+        /// <summary>
+        /// User-supplied message.
+        /// </summary>
+        public string Message { get; set; } = null;
+
+        /// <summary>
+        /// User-supplied data.
+        /// </summary>
+        public object Data { get; set; } = null;
 
         #endregion
 
@@ -25,22 +59,11 @@
         #region Constructors-and-Factories
 
         /// <summary>
-        /// SwiftStack exception.
+        /// API error response.
         /// </summary>
-        /// <param name="result">Result.</param>
-        public SwiftStackException(ApiResultEnum result) : base(ApiResultEnumToDescription(result))
+        public ApiErrorResponse()
         {
-            Result = result;
-        }
 
-        /// <summary>
-        /// SwiftStack exception.
-        /// </summary>
-        /// <param name="result">Result.</param>
-        /// <param name="message">Message.</param>
-        public SwiftStackException(ApiResultEnum result, string message) : base(message)
-        {
-            Result = result;
         }
 
         #endregion
@@ -51,7 +74,7 @@
 
         #region Private-Methods
 
-        private static string ApiResultEnumToDescription(ApiResultEnum result)
+        private string ApiResultEnumToDescription(ApiResultEnum result)
         {
             switch (result)
             {
@@ -75,6 +98,23 @@
                     return "The supplied object could not be deserialized.";
                 default:
                     return "An API error of type " + result + " was encountered.";
+            }
+        }
+
+        private static int ApiResultEnumToStatusCode(ApiResultEnum result)
+        {
+            switch (result)
+            {
+                case ApiResultEnum.Success: return 200;
+                case ApiResultEnum.Created: return 201;
+                case ApiResultEnum.NotFound: return 404;
+                case ApiResultEnum.NotAuthorized: return 401;
+                case ApiResultEnum.InternalError: return 500;
+                case ApiResultEnum.SlowDown: return 429;
+                case ApiResultEnum.Conflict: return 409;
+                case ApiResultEnum.BadRequest: return 400;
+                case ApiResultEnum.DeserializationError: return 400;
+                default: return 500;
             }
         }
 

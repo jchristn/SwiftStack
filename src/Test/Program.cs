@@ -18,46 +18,83 @@
         {
             SwiftStackApp app = new SwiftStackApp();
 
-            app.Route("GET", "/", async (req) =>
+            app.Get("/", async (req) =>
             {
-                return new AppResponse<string>
+                return "Hello world";
+            });
+
+            app.Post<string>("/loopback", async (req) =>
+            {
+                return req.Data;
+            });
+
+            app.Get("/search", async (req) =>
+            {
+                string query = req.Query["q"];
+                if (query == null) query = "no query provided";
+                int page = int.TryParse(req.Query["page"] as string, out int p) ? p : 1;
+
+                return new
                 {
-                    Data = "Hello world",
-                    Result = ApiResultEnum.Success
+                    Query = query,
+                    Page = page,
+                    Message = $"Searching for '{query}' on page {page}"
                 };
             });
 
-            app.Route<string, string>("POST", "/loopback", async (req) =>
+            app.Get("/user", async (req) =>
             {
-                return new AppResponse<string>
+                return new 
                 {
-                    Data = req.Data,
-                    Result = ApiResultEnum.Success
+                    Email = "foo@bar.com",
+                    Password = "password"
+                };
+            }); 
+            
+            app.Put<User>("/user/{id}", async (req) =>
+            {
+                string id = req.Parameters["id"];
+                User user = req.GetData<User>();
+
+                return new
+                {
+                    Id = id,
+                    Email = user.Email,
+                    Password = user.Password
                 };
             });
 
-            app.Route<User>("GET", "/user", async (req) =>
+            app.Get("/types/{type}", async (req) =>
             {
-                return new AppResponse<User>
-                {
-                    Data = new User { Email = "foo@bar.com", Password = "password" },
-                    Pretty = false,
-                    Result = ApiResultEnum.Success
-                };
-            });
+                string type = req.Parameters["type"].ToString().ToLower();
 
-            app.Route<User, User>("PUT", "/user/{id}", async (req) =>
-            {
-                string id = req.Http.Request.Url.Parameters.Get("id");
-                return new AppResponse<User>
+                switch (type)
                 {
-                    Data = new User { Email = "user" + id + "@bar.com", Password = "password" },
-                    Pretty = true,
-                    Result = ApiResultEnum.Success
-                };
+                    case "string":
+                        return "This is a simple string response";
+
+                    case "number":
+                        return 42;
+
+                    case "json":
+                        return new { Message = "This is a JSON response", Timestamp = DateTime.UtcNow };
+
+                    case "null":
+                        return null; // Will return 204 No Content
+
+                    default:
+                        throw new SwiftStackException(ApiResultEnum.NotFound);
+                }
             });
 
             await app.Run();
+        }
+
+        public class User
+        {
+            public string Id { get; set; } = null;
+            public string Email { get; set; } = null;
+            public string Password { get; set; } = null;
         }
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously

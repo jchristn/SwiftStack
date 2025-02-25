@@ -4,6 +4,41 @@
         <name>SwiftStack</name>
     </assembly>
     <members>
+        <member name="T:SwiftStack.ApiErrorResponse">
+            <summary>
+            API error response.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.ApiErrorResponse.StatusCode">
+            <summary>
+            Status code.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.ApiErrorResponse.Error">
+            <summary>
+            Error code.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.ApiErrorResponse.Description">
+            <summary>
+            Description.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.ApiErrorResponse.Message">
+            <summary>
+            User-supplied message.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.ApiErrorResponse.Data">
+            <summary>
+            User-supplied data.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.ApiErrorResponse.#ctor">
+            <summary>
+            API error response.
+            </summary>
+        </member>
         <member name="T:SwiftStack.ApiResultEnum">
             <summary>
             API result.
@@ -44,73 +79,119 @@
             Conflict.
             </summary>
         </member>
-        <member name="T:SwiftStack.AppRequest`1">
+        <member name="F:SwiftStack.ApiResultEnum.BadRequest">
             <summary>
-            SwiftStack application request.
+            BadRequest.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppRequest`1.Data">
+        <member name="F:SwiftStack.ApiResultEnum.DeserializationError">
             <summary>
-            Data to return after serialization.
+            DeserializationError.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppRequest`1.Http">
+        <member name="T:SwiftStack.AppRequest">
             <summary>
-            HTTP context, if any.
+            Application request.
             </summary>
         </member>
-        <member name="M:SwiftStack.AppRequest`1.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Boolean)">
+        <member name="P:SwiftStack.AppRequest.Data">
             <summary>
-            SwiftStack application request.
-            </summary>
-            <param name="ctx">HTTP context.</param>
-            <param name="serializer">Serializer.</param>
-            <param name="isPrimitiveType">Boolean indicating if the request is using a primitive type.</param>
-        </member>
-        <member name="T:SwiftStack.AppResponse`1">
-            <summary>
-            SwiftStack application response.
-            </summary>
-            <typeparam name="T">Type.</typeparam>
-        </member>
-        <member name="P:SwiftStack.AppResponse`1.Data">
-            <summary>
-            Data to be returned after serialization.
+            The deserialized request data.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppResponse`1.Pretty">
+        <member name="P:SwiftStack.AppRequest.Http">
             <summary>
-            Boolean to enable or disable pretty print during serialization.
+            HTTP context.
             </summary>
         </member>
-        <member name="T:SwiftStack.AppResponse">
+        <member name="P:SwiftStack.AppRequest.Parameters">
             <summary>
-            SwiftStack application response.
+            Parameters from the route URL.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppResponse.Data">
+        <member name="P:SwiftStack.AppRequest.Query">
             <summary>
-            Data.
+            Query parameters.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppResponse.Result">
+        <member name="P:SwiftStack.AppRequest.Headers">
             <summary>
-            Result.
+            Headers from the request.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppResponse.StatusCode">
+        <member name="P:SwiftStack.AppRequest.Serializer">
             <summary>
-            Status code.
+            Serializer instance.
             </summary>
         </member>
-        <member name="P:SwiftStack.AppResponse.Headers">
+        <member name="M:SwiftStack.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Object)">
             <summary>
-            Headers.
+            Application request.
             </summary>
         </member>
-        <member name="M:SwiftStack.AppResponse.#ctor">
+        <member name="M:SwiftStack.AppRequest.GetData``1">
             <summary>
-            SwiftStack application response.
+            Cast data to a specific type.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.AuthenticationResultEnum">
+            <summary>
+            Authentication result.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthenticationResultEnum.Success">
+            <summary>
+            Success.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthenticationResultEnum.NotFound">
+            <summary>
+            Not found.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthenticationResultEnum.Inactive">
+            <summary>
+            Inactive.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.AuthorizationResultEnum">
+            <summary>
+            Authorization result.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthorizationResultEnum.Permitted">
+            <summary>
+            Permitted.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthorizationResultEnum.Denied">
+            <summary>
+            Denied.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.AuthResult">
+            <summary>
+            Authentication and authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.AuthResult.AuthenticationResult">
+            <summary>
+            Authentication result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.AuthResult.AuthorizationResult">
+            <summary>
+            Authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.AuthResult.Metadata">
+            <summary>
+            Metadata.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.AuthResult.#ctor">
+            <summary>
+            Authentication and authorization result.
             </summary>
         </member>
         <member name="T:SwiftStack.Constants">
@@ -128,25 +209,59 @@
             Copyright.
             </summary>
         </member>
-        <member name="T:SwiftStack.RouteInfo">
+        <member name="T:SwiftStack.RequestParameters">
             <summary>
-            Route information.
+            Request parameters.
             </summary>
         </member>
-        <member name="P:SwiftStack.RouteInfo.IsPrimitiveRoute">
+        <member name="M:SwiftStack.RequestParameters.#ctor(System.Collections.Specialized.NameValueCollection)">
             <summary>
-            Boolean indicating if the route is a primitive route.
+            Request parameters.
             </summary>
+            <param name="parameters">Parameters.</param>
         </member>
-        <member name="P:SwiftStack.RouteInfo.RequestType">
+        <member name="P:SwiftStack.RequestParameters.Item(System.String)">
             <summary>
-            Type of the request object.
+            Get parameter by name.
             </summary>
+            <param name="name">Name.</param>
         </member>
-        <member name="M:SwiftStack.RouteInfo.#ctor">
+        <member name="M:SwiftStack.RequestParameters.GetInt(System.String,System.Int32)">
             <summary>
-            Route information.
+            Get as integer.
             </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Integer.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetValueOrDefault(System.String,System.String)">
+            <summary>
+            Get with default value.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>String.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetBool(System.String,System.Boolean)">
+            <summary>
+            Get as boolean.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Boolean.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetKeys">
+            <summary>
+            Get all parameter keys.
+            </summary>
+            <returns>Keys.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.Contains(System.String)">
+            <summary>
+            Check if parameter exists.
+            </summary>
+            <param name="name">Name.</param>
+            <returns>True if exists.</returns>
         </member>
         <member name="T:SwiftStack.SwiftStackApp">
             <summary>
@@ -195,6 +310,11 @@
             Exception route.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackApp.AuthenticationRoute">
+            <summary>
+            Authentication route.
+            </summary>
+        </member>
         <member name="P:SwiftStack.SwiftStackApp.Serializer">
             <summary>
             JSON serializer.
@@ -223,99 +343,83 @@
             Dispose.
             </summary>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route(System.String,System.String,System.Func{SwiftStack.AppRequest{System.Object},System.Threading.Tasks.Task{SwiftStack.AppResponse}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Get(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a route handler for requests with no request body and no response body.
+            Add a GET route.
             </summary>
-            <param name="method">HTTP method (GET, POST, etc)</param>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route``1(System.String,System.String,System.Func{SwiftStack.AppRequest{System.Object},System.Threading.Tasks.Task{SwiftStack.AppResponse{``0}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Post``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a route handler for requests with no request body but returns a response body.
+            Add a POST route.
             </summary>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="method">HTTP method (GET, POST, etc)</param>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route(System.String,System.String,System.Func{System.Threading.Tasks.Task{SwiftStack.AppResponse}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Put``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a route handler for requests with no data exchange.
+            Add a PUT route.
             </summary>
-            <param name="method">HTTP method (GET, POST, etc)</param>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route``1(System.String,System.String,System.Func{System.Threading.Tasks.Task{SwiftStack.AppResponse{``0}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Patch``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a route handler for requests that return data but take no input.
+            Add a PATCH route.
             </summary>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="method">HTTP method (GET, POST, etc)</param>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route``2(System.String,System.String,System.Func{SwiftStack.AppRequest{``0},System.Threading.Tasks.Task{SwiftStack.AppResponse{``1}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Delete(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a route handler for requests with both request and response bodies.
+            Add a DELETE route.
             </summary>
-            <typeparam name="TRequest">Type of request data</typeparam>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="method">HTTP method (GET, POST, etc)</param>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Get``1(System.String,System.Func{SwiftStack.AppRequest{System.Object},System.Threading.Tasks.Task{SwiftStack.AppResponse{``0}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Delete``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a GET route handler that returns data.
+            Add a DELETE route.
             </summary>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Post``2(System.String,System.Func{SwiftStack.AppRequest{``0},System.Threading.Tasks.Task{SwiftStack.AppResponse{``1}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Head(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a POST route handler that accepts and returns data.
+            Add a HEAD route.
             </summary>
-            <typeparam name="TRequest">Type of request data</typeparam>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Put``2(System.String,System.Func{SwiftStack.AppRequest{``0},System.Threading.Tasks.Task{SwiftStack.AppResponse{``1}}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Options(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Adds a PUT route handler that accepts and returns data.
+            Add an OPTIONS route.
             </summary>
-            <typeparam name="TRequest">Type of request data</typeparam>
-            <typeparam name="TResponse">Type of response data</typeparam>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Delete(System.String,System.Func{SwiftStack.AppRequest{System.Object},System.Threading.Tasks.Task{SwiftStack.AppResponse}},System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.Route(System.String,System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Type,System.Boolean)">
             <summary>
-            Adds a DELETE route handler.
+            Add a route.
             </summary>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Head(System.String,System.Func{SwiftStack.AppRequest{System.Object},System.Threading.Tasks.Task{SwiftStack.AppResponse}},System.Boolean)">
-            <summary>
-            Adds a HEAD route handler.
-            </summary>
-            <param name="path">URL path starting with /</param>
-            <param name="handler">Request handler</param>
-            <param name="requiresAuthentication">Whether authentication is required</param>
+            <param name="method">HTTP method.</param>
+            <param name="path">URL path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requestType">Request body type.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
         </member>
         <member name="T:SwiftStack.SwiftStackException">
             <summary>

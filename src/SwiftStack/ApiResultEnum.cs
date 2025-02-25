@@ -36,6 +36,14 @@
         /// <summary>
         /// Conflict.
         /// </summary>
-        Conflict
+        Conflict,
+        /// <summary>
+        /// BadRequest.
+        /// </summary>
+        BadRequest,
+        /// <summary>
+        /// DeserializationError.
+        /// </summary>
+        DeserializationError
     }
 }
