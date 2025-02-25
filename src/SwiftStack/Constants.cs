@@ -11,10 +11,10 @@
         /// Logo.
         /// </summary>
         public static string Logo =
-            @"                 __  ___ __         __              __     " + Environment.NewLine +
-            @" .-----.--.--.--|__.'  _|  |_.-----|  |_.---.-.----|  |--. " + Environment.NewLine +
-            @" |__ --|  |  |  |  |   _|   _|__ --|   _|  _  |  __|    <  " + Environment.NewLine +
-            @" |_____|________|__|__| |____|_____|____|___._|____|__|__| " + Environment.NewLine;
+            @"              _ _____     __           __   " + Environment.NewLine + 
+            @"   ____    __(_/ _/ /____/ /____ _____/ /__ " + Environment.NewLine + 
+            @"  (_-| |/|/ / / _/ __(_-/ __/ _ `/ __/  '_/ " + Environment.NewLine + 
+            @" /___|__,__/_/_/ \__/___\__/\_,_/\__/_/\_\  " + Environment.NewLine;
 
         /// <summary>
         /// Copyright.

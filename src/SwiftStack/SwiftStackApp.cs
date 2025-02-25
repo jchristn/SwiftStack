@@ -226,6 +226,7 @@
                     using (_Logger = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole))
                     {
                         _Logger.Settings = _LoggingSettings;
+                        _Logger.Settings.HeaderFormat = "{ts} {sev}";
 
                         using (_Webserver = new Webserver(_WebserverSettings, DefaultRoute))
                         {
