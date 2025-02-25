@@ -9,6 +9,7 @@
     {
         /// <summary>
         /// Logo.
+        /// Thank you https://patorjk.com/software/taag and font Small Slant.
         /// </summary>
         public static string Logo =
             @"              _ _____     __           __   " + Environment.NewLine + 

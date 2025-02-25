@@ -21,49 +21,57 @@ Refer to the `Test` project and the `test.bat` batch file to test a simple examp
 ```csharp
 using SwiftStack;
 
-SwiftStackApp app = new SwiftStackApp();
-
-app.Route("GET", "/", async (req) =>
+class Program
 {
-    return "Hello world";
-});
-
-app.Route("POST", "/loopback", async (req) =>
-{
-    return req.Data;
-});
-
-app.Get("/search", async (req) =>
-{
-    string query = req.Query["q"];
-    if (query == null) query = "no query provided";
-    int page = int.TryParse(req.Query["page"] as string, out int p) ? p : 1;
-
-    return new
+    static async Task Main(string[] args)
     {
-        Query = query,
-        Page = page,
-        Message = $"Searching for '{query}' on page {page}"
-    };
-});
+        SwiftStackApp app = new SwiftStackApp();
 
-app.Put<User>("/user/{id}", async (req) =>
-{
-    string id = req.Parameters["id"];
-    User user = req.GetData<User>();
-    return new User
-    {
-        Id = id,
-        Email = user.Email,
-        Password = user.Password
-    };
-});
+        app.Route("GET", "/", async (req) =>
+        {
+            return "Hello world";
+        });
+
+        app.Route("POST", "/loopback", async (req) =>
+        {
+            return req.Data;
+        });
+
+        app.Get("/search", async (req) =>
+        {
+            string query = req.Query["q"];
+            if (string.IsNullOrEmpty(query)) query = "no query provided";
+            int page = int.TryParse(req.Query["page"] as string, out int p) ? p : 1;
+
+            return new
+            {
+                Query = query,
+                Page = page,
+                Message = $"Searching for '{query}' on page {page}"
+            };
+        });
+
+        app.Put<User>("/user/{id}", async (req) =>
+        {
+            string id = req.Parameters["id"];
+            User user = req.GetData<User>();
+            return new User
+            {
+                Id = id,
+                Email = user.Email,
+                Password = user.Password
+            };
+        });
+
+        await app.Run();
+    }
+}
 
 public class User
 {
-    public string Id { get; set; } = null;
-    public string Email { get; set; } = null;
-    public string Password { get; set; } = null;
+    public string Id { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
 }
 ```
 
