@@ -8,3 +8,4 @@ curl http://localhost:8000/types/number
 curl http://localhost:8000/types/json
 curl http://localhost:8000/types/null
 curl http://localhost:8000/types/foo
+curl http://localhost:8000/events/10

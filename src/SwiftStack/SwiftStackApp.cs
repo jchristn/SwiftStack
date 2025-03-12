@@ -588,11 +588,13 @@
         private async Task DefaultRoute(HttpContextBase ctx)
         {
             string requestor = ctx.Request.Source.IpAddress + ":" + ctx.Request.Source.Port;
-
             Log(Severity.Debug, "invalid method or URL in request from " + requestor + ": " + ctx.Request.Method + " " + ctx.Request.Url.RawWithQuery);
-
             ctx.Response.StatusCode = 400;
-            await ctx.Response.Send();
+            await ctx.Response.Send(_Serializer.SerializeJson(new ApiErrorResponse
+            {
+                Error = ApiResultEnum.BadRequest,
+                Message = "Unable to find route associated with the supplied method and URL.",
+            }, true));
         }
 
         private async Task PreRoutingRoute(HttpContextBase ctx)
@@ -658,100 +660,107 @@
         {
             try
             {
-                // Handle null result
-                if (result == null)
+                if (!ctx.Response.ServerSentEvents)
                 {
-                    ctx.Response.StatusCode = 204; // No Content
-                    await ctx.Response.Send();
-                    return;
-                }
-
-                // Handle string result
-                if (result is string stringResult)
-                {
-                    ctx.Response.Headers.Add("Content-Type", "text/plain");
-                    await ctx.Response.Send(stringResult);
-                    return;
-                }
-
-                // Handle primitive result
-                if (result != null && result.GetType().IsPrimitive)
-                {
-                    ctx.Response.Headers.Add("Content-Type", "text/plain");
-                    await ctx.Response.Send(result.ToString());
-                    return;
-                }
-
-                Type resultType = result.GetType();
-                if (resultType.Name.StartsWith("ValueTuple`"))
-                {
-                    PropertyInfo item1Prop = resultType.GetProperty("Item1");
-                    PropertyInfo item2Prop = resultType.GetProperty("Item2");
-
-                    if (item1Prop != null && item2Prop != null)
+                    // Handle null result
+                    if (result == null)
                     {
-                        object item1 = item1Prop.GetValue(result);
-                        int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
-
-                        ctx.Response.StatusCode = statusCode;
-
-                        if (item1 != null)
-                        {
-                            ctx.Response.Headers.Add("Content-Type", "application/json");
-                            await ctx.Response.Send(_Serializer.SerializeJson(item1));
-                        }
-                        else
-                        {
-                            await ctx.Response.Send();
-                        }
-
+                        ctx.Response.StatusCode = 204; // No Content
+                        await ctx.Response.Send();
                         return;
                     }
-                }
 
-                // Handle Tuple with 2 items (data, statusCode)
-                if (result.GetType().IsGenericType && result.GetType().GetGenericTypeDefinition() == typeof(Tuple<,>))
-                {
-                    PropertyInfo item1Prop = result.GetType().GetProperty("Item1");
-                    PropertyInfo item2Prop = result.GetType().GetProperty("Item2");
-
-                    if (item1Prop != null && item2Prop != null)
+                    // Handle string result
+                    if (result is string stringResult)
                     {
-                        object item1 = item1Prop.GetValue(result);
-                        int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
+                        ctx.Response.Headers.Add("Content-Type", "text/plain");
+                        await ctx.Response.Send(stringResult);
+                        return;
+                    }
 
-                        ctx.Response.StatusCode = statusCode;
+                    // Handle primitive result
+                    if (result != null && result.GetType().IsPrimitive)
+                    {
+                        ctx.Response.Headers.Add("Content-Type", "text/plain");
+                        await ctx.Response.Send(result.ToString());
+                        return;
+                    }
 
-                        if (item1 != null)
+                    Type resultType = result.GetType();
+                    if (resultType.Name.StartsWith("ValueTuple`"))
+                    {
+                        PropertyInfo item1Prop = resultType.GetProperty("Item1");
+                        PropertyInfo item2Prop = resultType.GetProperty("Item2");
+
+                        if (item1Prop != null && item2Prop != null)
                         {
-                            if (item1 is string itemString)
-                            {
-                                ctx.Response.Headers.Add("Content-Type", "text/plain");
-                                await ctx.Response.Send(itemString);
-                            }
-                            else if (item1.GetType().IsPrimitive)
-                            {
-                                ctx.Response.Headers.Add("Content-Type", "text/plain");
-                                await ctx.Response.Send(item1.ToString());
-                            }
-                            else
+                            object item1 = item1Prop.GetValue(result);
+                            int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
+
+                            ctx.Response.StatusCode = statusCode;
+
+                            if (item1 != null)
                             {
                                 ctx.Response.Headers.Add("Content-Type", "application/json");
                                 await ctx.Response.Send(_Serializer.SerializeJson(item1));
                             }
-                        }
-                        else
-                        {
-                            await ctx.Response.Send();
-                        }
+                            else
+                            {
+                                await ctx.Response.Send();
+                            }
 
-                        return;
+                            return;
+                        }
                     }
-                }
 
-                // Default: treat as JSON
-                ctx.Response.Headers.Add("Content-Type", "application/json");
-                await ctx.Response.Send(_Serializer.SerializeJson(result));
+                    // Handle Tuple with 2 items (data, statusCode)
+                    if (result.GetType().IsGenericType && result.GetType().GetGenericTypeDefinition() == typeof(Tuple<,>))
+                    {
+                        PropertyInfo item1Prop = result.GetType().GetProperty("Item1");
+                        PropertyInfo item2Prop = result.GetType().GetProperty("Item2");
+
+                        if (item1Prop != null && item2Prop != null)
+                        {
+                            object item1 = item1Prop.GetValue(result);
+                            int statusCode = Convert.ToInt32(item2Prop.GetValue(result));
+
+                            ctx.Response.StatusCode = statusCode;
+
+                            if (item1 != null)
+                            {
+                                if (item1 is string itemString)
+                                {
+                                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                    await ctx.Response.Send(itemString);
+                                }
+                                else if (item1.GetType().IsPrimitive)
+                                {
+                                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                    await ctx.Response.Send(item1.ToString());
+                                }
+                                else
+                                {
+                                    ctx.Response.Headers.Add("Content-Type", "application/json");
+                                    await ctx.Response.Send(_Serializer.SerializeJson(item1));
+                                }
+                            }
+                            else
+                            {
+                                await ctx.Response.Send();
+                            }
+
+                            return;
+                        }
+                    }
+
+                    // Default: treat as JSON
+                    ctx.Response.Headers.Add("Content-Type", "application/json");
+                    await ctx.Response.Send(_Serializer.SerializeJson(result));
+                }
+                else
+                {
+                    // SSE responses are managed within the route implementation
+                }
             }
             catch (Exception e)
             {

@@ -18,15 +18,9 @@
         {
             SwiftStackApp app = new SwiftStackApp();
 
-            app.Get("/", async (req) =>
-            {
-                return "Hello world";
-            });
+            app.Get("/", async (req) => "Hello world");
 
-            app.Post<string>("/loopback", async (req) =>
-            {
-                return req.Data;
-            });
+            app.Post<string>("/loopback", async (req) => req.Data);
 
             app.Get("/search", async (req) =>
             {
@@ -85,6 +79,23 @@
                     default:
                         throw new SwiftStackException(ApiResultEnum.NotFound);
                 }
+            });
+
+            app.Get("/events/{count}", async (req) =>
+            {
+                int count = Convert.ToInt32(req.Parameters["count"].ToString());
+
+                req.Http.Response.ServerSentEvents = true;
+
+                for (int i = 0; i < count; i++)
+                {
+                    await req.Http.Response.SendEvent("Event " + i, false);
+                    await Task.Delay(500);
+                }
+
+                await req.Http.Response.SendEvent(null, true);
+
+                return null;
             });
 
             await app.Run();

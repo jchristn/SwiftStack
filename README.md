@@ -9,6 +9,7 @@ SwiftStack is an opinionated and easy way to build REST APIs taking inspiration 
 ## New in v0.1.x
 
 - Initial alpha release, all APIs subject to change
+- Add support for server-sent events
 
 ## Donations
 
@@ -27,15 +28,9 @@ class Program
     {
         SwiftStackApp app = new SwiftStackApp();
 
-        app.Route("GET", "/", async (req) =>
-        {
-            return "Hello world";
-        });
+        app.Route("GET", "/", async (req) => "Hello world");
 
-        app.Route("POST", "/loopback", async (req) =>
-        {
-            return req.Data;
-        });
+        app.Route("POST", "/loopback", async (req) => req.Data);
 
         app.Get("/search", async (req) =>
         {
@@ -61,6 +56,21 @@ class Program
                 Email = user.Email,
                 Password = user.Password
             };
+        });
+
+        app.Get("/events/{count}", async (req) => // server-sent events
+        {
+            int count = Convert.ToInt32(req.Parameters["count"].ToString());
+            req.Http.Response.ServerSentEvents = true;
+
+            for (int i = 0; i < count; i++)
+            {
+                await req.Http.Response.SendEvent("Event " + i, false);
+                await Task.Delay(500);
+            }
+
+            await req.Http.Response.SendEvent(null, true);
+            return null;
         });
 
         await app.Run();
