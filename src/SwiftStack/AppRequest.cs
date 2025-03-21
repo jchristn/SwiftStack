@@ -1,4 +1,4 @@
-﻿namespace SwiftStack
+﻿ namespace SwiftStack
 {
     using System;
     using System.Collections.Generic;
