@@ -235,6 +235,30 @@
             <param name="defaultValue">Default value.</param>
             <returns>Integer.</returns>
         </member>
+        <member name="M:SwiftStack.RequestParameters.GetLong(System.String,System.Int64)">
+            <summary>
+            Get as long integer.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Long integer.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetDouble(System.String,System.Double)">
+            <summary>
+            Get as double.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Double.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetDecimal(System.String,System.Decimal)">
+            <summary>
+            Get as decimal.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Decimal.</returns>
+        </member>
         <member name="M:SwiftStack.RequestParameters.GetValueOrDefault(System.String,System.String)">
             <summary>
             Get with default value.
@@ -251,6 +275,48 @@
             <param name="defaultValue">Default value.</param>
             <returns>Boolean.</returns>
         </member>
+        <member name="M:SwiftStack.RequestParameters.GetDateTime(System.String,System.Nullable{System.DateTime})">
+            <summary>
+            Get as DateTime.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>DateTime.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetTimeSpan(System.String,System.Nullable{System.TimeSpan})">
+            <summary>
+            Get as TimeSpan.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>TimeSpan.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetGuid(System.String,System.Nullable{System.Guid})">
+            <summary>
+            Get as Guid.
+            </summary>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <returns>Guid.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetEnum``1(System.String,``0,System.Boolean)">
+            <summary>
+            Get as enum.
+            </summary>
+            <typeparam name="T">Enum type.</typeparam>
+            <param name="name">Name.</param>
+            <param name="defaultValue">Default value.</param>
+            <param name="ignoreCase">Ignore case when parsing.</param>
+            <returns>Enum value.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.GetArray(System.String,System.Char)">
+            <summary>
+            Get as array of strings (comma-separated).
+            </summary>
+            <param name="name">Name.</param>
+            <param name="separator">Separator character.  Default is comma.</param>
+            <returns>String array.</returns>
+        </member>
         <member name="M:SwiftStack.RequestParameters.GetKeys">
             <summary>
             Get all parameter keys.
@@ -263,6 +329,15 @@
             </summary>
             <param name="name">Name.</param>
             <returns>True if exists.</returns>
+        </member>
+        <member name="M:SwiftStack.RequestParameters.TryGetValue``1(System.String,``0@)">
+            <summary>
+            Try to get a value as a specific type.
+            </summary>
+            <typeparam name="T">The type to convert to.</typeparam>
+            <param name="name">Parameter name.</param>
+            <param name="result">The result if successful.</param>
+            <returns>True if the parameter exists and was successfully converted.</returns>
         </member>
         <member name="T:SwiftStack.SwiftStackApp">
             <summary>
