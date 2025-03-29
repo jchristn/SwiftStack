@@ -38,6 +38,11 @@
         }
 
         /// <summary>
+        /// Boolean to indicate if the app is running.
+        /// </summary>
+        public bool IsRunning { get; private set; } = false;
+
+        /// <summary>
         /// String to prepend to log messages.  
         /// A space character will automatically be appended to the end if 
         /// the value supplied doesn't end with a space character.
@@ -91,6 +96,10 @@
             get
             {
                 return _Logger;
+            }
+            set
+            {
+                _Logger = value;
             }
         }
 
@@ -170,6 +179,7 @@
         {
             new SyslogServer()
         };
+
         private LoggingModule _Logger = null;
         private Serializer _Serializer = new Serializer();
 
@@ -182,6 +192,7 @@
         private Task _WebserverTask;
         private CancellationTokenSource _TokenSource;
         private CancellationToken _Token;
+
         private bool _Disposed = false;
 
         #endregion
@@ -196,8 +207,8 @@
             try
             {
                 Console.WriteLine(
-                    Environment.NewLine + Constants.Logo + 
-                    Environment.NewLine + Constants.Copyright + 
+                    Environment.NewLine + Constants.Logo +
+                    Environment.NewLine + Constants.Copyright +
                     Environment.NewLine);
             }
             catch { }
@@ -223,40 +234,41 @@
             {
                 try
                 {
-                    using (_Logger = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole))
+                    if (_Logger == null)
                     {
+                        _Logger = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole);
                         _Logger.Settings = _LoggingSettings;
                         _Logger.Settings.HeaderFormat = "{ts} {sev}";
+                    }
 
-                        using (_Webserver = new Webserver(_WebserverSettings, DefaultRoute))
+                    using (_Webserver = new Webserver(_WebserverSettings, DefaultRoute))
+                    {
+                        Log(Severity.Info, "starting SwiftStack webserver on " + _WebserverSettings.Prefix);
+
+                        foreach (ParameterRoute authenticatedRoute in _AuthenticatedRoutes)
                         {
-                            Log(Severity.Info, "starting SwiftStack webserver on " + _WebserverSettings.Prefix);
-
-                            foreach (ParameterRoute authenticatedRoute in _AuthenticatedRoutes)
-                            {
-                                _Webserver.Routes.PostAuthentication.Parameter.Add(
-                                    authenticatedRoute.Method,
-                                    authenticatedRoute.Path,
-                                    authenticatedRoute.Handler,
-                                    ExceptionRoute);
-                                Log(Severity.Debug, "added authenticated route " + authenticatedRoute.Method + " " + authenticatedRoute.Path);
-                            }
-
-                            foreach (ParameterRoute unauthenticatedRoute in _UnauthenticatedRoutes)
-                            {
-                                _Webserver.Routes.PreAuthentication.Parameter.Add(
-                                    unauthenticatedRoute.Method,
-                                    unauthenticatedRoute.Path,
-                                    unauthenticatedRoute.Handler,
-                                    ExceptionRoute);
-                                Log(Severity.Debug, "added route " + unauthenticatedRoute.Method + " " + unauthenticatedRoute.Path);
-                            }
-
-                            _Webserver.Routes.PreRouting = PreRoutingRoute;
-                            _Webserver.Routes.PostRouting = PostRoutingRoute;
-
-                            await _Webserver.StartAsync(token);
+                            _Webserver.Routes.PostAuthentication.Parameter.Add(
+                                authenticatedRoute.Method,
+                                authenticatedRoute.Path,
+                                authenticatedRoute.Handler,
+                                ExceptionRoute);
+                            Log(Severity.Debug, "added authenticated route " + authenticatedRoute.Method + " " + authenticatedRoute.Path);
                         }
+
+                        foreach (ParameterRoute unauthenticatedRoute in _UnauthenticatedRoutes)
+                        {
+                            _Webserver.Routes.PreAuthentication.Parameter.Add(
+                                unauthenticatedRoute.Method,
+                                unauthenticatedRoute.Path,
+                                unauthenticatedRoute.Handler,
+                                ExceptionRoute);
+                            Log(Severity.Debug, "added route " + unauthenticatedRoute.Method + " " + unauthenticatedRoute.Path);
+                        }
+
+                        _Webserver.Routes.PreRouting = PreRoutingRoute;
+                        _Webserver.Routes.PostRouting = PostRoutingRoute;
+
+                        await _Webserver.StartAsync(token);
                     }
                 }
                 catch (Exception e)
@@ -268,11 +280,15 @@
                 }
             });
 
+            IsRunning = true;
+
             while (true)
             {
                 await Task.Delay(100).ConfigureAwait(false);
                 if (token.IsCancellationRequested) break;
             }
+
+            IsRunning = false;
 
             Log(Severity.Info, "SwiftStack stopped");
         }
@@ -599,15 +615,15 @@
 
         private async Task PreRoutingRoute(HttpContextBase ctx)
         {
-            
+
         }
 
         private async Task PostRoutingRoute(HttpContextBase ctx)
         {
             ctx.Request.Timestamp.End = DateTime.UtcNow;
-            Log(Severity.Debug, 
-                ctx.Request.Method + " " + 
-                ctx.Request.Url.RawWithQuery + ": " + 
+            Log(Severity.Debug,
+                ctx.Request.Method + " " +
+                ctx.Request.Url.RawWithQuery + ": " +
                 ctx.Response.StatusCode + " " +
                 "(" + ctx.Request.Timestamp.TotalMs.Value.ToString("0.00") + "ms)");
         }

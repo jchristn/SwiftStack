@@ -349,6 +349,11 @@
             Name of the application.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackApp.IsRunning">
+            <summary>
+            Boolean to indicate if the app is running.
+            </summary>
+        </member>
         <member name="P:SwiftStack.SwiftStackApp.LogHeader">
             <summary>
             String to prepend to log messages.  
