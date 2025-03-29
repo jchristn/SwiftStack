@@ -45,6 +45,16 @@
         /// </summary>
         public Serializer Serializer { get; }
 
+        /// <summary>
+        /// Authentication and authorization result.
+        /// </summary>
+        public AuthResult AuthResult { get; set; }
+
+        /// <summary>
+        /// User-supplied metadata.
+        /// </summary>
+        public object Metadata { get; set; } = null;
+
         #endregion
 
         #region Private-Members

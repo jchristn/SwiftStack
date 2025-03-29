@@ -21,5 +21,10 @@
         /// Copyright.
         /// </summary>
         public static string Copyright = " Swiftstack | (c)2025 Joel Christner";
+
+        /// <summary>
+        /// JSON content-type.
+        /// </summary>
+        public static string JsonContentType = "application/json";
     }
 }

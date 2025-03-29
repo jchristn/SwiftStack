@@ -124,6 +124,16 @@
             Serializer instance.
             </summary>
         </member>
+        <member name="P:SwiftStack.AppRequest.AuthResult">
+            <summary>
+            Authentication and authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.AppRequest.Metadata">
+            <summary>
+            User-supplied metadata.
+            </summary>
+        </member>
         <member name="M:SwiftStack.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Object)">
             <summary>
             Application request.
@@ -208,6 +218,11 @@
         <member name="F:SwiftStack.Constants.Copyright">
             <summary>
             Copyright.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Constants.JsonContentType">
+            <summary>
+            JSON content-type.
             </summary>
         </member>
         <member name="T:SwiftStack.RequestParameters">

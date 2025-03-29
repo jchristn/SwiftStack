@@ -267,6 +267,7 @@
 
                         _Webserver.Routes.PreRouting = PreRoutingRoute;
                         _Webserver.Routes.PostRouting = PostRoutingRoute;
+                        if (AuthenticationRoute != null) _Webserver.Routes.AuthenticateRequest = AuthenticateRequest;
 
                         await _Webserver.StartAsync(token);
                     }
@@ -634,7 +635,7 @@
             ctx.Response.StatusCode = 500;
             await ctx.Response.Send();
         }
-
+        
         private async Task HandleException(HttpContextBase ctx, Exception e)
         {
             if (e is SwiftStackException swiftEx)
@@ -781,6 +782,74 @@
             catch (Exception e)
             {
                 await HandleException(ctx, e);
+            }
+        }
+
+        private async Task AuthenticateRequest(HttpContextBase ctx)
+        {
+            ApiErrorResponse resp;
+
+            try
+            {
+                AuthResult result = await AuthenticationRoute(ctx);
+
+                if (result == null)
+                {
+                    #region No-Response
+
+                    _Logger.Warn(_LogHeader + "no response from authentication route");
+                    ctx.Response.StatusCode = 500;
+                    ctx.Response.ContentType = Constants.JsonContentType;
+
+                    resp = new ApiErrorResponse
+                    {
+                        Error = ApiResultEnum.InternalError
+                    };
+
+                    await ctx.Response.Send(_Serializer.SerializeJson(resp, true));
+
+                    #endregion
+                }
+                else
+                {
+                    if (result.AuthenticationResult == AuthenticationResultEnum.Success 
+                        && result.AuthorizationResult == AuthorizationResultEnum.Permitted)
+                    {
+                        #region Success
+
+                        // do nothing
+
+                        #endregion
+                    }
+                    else
+                    {
+                        _Logger.Warn(_LogHeader + "authentication or authorization failure");
+                        ctx.Response.StatusCode = 401;
+                        ctx.Response.ContentType = Constants.JsonContentType;
+
+                        resp = new ApiErrorResponse
+                        {
+                            Error = ApiResultEnum.NotAuthorized
+                        };
+
+                        await ctx.Response.Send(_Serializer.SerializeJson(resp, true));
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _Logger.Warn(_LogHeader + "authentication exception:" + Environment.NewLine + e.ToString());
+                ctx.Response.StatusCode = 500;
+                ctx.Response.ContentType = Constants.JsonContentType;
+
+                resp = new ApiErrorResponse
+                {
+                    Error = ApiResultEnum.InternalError,
+                    Message = e.Message,
+                    Data = e.Data
+                };
+
+                await ctx.Response.Send(_Serializer.SerializeJson(resp, true));
             }
         }
 

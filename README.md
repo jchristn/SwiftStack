@@ -85,6 +85,68 @@ public class User
 }
 ```
 
+## Example with Authentication
+
+```csharp
+using SwiftStack;
+using SerializationHelper;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        Serializer serializer = new Serializer();
+        SwiftStackApp app = new SwiftStackApp();
+        app.AuthenticationRoute = AuthenticationRoute;
+        app.Route("GET", "/authenticated", async (req) => 
+        {
+            Console.WriteLine("HTTP context metadata: " + Environment.NewLine + serializer.SerializeJson(req.Http.Metadata, true));
+
+            // HTTP context metadata: 
+            // {
+            //     "Authorized": true,
+            //     "Method": "credentials"
+            // }
+
+            return "Hello, authenticated user";
+        }, true);
+
+        await app.Run();
+    }
+
+    static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)
+    {
+        if (ctx.Request.Authorization != null)
+        {
+            if (!String.IsNullOrEmpty(ctx.Request.Authorization.Username)
+                && !String.IsNullOrEmpty(ctx.Request.Authorization.Password)
+                && ctx.Request.Authorization.Username.Equals("user")
+                && ctx.Request.Authorization.Password.Equals("password"))
+            {
+                // pass any object back to your code
+                ctx.Metadata = new
+                {
+                    Authorized = true,
+                    Method = "credentials"
+                };
+
+                return new AuthResult
+                {
+                    AuthenticationResult = AuthenticationResultEnum.Success,
+                    AuthorizationResult = AuthorizationResultEnum.Permitted
+                };
+            }
+        }
+
+        return new AuthResult
+        {
+            AuthenticationResult = AuthenticationResultEnum.NotFound,
+            AuthorizationResult = AuthorizationResultEnum.Denied
+        };
+    }
+}
+```
+
 ## Version History
 
 Please refer to CHANGELOG.md for details.

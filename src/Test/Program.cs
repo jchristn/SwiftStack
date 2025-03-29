@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using SerializationHelper;
     using SwiftStack;
+    using WatsonWebserver.Core;
 
     public static class Program
     {
@@ -18,7 +19,9 @@
         {
             SwiftStackApp app = new SwiftStackApp();
 
-            app.Get("/", async (req) => "Hello world");
+            #region Unauthenticated-Routes
+
+            app.Get("/", async (req) => "Hello, unauthenticated user");
 
             app.Post<string>("/loopback", async (req) => req.Data);
 
@@ -98,7 +101,66 @@
                 return null;
             });
 
+            #endregion
+
+            #region Authenticated-Routes
+
+            app.AuthenticationRoute = AuthenticationRoute;
+
+            app.Get("/authenticated", async (req) => 
+            {
+                Console.WriteLine("HTTP context metadata: " + _Serializer.SerializeJson(req.Http.Metadata, true));
+                return "Hello, authenticated user";
+            }, true);
+
+            #endregion
+
             await app.Run();
+        }
+
+        private static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)
+        {
+            if (ctx.Request.Authorization != null)
+            {
+                if (!String.IsNullOrEmpty(ctx.Request.Authorization.Username)
+                    && !String.IsNullOrEmpty(ctx.Request.Authorization.Password)
+                    && ctx.Request.Authorization.Username.Equals("user")
+                    && ctx.Request.Authorization.Password.Equals("password"))
+                {
+                    ctx.Metadata = new
+                    {
+                        Authorized = true,
+                        Method = "credentials"
+                    };
+
+                    return new AuthResult
+                    {
+                        AuthenticationResult = AuthenticationResultEnum.Success,
+                        AuthorizationResult = AuthorizationResultEnum.Permitted
+                    };
+                }
+                else if (!String.IsNullOrEmpty(ctx.Request.Authorization.BearerToken)
+                    && ctx.Request.Authorization.BearerToken.Equals("password"))
+                {
+                    ctx.Metadata = new
+                    {
+                        Authorized = true,
+                        Method = "bearer"
+                    };
+
+                    return new AuthResult
+                    {
+                        AuthenticationResult = AuthenticationResultEnum.Success,
+                        AuthorizationResult = AuthorizationResultEnum.Permitted
+                    };
+                }
+            }
+
+            return new AuthResult
+            {
+                AuthenticationResult = AuthenticationResultEnum.NotFound,
+                AuthorizationResult = AuthorizationResultEnum.Denied
+            };
         }
 
         public class User
