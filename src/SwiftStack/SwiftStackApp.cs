@@ -642,7 +642,25 @@
         
         private async Task HandleException(HttpContextBase ctx, Exception e)
         {
-            if (e is SwiftStackException swiftEx)
+            if (ExceptionRoute != null)
+            {
+                try
+                {
+                    await ExceptionRoute(ctx, e);
+                }
+                catch (Exception ex)
+                {
+                    ApiErrorResponse error = new ApiErrorResponse
+                    {
+                        Error = ApiResultEnum.InternalError,
+                        Message = ex.Message,
+                        Data = ex.Data
+                    };
+
+                    await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+                }
+            }
+            else if (e is SwiftStackException swiftEx)
             {
                 ApiErrorResponse error = new ApiErrorResponse
                 {
