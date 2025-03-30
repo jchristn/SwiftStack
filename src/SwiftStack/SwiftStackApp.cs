@@ -561,6 +561,8 @@
                 try
                 {
                     AppRequest dynamicReq = new AppRequest(ctx, _Serializer, null);
+                    dynamicReq.Metadata = ctx.Metadata;
+
                     object result = await handler(dynamicReq);
                     await ProcessResult(ctx, result);
                 }
@@ -590,6 +592,8 @@
                     }
 
                     AppRequest dynamicReq = new AppRequest(ctx, _Serializer, requestData);
+                    dynamicReq.Metadata = ctx.Metadata;
+
                     object result = await handler(dynamicReq);
                     await ProcessResult(ctx, result);
                 }
