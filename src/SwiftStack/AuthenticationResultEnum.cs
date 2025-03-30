@@ -20,6 +20,10 @@
         /// <summary>
         /// Inactive.
         /// </summary>
-        Inactive
+        Inactive,
+        /// <summary>
+        /// Invalid.
+        /// </summary>
+        Invalid
     }
 }

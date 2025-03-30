@@ -14,8 +14,20 @@
         /// </summary>
         Permitted,
         /// <summary>
-        /// Denied.
+        /// DeniedExplicit.
         /// </summary>
-        Denied
+        DeniedExplicit,
+        /// <summary>
+        /// DeniedImplicit.
+        /// </summary>
+        DeniedImplicit,
+        /// <summary>
+        /// NotFound.
+        /// </summary>
+        NotFound,
+        /// <summary>
+        /// Conflict.
+        /// </summary>
+        Conflict
     }
 }

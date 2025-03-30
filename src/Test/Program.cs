@@ -159,7 +159,7 @@
             return new AuthResult
             {
                 AuthenticationResult = AuthenticationResultEnum.NotFound,
-                AuthorizationResult = AuthorizationResultEnum.Denied
+                AuthorizationResult = AuthorizationResultEnum.DeniedImplicit
             };
         }
 

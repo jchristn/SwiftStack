@@ -164,6 +164,11 @@
             Inactive.
             </summary>
         </member>
+        <member name="F:SwiftStack.AuthenticationResultEnum.Invalid">
+            <summary>
+            Invalid.
+            </summary>
+        </member>
         <member name="T:SwiftStack.AuthorizationResultEnum">
             <summary>
             Authorization result.
@@ -174,9 +179,24 @@
             Permitted.
             </summary>
         </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.Denied">
+        <member name="F:SwiftStack.AuthorizationResultEnum.DeniedExplicit">
             <summary>
-            Denied.
+            DeniedExplicit.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthorizationResultEnum.DeniedImplicit">
+            <summary>
+            DeniedImplicit.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthorizationResultEnum.NotFound">
+            <summary>
+            NotFound.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.AuthorizationResultEnum.Conflict">
+            <summary>
+            Conflict.
             </summary>
         </member>
         <member name="T:SwiftStack.AuthResult">
