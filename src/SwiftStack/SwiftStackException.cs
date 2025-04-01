@@ -16,6 +16,17 @@
         /// </summary>
         public ApiResultEnum Result { get; set; } = ApiResultEnum.NotFound;
 
+        /// <summary>
+        /// HTTP status code that corresponds to the Result.
+        /// </summary>
+        public int StatusCode
+        {
+            get
+            {
+                return ApiResultEnumToStatusCode(Result);
+            }
+        }
+
         #endregion
 
         #region Private-Members
@@ -75,6 +86,32 @@
                     return "The supplied object could not be deserialized.";
                 default:
                     return "An API error of type " + result + " was encountered.";
+            }
+        }
+
+        private static int ApiResultEnumToStatusCode(ApiResultEnum result)
+        {
+            switch (result)
+            {
+                case ApiResultEnum.Success:
+                    return 200;
+                case ApiResultEnum.Created:
+                    return 201;
+                case ApiResultEnum.BadRequest:
+                    return 400;
+                case ApiResultEnum.NotAuthorized:
+                    return 401;
+                case ApiResultEnum.NotFound:
+                    return 404;
+                case ApiResultEnum.Conflict:
+                    return 409;
+                case ApiResultEnum.SlowDown:
+                    return 429;
+                case ApiResultEnum.DeserializationError:
+                    return 400;
+                case ApiResultEnum.InternalError:
+                default:
+                    return 500;  // Default to internal server error for undefined mappings
             }
         }
 

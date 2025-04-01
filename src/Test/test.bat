@@ -24,6 +24,16 @@ curl http://localhost:8000/types/foo
 echo.
 curl http://localhost:8000/events/5
 echo.
+curl -i http://localhost:8000/exception/400
+echo.
+curl -i http://localhost:8000/exception/401
+echo.
+curl -i http://localhost:8000/exception/404
+echo.
+curl -i http://localhost:8000/exception/409
+echo.
+curl -i http://localhost:8000/exception/500
+echo.
 
 echo.
 echo Authenticated routes

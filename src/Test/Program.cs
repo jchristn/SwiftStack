@@ -101,6 +101,31 @@
                 return null;
             });
 
+            app.Get("/exception/400", async (req) => 
+            {
+                throw new SwiftStackException(ApiResultEnum.BadRequest);
+            });
+
+            app.Get("/exception/401", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.NotAuthorized);
+            });
+
+            app.Get("/exception/404", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.NotFound);
+            });
+
+            app.Get("/exception/409", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.Conflict);
+            });
+
+            app.Get("/exception/500", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.InternalError);
+            });
+
             #endregion
 
             #region Authenticated-Routes

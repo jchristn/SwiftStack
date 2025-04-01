@@ -576,10 +576,10 @@
         }
 
         private void RegisterBodyRoute<T>(
-            HttpMethod method,
-            string path,
-            Func<AppRequest, Task<object>> handler,
-            bool requireAuthentication) where T : class
+    HttpMethod method,
+    string path,
+    Func<AppRequest, Task<object>> handler,
+    bool requireAuthentication) where T : class
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
@@ -588,7 +588,21 @@
                     T requestData = null;
                     if (!String.IsNullOrEmpty(ctx.Request.DataAsString))
                     {
-                        requestData = _Serializer.DeserializeJson<T>(ctx.Request.DataAsString);
+                        // Handle string type differently
+                        if (typeof(T) == typeof(string))
+                        {
+                            requestData = (T)(object)ctx.Request.DataAsString;
+                        }
+                        // Handle primitive types
+                        else if (typeof(T).IsPrimitive)
+                        {
+                            requestData = (T)Convert.ChangeType(ctx.Request.DataAsString, typeof(T));
+                        }
+                        // For complex objects, use JSON deserialization
+                        else
+                        {
+                            requestData = _Serializer.DeserializeJson<T>(ctx.Request.DataAsString);
+                        }
                     }
 
                     AppRequest dynamicReq = new AppRequest(ctx, _Serializer, requestData);
@@ -636,10 +650,48 @@
         private async Task DefaultExceptionRoute(HttpContextBase ctx, Exception e)
         {
             Log(Severity.Alert, "exception encountered:" + Environment.NewLine + e.ToString());
-            ctx.Response.StatusCode = 500;
-            await ctx.Response.Send();
+
+            if (e is SwiftStackException swiftEx)
+            {
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = swiftEx.Result,
+                    Message = swiftEx.Message,
+                    Data = swiftEx.Data
+                };
+
+                ctx.Response.StatusCode = swiftEx.StatusCode;
+                ctx.Response.ContentType = Constants.JsonContentType;
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
+            else if (e is JsonException jsonEx)
+            {
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = ApiResultEnum.DeserializationError,
+                    Message = jsonEx.Message,
+                    Data = jsonEx.Data
+                };
+
+                ctx.Response.StatusCode = 400;
+                ctx.Response.ContentType = Constants.JsonContentType;
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
+            else
+            {
+                ApiErrorResponse error = new ApiErrorResponse
+                {
+                    Error = ApiResultEnum.InternalError,
+                    Message = e.Message,
+                    Data = e.Data
+                };
+
+                ctx.Response.StatusCode = 500;
+                ctx.Response.ContentType = Constants.JsonContentType;
+                await ctx.Response.Send(_Serializer.SerializeJson(error, true));
+            }
         }
-        
+
         private async Task HandleException(HttpContextBase ctx, Exception e)
         {
             if (ExceptionRoute != null)
@@ -657,6 +709,7 @@
                         Data = ex.Data
                     };
 
+                    ctx.Response.StatusCode = 500;
                     await ctx.Response.Send(_Serializer.SerializeJson(error, true));
                 }
             }
@@ -669,6 +722,7 @@
                     Data = swiftEx.Data
                 };
 
+                ctx.Response.StatusCode = swiftEx.StatusCode;
                 await ctx.Response.Send(_Serializer.SerializeJson(error, true));
             }
             else if (e is JsonException jsonEx)
@@ -680,6 +734,7 @@
                     Data = jsonEx.Data
                 };
 
+                ctx.Response.StatusCode = 400;
                 await ctx.Response.Send(_Serializer.SerializeJson(error, true));
             }
             else
@@ -691,6 +746,7 @@
                     Data = e.Data
                 };
 
+                ctx.Response.StatusCode = 500;
                 await ctx.Response.Send(_Serializer.SerializeJson(error, true));
             }
         }

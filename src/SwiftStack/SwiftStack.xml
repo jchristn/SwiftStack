@@ -547,6 +547,11 @@
             Result.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackException.StatusCode">
+            <summary>
+            HTTP status code that corresponds to the Result.
+            </summary>
+        </member>
         <member name="M:SwiftStack.SwiftStackException.#ctor(SwiftStack.ApiResultEnum)">
             <summary>
             SwiftStack exception.
