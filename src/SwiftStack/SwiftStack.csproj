@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
-		<Version>0.1.13</Version>
+		<Version>0.1.15</Version>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
@@ -45,7 +45,7 @@
 	<ItemGroup>
 	  <PackageReference Include="SerializationHelper" Version="2.0.3" />
 	  <PackageReference Include="SyslogLogging" Version="2.0.8" />
-	  <PackageReference Include="Watson" Version="6.3.8" />
+	  <PackageReference Include="Watson" Version="6.3.9" />
 	</ItemGroup>
 
 </Project>
