@@ -431,6 +431,11 @@
             Authentication route.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackApp.FaviconFile">
+            <summary>
+            Favicon.ico file.
+            </summary>
+        </member>
         <member name="P:SwiftStack.SwiftStackApp.Serializer">
             <summary>
             JSON serializer.

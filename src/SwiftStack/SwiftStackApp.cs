@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Reflection;
     using System.Runtime.CompilerServices;
@@ -152,6 +153,11 @@
         public Func<HttpContextBase, Task<AuthResult>> AuthenticationRoute { get; set; } = null;
 
         /// <summary>
+        /// Favicon.ico file.
+        /// </summary>
+        public string FaviconFile { get; set; } = "./assets/favicon.ico";
+
+        /// <summary>
         /// JSON serializer.
         /// </summary>
         public Serializer Serializer
@@ -245,25 +251,51 @@
                     {
                         Log(Severity.Info, "starting SwiftStack webserver on " + _WebserverSettings.Prefix);
 
-                        foreach (ParameterRoute authenticatedRoute in _AuthenticatedRoutes)
+                        if (!String.IsNullOrEmpty(FaviconFile))
                         {
-                            _Webserver.Routes.PostAuthentication.Parameter.Add(
-                                authenticatedRoute.Method,
-                                authenticatedRoute.Path,
-                                authenticatedRoute.Handler,
-                                ExceptionRoute);
-                            Log(Severity.Debug, "added authenticated route " + authenticatedRoute.Method + " " + authenticatedRoute.Path);
+                            _Webserver.Routes.PreAuthentication.Static.Add(HttpMethod.GET, "/favicon.ico", FaviconReadRoute);
+                            _Webserver.Routes.PreAuthentication.Static.Add(HttpMethod.HEAD, "/favicon.ico", FaviconExistsRoute);
                         }
 
-                        foreach (ParameterRoute unauthenticatedRoute in _UnauthenticatedRoutes)
+                        string unauthenticatedRoutes = "";
+                        int unauthMaxMethodLength = _UnauthenticatedRoutes.Max(s => s.Method.ToString().Length);
+
+                        for (int i = 0; i < _UnauthenticatedRoutes.Count; i++)
                         {
                             _Webserver.Routes.PreAuthentication.Parameter.Add(
-                                unauthenticatedRoute.Method,
-                                unauthenticatedRoute.Path,
-                                unauthenticatedRoute.Handler,
+                                _UnauthenticatedRoutes[i].Method,
+                                _UnauthenticatedRoutes[i].Path,
+                                _UnauthenticatedRoutes[i].Handler,
                                 ExceptionRoute);
-                            Log(Severity.Debug, "added route " + unauthenticatedRoute.Method + " " + unauthenticatedRoute.Path);
+
+                            if (i > 0) unauthenticatedRoutes += Environment.NewLine;
+                            unauthenticatedRoutes +=
+                                "| [" + _UnauthenticatedRoutes[i].Method.ToString().PadRight(unauthMaxMethodLength) + "] " +
+                                _UnauthenticatedRoutes[i].Path;
                         }
+
+                        if (!String.IsNullOrEmpty(unauthenticatedRoutes))
+                            _Logger.Debug(_LogHeader + "initialized the following unauthenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
+
+                        string authenticatedRoutes = "";
+                        int authMaxMethodLength = _AuthenticatedRoutes.Max(s => s.Method.ToString().Length);
+
+                        for (int i = 0; i < _AuthenticatedRoutes.Count; i++)
+                        {
+                            _Webserver.Routes.PostAuthentication.Parameter.Add(
+                                _AuthenticatedRoutes[i].Method,
+                                _AuthenticatedRoutes[i].Path,
+                                _AuthenticatedRoutes[i].Handler,
+                                ExceptionRoute);
+
+                            if (i > 0) authenticatedRoutes += Environment.NewLine;
+                            authenticatedRoutes +=
+                                "| [" + _AuthenticatedRoutes[i].Method.ToString().PadRight(authMaxMethodLength) + "] " +
+                                _AuthenticatedRoutes[i].Path;
+                        }
+
+                        if (!String.IsNullOrEmpty(unauthenticatedRoutes))
+                            _Logger.Debug(_LogHeader + "initialized the following authenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
 
                         _Webserver.Routes.PreRouting = PreRoutingRoute;
                         _Webserver.Routes.PostRouting = PostRoutingRoute;
@@ -576,10 +608,10 @@
         }
 
         private void RegisterBodyRoute<T>(
-    HttpMethod method,
-    string path,
-    Func<AppRequest, Task<object>> handler,
-    bool requireAuthentication) where T : class
+            HttpMethod method,
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication) where T : class
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
@@ -929,6 +961,47 @@
 
                 await ctx.Response.Send(_Serializer.SerializeJson(resp, true));
             }
+        }
+
+        private async Task FaviconReadRoute(HttpContextBase ctx)
+        {
+            if (File.Exists(FaviconFile))
+            {
+                try
+                {
+                    ctx.Response.ContentType = "image/x-icon";
+                    byte[] bytes = File.ReadAllBytes(FaviconFile);
+                    await ctx.Response.Send(bytes, _Token).ConfigureAwait(false);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    _Logger.Warn(_LogHeader + "exception reading favicon file " + FaviconFile + Environment.NewLine + e.ToString());
+                }
+            }
+
+            ctx.Response.StatusCode = 404;
+            await ctx.Response.Send();
+        }
+
+        private async Task FaviconExistsRoute(HttpContextBase ctx)
+        {
+            if (File.Exists(FaviconFile))
+            {
+                try
+                {
+                    ctx.Response.ContentType = "image/x-icon";
+                    await ctx.Response.Send(new FileInfo(FaviconFile).Length, _Token).ConfigureAwait(false);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    _Logger.Warn(_LogHeader + "exception reading favicon file " + FaviconFile + Environment.NewLine + e.ToString());
+                }
+            }
+
+            ctx.Response.StatusCode = 404;
+            await ctx.Response.Send();
         }
 
         #endregion
