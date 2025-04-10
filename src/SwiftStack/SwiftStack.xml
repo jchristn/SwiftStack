@@ -426,6 +426,11 @@
             Exception route.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackApp.PreflightRoute">
+            <summary>
+            Preflight route.
+            </summary>
+        </member>
         <member name="P:SwiftStack.SwiftStackApp.AuthenticationRoute">
             <summary>
             Authentication route.

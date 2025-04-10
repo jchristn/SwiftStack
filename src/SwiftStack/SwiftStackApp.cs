@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.IO;
     using System.Linq;
     using System.Reflection;
@@ -146,6 +147,11 @@
                 _ExceptionRoute = value;
             }
         }
+
+        /// <summary>
+        /// Preflight route.
+        /// </summary>
+        public Func<HttpContextBase, Task> PreflightRoute { get; set; } = null;
 
         /// <summary>
         /// Authentication route.
@@ -297,6 +303,7 @@
                         if (!String.IsNullOrEmpty(unauthenticatedRoutes))
                             _Logger.Debug(_LogHeader + "initialized the following authenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
 
+                        _Webserver.Routes.Preflight = (PreflightRoute != null ? PreflightRoute : PreflightInternalRoute);
                         _Webserver.Routes.PreRouting = PreRoutingRoute;
                         _Webserver.Routes.PostRouting = PostRoutingRoute;
                         if (AuthenticationRoute != null) _Webserver.Routes.AuthenticateRequest = AuthenticateRequest;
@@ -662,6 +669,47 @@
                 Error = ApiResultEnum.BadRequest,
                 Message = "Unable to find route associated with the supplied method and URL.",
             }, true));
+        }
+
+        private async Task PreflightInternalRoute(HttpContextBase ctx)
+        {
+            NameValueCollection nameValueCollection = new NameValueCollection(StringComparer.InvariantCultureIgnoreCase);
+            string[] array = null;
+            string text = "";
+            if (ctx.Request.Headers != null)
+            {
+                for (int i = 0; i < ctx.Request.Headers.Count; i++)
+                {
+                    string key = ctx.Request.Headers.GetKey(i);
+                    string text2 = ctx.Request.Headers.Get(i);
+                    if (!string.IsNullOrEmpty(key) && !string.IsNullOrEmpty(text2) && string.Compare(key.ToLower(), "access-control-request-headers") == 0)
+                    {
+                        array = text2.Split(',');
+                        break;
+                    }
+                }
+            }
+
+            if (array != null)
+            {
+                string[] array2 = array;
+                foreach (string text3 in array2)
+                {
+                    text = text + ", " + text3;
+                }
+            }
+
+            nameValueCollection.Add("Access-Control-Allow-Methods", "OPTIONS, HEAD, GET, PUT, POST, DELETE");
+            nameValueCollection.Add("Access-Control-Allow-Headers", "*, Content-Type, X-Requested-With, " + text);
+            nameValueCollection.Add("Access-Control-Expose-Headers", "Content-Type, X-Requested-With, " + text);
+            nameValueCollection.Add("Access-Control-Allow-Origin", "*");
+            nameValueCollection.Add("Accept", "*/*");
+            nameValueCollection.Add("Accept-Language", "en-US, en");
+            nameValueCollection.Add("Accept-Charset", "ISO-8859-1, utf-8");
+            nameValueCollection.Add("Connection", "keep-alive");
+            ctx.Response.StatusCode = 200;
+            ctx.Response.Headers = nameValueCollection;
+            await ctx.Response.Send();
         }
 
         private async Task PreRoutingRoute(HttpContextBase ctx)
