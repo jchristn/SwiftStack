@@ -266,18 +266,21 @@
                         string unauthenticatedRoutes = "";
                         int unauthMaxMethodLength = _UnauthenticatedRoutes.Max(s => s.Method.ToString().Length);
 
-                        for (int i = 0; i < _UnauthenticatedRoutes.Count; i++)
+                        if (_UnauthenticatedRoutes != null && _UnauthenticatedRoutes.Count > 0)
                         {
-                            _Webserver.Routes.PreAuthentication.Parameter.Add(
-                                _UnauthenticatedRoutes[i].Method,
-                                _UnauthenticatedRoutes[i].Path,
-                                _UnauthenticatedRoutes[i].Handler,
-                                ExceptionRoute);
+                            for (int i = 0; i < _UnauthenticatedRoutes.Count; i++)
+                            {
+                                _Webserver.Routes.PreAuthentication.Parameter.Add(
+                                    _UnauthenticatedRoutes[i].Method,
+                                    _UnauthenticatedRoutes[i].Path,
+                                    _UnauthenticatedRoutes[i].Handler,
+                                    ExceptionRoute);
 
-                            if (i > 0) unauthenticatedRoutes += Environment.NewLine;
-                            unauthenticatedRoutes +=
-                                "| [" + _UnauthenticatedRoutes[i].Method.ToString().PadRight(unauthMaxMethodLength) + "] " +
-                                _UnauthenticatedRoutes[i].Path;
+                                if (i > 0) unauthenticatedRoutes += Environment.NewLine;
+                                unauthenticatedRoutes +=
+                                    "| [" + _UnauthenticatedRoutes[i].Method.ToString().PadRight(unauthMaxMethodLength) + "] " +
+                                    _UnauthenticatedRoutes[i].Path;
+                            }
                         }
 
                         if (!String.IsNullOrEmpty(unauthenticatedRoutes))
@@ -286,18 +289,21 @@
                         string authenticatedRoutes = "";
                         int authMaxMethodLength = _AuthenticatedRoutes.Max(s => s.Method.ToString().Length);
 
-                        for (int i = 0; i < _AuthenticatedRoutes.Count; i++)
+                        if (_AuthenticatedRoutes != null && _AuthenticatedRoutes.Count > 0)
                         {
-                            _Webserver.Routes.PostAuthentication.Parameter.Add(
-                                _AuthenticatedRoutes[i].Method,
-                                _AuthenticatedRoutes[i].Path,
-                                _AuthenticatedRoutes[i].Handler,
-                                ExceptionRoute);
+                            for (int i = 0; i < _AuthenticatedRoutes.Count; i++)
+                            {
+                                _Webserver.Routes.PostAuthentication.Parameter.Add(
+                                    _AuthenticatedRoutes[i].Method,
+                                    _AuthenticatedRoutes[i].Path,
+                                    _AuthenticatedRoutes[i].Handler,
+                                    ExceptionRoute);
 
-                            if (i > 0) authenticatedRoutes += Environment.NewLine;
-                            authenticatedRoutes +=
-                                "| [" + _AuthenticatedRoutes[i].Method.ToString().PadRight(authMaxMethodLength) + "] " +
-                                _AuthenticatedRoutes[i].Path;
+                                if (i > 0) authenticatedRoutes += Environment.NewLine;
+                                authenticatedRoutes +=
+                                    "| [" + _AuthenticatedRoutes[i].Method.ToString().PadRight(authMaxMethodLength) + "] " +
+                                    _AuthenticatedRoutes[i].Path;
+                            }
                         }
 
                         if (!String.IsNullOrEmpty(unauthenticatedRoutes))
