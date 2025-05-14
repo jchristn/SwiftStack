@@ -4,12 +4,11 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/SwiftStack.svg?style=flat)](https://www.nuget.org/packages/SwiftStack/) [![NuGet](https://img.shields.io/nuget/dt/SwiftStack.svg)](https://www.nuget.org/packages/SwiftStack) 
 
-SwiftStack is an opinionated and easy way to build REST APIs taking inspiration from elegant model shown in FastAPI in Python.
+SwiftStack is an opinionated and easy way to build distributed systems, including RESTful and message queue oriented, taking inspiration from elegant model shown in FastAPI in Python.
 
-## New in v0.1.x
+## New in v0.2.x
 
-- Initial alpha release, all APIs subject to change
-- Add support for server-sent events
+- Collapse REST methods into `RestApp`
 
 ## Donations
 
@@ -26,13 +25,13 @@ class Program
 {
     static async Task Main(string[] args)
     {
-        SwiftStackApp app = new SwiftStackApp();
+        SwiftStackApp app = new SwiftStackApp("My test application");
 
-        app.Route("GET", "/", async (req) => "Hello world");
+        app.Rest.Route("GET", "/", async (req) => "Hello world");
 
-        app.Route("POST", "/loopback", async (req) => req.Data);
+        app.Rest.Route("POST", "/loopback", async (req) => req.Data);
 
-        app.Get("/search", async (req) =>
+        app.Rest.Get("/search", async (req) =>
         {
             string query = req.Query["q"];
             if (string.IsNullOrEmpty(query)) query = "no query provided";
@@ -46,7 +45,7 @@ class Program
             };
         });
 
-        app.Put<User>("/user/{id}", async (req) =>
+        app.Rest.Put<User>("/user/{id}", async (req) =>
         {
             string id = req.Parameters["id"];
             User user = req.GetData<User>();
@@ -58,7 +57,7 @@ class Program
             };
         });
 
-        app.Get("/events/{count}", async (req) => // server-sent events
+        app.Rest.Get("/events/{count}", async (req) => // server-sent events
         {
             int count = Convert.ToInt32(req.Parameters["count"].ToString());
             req.Http.Response.ServerSentEvents = true;
@@ -73,7 +72,7 @@ class Program
             return null;
         });
 
-        await app.Run();
+        await app.Rest.Run();
     }
 }
 
@@ -96,9 +95,9 @@ class Program
     static async Task Main(string[] args)
     {
         Serializer serializer = new Serializer();
-        SwiftStackApp app = new SwiftStackApp();
-        app.AuthenticationRoute = AuthenticationRoute;
-        app.Route("GET", "/authenticated", async (req) => 
+        SwiftStackApp app = new SwiftStackApp("My test application");
+        app.Rest.AuthenticationRoute = AuthenticationRoute;
+        app.Rest.Route("GET", "/authenticated", async (req) => 
         {
             Console.WriteLine("HTTP context metadata: " + Environment.NewLine + serializer.SerializeJson(req.Http.Metadata, true));
 
@@ -111,7 +110,7 @@ class Program
             return "Hello, authenticated user";
         }, true);
 
-        await app.Run();
+        await app.Rest.Run();
     }
 
     static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)

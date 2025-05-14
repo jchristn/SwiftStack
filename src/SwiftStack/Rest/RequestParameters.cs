@@ -1,4 +1,4 @@
-﻿namespace SwiftStack
+﻿namespace SwiftStack.Rest
 {
     using System;
     using System.Collections.Generic;
@@ -54,7 +54,7 @@
         public int GetInt(string name, int defaultValue = 0)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             if (int.TryParse(value, out int result)) return result;
             return defaultValue;
         }
@@ -68,7 +68,7 @@
         public long GetLong(string name, long defaultValue = 0)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             if (long.TryParse(value, out long result)) return result;
             return defaultValue;
         }
@@ -82,7 +82,7 @@
         public double GetDouble(string name, double defaultValue = 0.0)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out double result)) return result;
             return defaultValue;
         }
@@ -96,7 +96,7 @@
         public decimal GetDecimal(string name, decimal defaultValue = 0m)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out decimal result)) return result;
             return defaultValue;
         }
@@ -110,7 +110,7 @@
         public string GetValueOrDefault(string name, string defaultValue = null)
         {
             string value = _Parameters[name];
-            return String.IsNullOrEmpty(value) ? defaultValue : value;
+            return string.IsNullOrEmpty(value) ? defaultValue : value;
         }
 
         /// <summary>
@@ -122,7 +122,7 @@
         public bool GetBool(string name, bool defaultValue = false)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
             if (bool.TryParse(value, out bool result)) return result;
 
             // Additional boolean support for common string values
@@ -142,7 +142,7 @@
         public DateTime GetDateTime(string name, DateTime? defaultValue = null)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue ?? DateTime.MinValue;
+            if (string.IsNullOrEmpty(value)) return defaultValue ?? DateTime.MinValue;
             if (DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result)) return result;
             return defaultValue ?? DateTime.MinValue;
         }
@@ -156,7 +156,7 @@
         public TimeSpan GetTimeSpan(string name, TimeSpan? defaultValue = null)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue ?? TimeSpan.Zero;
+            if (string.IsNullOrEmpty(value)) return defaultValue ?? TimeSpan.Zero;
             if (TimeSpan.TryParse(value, CultureInfo.InvariantCulture, out TimeSpan result)) return result;
             return defaultValue ?? TimeSpan.Zero;
         }
@@ -170,7 +170,7 @@
         public Guid GetGuid(string name, Guid? defaultValue = null)
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue ?? Guid.Empty;
+            if (string.IsNullOrEmpty(value)) return defaultValue ?? Guid.Empty;
             if (Guid.TryParse(value, out Guid result)) return result;
             return defaultValue ?? Guid.Empty;
         }
@@ -186,8 +186,8 @@
         public T GetEnum<T>(string name, T defaultValue, bool ignoreCase = true) where T : struct, Enum
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return defaultValue;
-            if (Enum.TryParse<T>(value, ignoreCase, out T result)) return result;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
+            if (Enum.TryParse(value, ignoreCase, out T result)) return result;
             return defaultValue;
         }
 
@@ -200,7 +200,7 @@
         public string[] GetArray(string name, char separator = ',')
         {
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return Array.Empty<string>();
+            if (string.IsNullOrEmpty(value)) return Array.Empty<string>();
             return value.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries);
         }
 
@@ -234,7 +234,7 @@
         {
             result = default;
             string value = _Parameters[name];
-            if (String.IsNullOrEmpty(value)) return false;
+            if (string.IsNullOrEmpty(value)) return false;
 
             try
             {

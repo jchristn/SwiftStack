@@ -1,4 +1,4 @@
-﻿namespace Test
+﻿namespace Test.Rest
 {
     using System;
     using System.Collections.Generic;
@@ -7,6 +7,7 @@
     using System.Threading.Tasks;
     using SerializationHelper;
     using SwiftStack;
+    using SwiftStack.Rest;
     using WatsonWebserver.Core;
 
     public static class Program
@@ -17,15 +18,17 @@
 
         public static async Task Main(string[] args)
         {
-            SwiftStackApp app = new SwiftStackApp();
+            SwiftStackApp app = new SwiftStackApp("My test application");
+
+            #region REST
 
             #region Unauthenticated-Routes
 
-            app.Get("/", async (req) => "Hello, unauthenticated user");
+            app.Rest.Get("/", async (req) => "Hello, unauthenticated user");
 
-            app.Post<string>("/loopback", async (req) => req.Data);
+            app.Rest.Post<string>("/loopback", async (req) => req.Data);
 
-            app.Get("/search", async (req) =>
+            app.Rest.Get("/search", async (req) =>
             {
                 string query = req.Query["q"];
                 if (query == null) query = "no query provided";
@@ -39,7 +42,7 @@
                 };
             });
 
-            app.Get("/user", async (req) =>
+            app.Rest.Get("/user", async (req) =>
             {
                 return new 
                 {
@@ -48,7 +51,7 @@
                 };
             }); 
             
-            app.Put<User>("/user/{id}", async (req) =>
+            app.Rest.Put<User>("/user/{id}", async (req) =>
             {
                 string id = req.Parameters["id"];
                 User user = req.GetData<User>();
@@ -61,7 +64,7 @@
                 };
             });
 
-            app.Get("/types/{type}", async (req) =>
+            app.Rest.Get("/types/{type}", async (req) =>
             {
                 string type = req.Parameters["type"].ToString().ToLower();
 
@@ -84,7 +87,7 @@
                 }
             });
 
-            app.Get("/events/{count}", async (req) =>
+            app.Rest.Get("/events/{count}", async (req) =>
             {
                 int count = Convert.ToInt32(req.Parameters["count"].ToString());
 
@@ -101,27 +104,27 @@
                 return null;
             });
 
-            app.Get("/exception/400", async (req) => 
+            app.Rest.Get("/exception/400", async (req) => 
             {
                 throw new SwiftStackException(ApiResultEnum.BadRequest);
             });
 
-            app.Get("/exception/401", async (req) =>
+            app.Rest.Get("/exception/401", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.NotAuthorized);
             });
 
-            app.Get("/exception/404", async (req) =>
+            app.Rest.Get("/exception/404", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.NotFound);
             });
 
-            app.Get("/exception/409", async (req) =>
+            app.Rest.Get("/exception/409", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.Conflict);
             });
 
-            app.Get("/exception/500", async (req) =>
+            app.Rest.Get("/exception/500", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.InternalError);
             });
@@ -130,17 +133,22 @@
 
             #region Authenticated-Routes
 
-            app.AuthenticationRoute = AuthenticationRoute;
+            app.Rest.AuthenticationRoute = AuthenticationRoute;
 
-            app.Get("/authenticated", async (req) => 
+            app.Rest.Get("/authenticated", async (req) => 
             {
-                Console.WriteLine("HTTP context metadata: " + _Serializer.SerializeJson(req.Http.Metadata, true));
+                Console.WriteLine("HTTP context metadata: " + Environment.NewLine + _Serializer.SerializeJson(req.Http.Metadata, true));
                 return "Hello, authenticated user";
             }, true);
 
             #endregion
 
-            await app.Run();
+            Task rest = Task.Run(() => app.Rest.Run());
+
+            #endregion
+
+            Console.WriteLine("Press ENTER to exit");
+            Console.ReadLine();
         }
 
         private static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)

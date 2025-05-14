@@ -1,4 +1,4 @@
-﻿ namespace SwiftStack
+﻿namespace SwiftStack.Rest
 {
     using System;
     using System.Collections.Generic;

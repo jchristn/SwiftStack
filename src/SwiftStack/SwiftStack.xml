@@ -4,226 +4,6 @@
         <name>SwiftStack</name>
     </assembly>
     <members>
-        <member name="T:SwiftStack.ApiErrorResponse">
-            <summary>
-            API error response.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.ApiErrorResponse.StatusCode">
-            <summary>
-            Status code.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.ApiErrorResponse.Error">
-            <summary>
-            Error code.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.ApiErrorResponse.Description">
-            <summary>
-            Description.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.ApiErrorResponse.Message">
-            <summary>
-            User-supplied message.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.ApiErrorResponse.Data">
-            <summary>
-            User-supplied data.
-            </summary>
-        </member>
-        <member name="M:SwiftStack.ApiErrorResponse.#ctor">
-            <summary>
-            API error response.
-            </summary>
-        </member>
-        <member name="T:SwiftStack.ApiResultEnum">
-            <summary>
-            API result.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.Success">
-            <summary>
-            Success.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.NotFound">
-            <summary>
-            NotFound.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.Created">
-            <summary>
-            Created.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.NotAuthorized">
-            <summary>
-            NotAuthorized.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.InternalError">
-            <summary>
-            InternalError.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.SlowDown">
-            <summary>
-            SlowDown.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.Conflict">
-            <summary>
-            Conflict.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.BadRequest">
-            <summary>
-            BadRequest.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.ApiResultEnum.DeserializationError">
-            <summary>
-            DeserializationError.
-            </summary>
-        </member>
-        <member name="T:SwiftStack.AppRequest">
-            <summary>
-            Application request.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Data">
-            <summary>
-            The deserialized request data.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Http">
-            <summary>
-            HTTP context.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Parameters">
-            <summary>
-            Parameters from the route URL.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Query">
-            <summary>
-            Query parameters.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Headers">
-            <summary>
-            Headers from the request.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Serializer">
-            <summary>
-            Serializer instance.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.AuthResult">
-            <summary>
-            Authentication and authorization result.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AppRequest.Metadata">
-            <summary>
-            User-supplied metadata.
-            </summary>
-        </member>
-        <member name="M:SwiftStack.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Object)">
-            <summary>
-            Application request.
-            </summary>
-        </member>
-        <member name="M:SwiftStack.AppRequest.GetData``1">
-            <summary>
-            Cast data to a specific type.
-            </summary>
-        </member>
-        <member name="T:SwiftStack.AuthenticationResultEnum">
-            <summary>
-            Authentication result.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthenticationResultEnum.Success">
-            <summary>
-            Success.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthenticationResultEnum.NotFound">
-            <summary>
-            Not found.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthenticationResultEnum.Inactive">
-            <summary>
-            Inactive.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthenticationResultEnum.Invalid">
-            <summary>
-            Invalid.
-            </summary>
-        </member>
-        <member name="T:SwiftStack.AuthorizationResultEnum">
-            <summary>
-            Authorization result.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.Permitted">
-            <summary>
-            Permitted.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.DeniedExplicit">
-            <summary>
-            DeniedExplicit.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.DeniedImplicit">
-            <summary>
-            DeniedImplicit.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.NotFound">
-            <summary>
-            NotFound.
-            </summary>
-        </member>
-        <member name="F:SwiftStack.AuthorizationResultEnum.Conflict">
-            <summary>
-            Conflict.
-            </summary>
-        </member>
-        <member name="T:SwiftStack.AuthResult">
-            <summary>
-            Authentication and authorization result.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AuthResult.AuthenticationResult">
-            <summary>
-            Authentication result.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AuthResult.AuthorizationResult">
-            <summary>
-            Authorization result.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.AuthResult.Metadata">
-            <summary>
-            Metadata.
-            </summary>
-        </member>
-        <member name="M:SwiftStack.AuthResult.#ctor">
-            <summary>
-            Authentication and authorization result.
-            </summary>
-        </member>
         <member name="T:SwiftStack.Constants">
             <summary>
             Constants.
@@ -245,24 +25,907 @@
             JSON content-type.
             </summary>
         </member>
-        <member name="T:SwiftStack.RequestParameters">
+        <member name="T:SwiftStack.RabbitMq.IMessageQueueBroadcaster`1">
+            <summary>
+            Message queue broadcast interface.
+            </summary>
+            <typeparam name="T">Type of message being sent.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IMessageQueueBroadcaster`1.Broadcast(`0,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Broadcast a message.
+            </summary>
+            <param name="msg">Message.</param>
+            <param name="correlationId">Correlation ID.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Output type.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.IMessageQueueBroadcastReceiver`1">
+            <summary>
+            Message queue broadcast receiver interface.
+            </summary>
+            <typeparam name="T">Type of message being received.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.IMessageQueueBroadcastReceiver`1.MessageReceived">
+            <summary>
+            Event handler fired when a broadcast message is received.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.IMessageQueueConsumer`1">
+            <summary>
+            Message queue consumer interface.
+            </summary>
+            <typeparam name="T">Type of message being consumed.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.IMessageQueueConsumer`1.MessageReceived">
+            <summary>
+            Event handler fired when a message is received.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IMessageQueueConsumer`1.Acknowledge(System.UInt64,System.Threading.CancellationToken)">
+            <summary>
+            Acknowledge a message by correlation ID.
+            </summary>
+            <param name="deliveryTag">Delivery tag.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IMessageQueueConsumer`1.Reject(System.UInt64,System.Boolean,System.Threading.CancellationToken)">
+            <summary>
+            Reject a message by providing a non-acknowledgement (nack).
+            </summary>
+            <param name="deliveryTag">Delivery tag.</param>
+            <param name="requeue">Boolean to indicate if the message should be requeued.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.IMessageQueueProducer`1">
+            <summary>
+            Message queue producer interface.
+            </summary>
+            <typeparam name="T">Type of message being produced.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IMessageQueueProducer`1.SendMessage(`0,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a message.
+            </summary>
+            <param name="msg">Message.</param>
+            <param name="correlationId">Correlation ID.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IMessageQueueProducer`1.SendMessage(`0,System.Boolean,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a message.
+            </summary>
+            <param name="msg">Message.</param>
+            <param name="persist">True to enable persistence.</param>
+            <param name="correlationId">Correlation ID.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.IncomingMessage`1">
+            <summary>
+            Incoming message.
+            </summary>
+            <typeparam name="T">Type of message.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.IncomingMessage`1.TimestampUtc">
+            <summary>
+            Timestamp, in UTC time, when the message was sent.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.IncomingMessage`1.DeliveryTag">
+            <summary>
+            Delivery tag.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.IncomingMessage`1.CorrelationId">
+            <summary>
+            Correlation ID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.IncomingMessage`1.ExpirationUtc">
+            <summary>
+            Timestamp, in UTC time, when this object should be considered expired.  Default is 7 days.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.IncomingMessage`1.Data">
+            <summary>
+            Data from the message.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.IncomingMessage`1.#ctor">
+            <summary>
+            Instantiate.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.QueueProperties">
+            <summary>
+            Queue properties.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.Hostname">
+            <summary>
+            Hostname.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.Name">
+            <summary>
+            Channel name.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.Durable">
+            <summary>
+            Enable or disable durability of the queue.  
+            This allows the queue to survive broker restarts by persisting to disk.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.Exclusive">
+            <summary>
+            Enable or disable exclusive use of the queue.  
+            When enabled, the queue can only be used by one connection, will be deleted when that connection closes, and no other connection can consume from the queue.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.AutoDelete">
+            <summary>
+            Enable or disable auto-deletion.
+            When enabled, the queue will be deleted when all consumers have unsubscribed.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.QueueProperties.FullyQualifiedName">
+            <summary>
+            Fully qualified name, e.g. 'hostname/channel'.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.QueueProperties.#ctor">
+            <summary>
+            Instantiate.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.RabbitMqApp">
+            <summary>
+            SwiftStack RabbitMQ application.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqApp.IsRunning">
+            <summary>
+            Boolean to indicate if the app is running.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqApp.Header">
+            <summary>
+            Header to include in emitted log messages.  
+            Default is [RabbitMqApp].
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.#ctor(SwiftStack.SwiftStackApp)">
+            <summary>
+            SwiftStack RabbitMQ application.
+            </summary>
+            <param name="app">SwiftStack app.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.Run(System.Threading.CancellationToken)">
+            <summary>
+            Run the application.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddBroadcaster``1(SwiftStack.RabbitMq.RabbitMqBroadcaster{``0})">
+            <summary>
+            Add a broadcaster.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="broadcaster">Broadcaster.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddResilientBroadcaster``1(SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster{``0})">
+            <summary>
+            Add a resilient broadcaster.
+            Resilient interfaces include automatic reconnection and store-and-forward message handling with local disk persistence.
+            Resilient interfaces should not be used for large objects or extremely high volume applications.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="broadcaster">Broadcaster.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddBroadcastReceiver``1(SwiftStack.RabbitMq.RabbitMqBroadcastReceiver{``0})">
+            <summary>
+            Add a broadcast receiver.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="receiver">Broadcast receiver.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddResilientBroadcastReceiver``1(SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver{``0})">
+            <summary>
+            Add a resilient broadcast receiver.
+            Resilient interfaces include automatic reconnection and store-and-forward message handling with local disk persistence.
+            Resilient interfaces should not be used for large objects or extremely high volume applications.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="receiver">Broadcast receiver.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddProducer``1(SwiftStack.RabbitMq.RabbitMqProducer{``0})">
+            <summary>
+            Add a producer.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="producer">Producer</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddResilientProducer``1(SwiftStack.RabbitMq.ResilientRabbitMqProducer{``0})">
+            <summary>
+            Add a resilient producer.
+            Resilient interfaces include automatic reconnection and store-and-forward message handling with local disk persistence.
+            Resilient interfaces should not be used for large objects or extremely high volume applications.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="producer">Producer</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddConsumer``1(SwiftStack.RabbitMq.RabbitMqConsumer{``0})">
+            <summary>
+            Add a consumer.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="consumer">Consumer.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqApp.AddResilientConsumer``1(SwiftStack.RabbitMq.ResilientRabbitMqConsumer{``0})">
+            <summary>
+            Add a resilient consumer.
+            Resilient interfaces include automatic reconnection and store-and-forward message handling with local disk persistence.
+            Resilient interfaces should not be used for large objects or extremely high volume applications.
+            </summary>
+            <typeparam name="T">Type of object.  Must be JSON serializable.</typeparam>
+            <param name="consumer">Consumer.</param>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.RabbitMqBroadcaster`1">
+            <summary>
+            RabbitMQ broadcaster client.
+            </summary>
+            <typeparam name="T">Type of message to broadcast.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.IsInitialized">
+            <summary>
+            Boolean indicating whether or not initialization has been performed.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.Debug">
+            <summary>
+            Debug logging.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
+            <summary>
+            Create an instance.  Initialize the instance using InitializeAsync.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="maxMessageSize">Maximum message size.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.InitializeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.Broadcast(`0,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a message.
+            </summary>
+            <param name="msg">Message.</param>
+            <param name="correlationId">Correlation ID.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1">
+            <summary>
+            RabbitMQ broadcast receiver client.
+            </summary>
+            <typeparam name="T">Type of message to receive.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.IsInitialized">
+            <summary>
+            Boolean indicating whether or not initialization has been performed.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.MessageReceived">
+            <summary>
+            Event to fire when a message is received.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties)">
+            <summary>
+            Create an instance.  Initialize the instance using InitializeAsync.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.InitializeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.RabbitMqConsumer`1">
+            <summary>
+            RabbitMQ consumer client.
+            </summary>
+            <typeparam name="T">Type of message to consume.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqConsumer`1.IsInitialized">
+            <summary>
+            Boolean indicating whether or not initialization has been performed.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqConsumer`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.RabbitMqConsumer`1.MessageReceived">
+            <summary>
+            Event to fire when a message is received.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Boolean)">
+            <summary>
+            Create an instance.  Initialize the instance using InitializeAsync.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="autoAck">Automatically acknowledge messages; default is true.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.InitializeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.Acknowledge(System.UInt64,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.Reject(System.UInt64,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SwiftStack.RabbitMq.RabbitMqProducer`1">
+            <summary>
+            RabbitMQ producer client.
+            </summary>
+            <typeparam name="T">Type of message to produce.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqProducer`1.IsInitialized">
+            <summary>
+            Boolean indicating whether or not initialization has been performed.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqProducer`1.Debug">
+            <summary>
+            Debug logging.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
+            <summary>
+            Create an instance.  Initialize the instance using InitializeAsync.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="maxMessageSize">Maximum message size.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.InitializeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.SendMessage(`0,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.SendMessage(`0,System.Boolean,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1">
+            <summary>
+            Resilient RabbitMQ broadcaster client.
+            </summary>
+            <typeparam name="T">Type of message to broadcast.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.Debug">
+            <summary>
+            Debug logging.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+            <summary>
+            Create an instance.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
+            <param name="maxMessageSize">Maximum message size.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.InitializeAsync(System.Threading.CancellationToken)">
+            <summary>
+            Initialize the instance.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.Broadcast(`0,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Send a message.
+            </summary>
+            <param name="msg">Message.</param>
+            <param name="correlationId">Correlation ID.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1">
+            <summary>
+            Resilient RabbitMQ broadcast receiver client.
+            </summary>
+            <typeparam name="T">Type of message to receive.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.MessageReceived">
+            <summary>
+            Event to fire when a message is received.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+            <summary>
+            Create an instance.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
+            <param name="maxParallelTasks">Maximum number of parallel tasks.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="T:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1">
+            <summary>
+            Resilient RabbitMQ consumer client.
+            </summary>
+            <typeparam name="T">Type of message to consume.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="E:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.MessageReceived">
+            <summary>
+            Event to fire when a message is received.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32,System.Boolean)">
+            <summary>
+            Create an instance.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
+            <param name="maxParallelTasks">Maximum number of parallel tasks.</param>
+            <param name="autoAck">Automatically acknowledge messages; default is true.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.Acknowledge(System.UInt64,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.Reject(System.UInt64,System.Boolean,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1">
+            <summary>
+            Resilient RabbitMQ producer client.
+            </summary>
+            <typeparam name="T">Type of message to produce.  Must be JSON serializable.</typeparam>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.IsConnected">
+            <summary>
+            Boolean indicating whether or not the channel is connected.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+            <summary>
+            Create an instance.
+            </summary>
+            <param name="logging">Logging module.</param>
+            <param name="queue">Queue properties.</param>
+            <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
+            <param name="maxMessageSize">Maximum message size.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.SendMessage(`0,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.SendMessage(`0,System.Boolean,System.String,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:SwiftStack.RabbitMq.StoreAndForwardMessage">
+            <summary>
+            Store and forward message.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.StoreAndForwardMessage.CorrelationId">
+            <summary>
+            Correlation ID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.StoreAndForwardMessage.DeliveryTag">
+            <summary>
+            Delivery tag.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.StoreAndForwardMessage.Persistent">
+            <summary>
+            Enable or disable message queue persistence.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.RabbitMq.StoreAndForwardMessage.Data">
+            <summary>
+            Data.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.RabbitMq.StoreAndForwardMessage.#ctor">
+            <summary>
+            Store and forward message.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.ApiErrorResponse">
+            <summary>
+            API error response.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.ApiErrorResponse.StatusCode">
+            <summary>
+            Status code.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.ApiErrorResponse.Error">
+            <summary>
+            Error code.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.ApiErrorResponse.Description">
+            <summary>
+            Description.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.ApiErrorResponse.Message">
+            <summary>
+            User-supplied message.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.ApiErrorResponse.Data">
+            <summary>
+            User-supplied data.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.ApiErrorResponse.#ctor">
+            <summary>
+            API error response.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.ApiResultEnum">
+            <summary>
+            API result.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.Success">
+            <summary>
+            Success.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.NotFound">
+            <summary>
+            NotFound.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.Created">
+            <summary>
+            Created.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.NotAuthorized">
+            <summary>
+            NotAuthorized.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.InternalError">
+            <summary>
+            InternalError.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.SlowDown">
+            <summary>
+            SlowDown.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.Conflict">
+            <summary>
+            Conflict.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.BadRequest">
+            <summary>
+            BadRequest.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.DeserializationError">
+            <summary>
+            DeserializationError.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.AppRequest">
+            <summary>
+            Application request.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Data">
+            <summary>
+            The deserialized request data.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Http">
+            <summary>
+            HTTP context.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Parameters">
+            <summary>
+            Parameters from the route URL.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Query">
+            <summary>
+            Query parameters.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Headers">
+            <summary>
+            Headers from the request.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Serializer">
+            <summary>
+            Serializer instance.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.AuthResult">
+            <summary>
+            Authentication and authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AppRequest.Metadata">
+            <summary>
+            User-supplied metadata.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Object)">
+            <summary>
+            Application request.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.AppRequest.GetData``1">
+            <summary>
+            Cast data to a specific type.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.AuthenticationResultEnum">
+            <summary>
+            Authentication result.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthenticationResultEnum.Success">
+            <summary>
+            Success.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthenticationResultEnum.NotFound">
+            <summary>
+            Not found.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthenticationResultEnum.Inactive">
+            <summary>
+            Inactive.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthenticationResultEnum.Invalid">
+            <summary>
+            Invalid.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.AuthorizationResultEnum">
+            <summary>
+            Authorization result.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthorizationResultEnum.Permitted">
+            <summary>
+            Permitted.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthorizationResultEnum.DeniedExplicit">
+            <summary>
+            DeniedExplicit.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthorizationResultEnum.DeniedImplicit">
+            <summary>
+            DeniedImplicit.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthorizationResultEnum.NotFound">
+            <summary>
+            NotFound.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.AuthorizationResultEnum.Conflict">
+            <summary>
+            Conflict.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.AuthResult">
+            <summary>
+            Authentication and authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AuthResult.AuthenticationResult">
+            <summary>
+            Authentication result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AuthResult.AuthorizationResult">
+            <summary>
+            Authorization result.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.AuthResult.Metadata">
+            <summary>
+            Metadata.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.AuthResult.#ctor">
+            <summary>
+            Authentication and authorization result.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.RequestParameters">
             <summary>
             Request parameters.
             </summary>
         </member>
-        <member name="M:SwiftStack.RequestParameters.#ctor(System.Collections.Specialized.NameValueCollection)">
+        <member name="M:SwiftStack.Rest.RequestParameters.#ctor(System.Collections.Specialized.NameValueCollection)">
             <summary>
             Request parameters.
             </summary>
             <param name="parameters">Parameters.</param>
         </member>
-        <member name="P:SwiftStack.RequestParameters.Item(System.String)">
+        <member name="P:SwiftStack.Rest.RequestParameters.Item(System.String)">
             <summary>
             Get parameter by name.
             </summary>
             <param name="name">Name.</param>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetInt(System.String,System.Int32)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetInt(System.String,System.Int32)">
             <summary>
             Get as integer.
             </summary>
@@ -270,7 +933,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Integer.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetLong(System.String,System.Int64)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetLong(System.String,System.Int64)">
             <summary>
             Get as long integer.
             </summary>
@@ -278,7 +941,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Long integer.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetDouble(System.String,System.Double)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetDouble(System.String,System.Double)">
             <summary>
             Get as double.
             </summary>
@@ -286,7 +949,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Double.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetDecimal(System.String,System.Decimal)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetDecimal(System.String,System.Decimal)">
             <summary>
             Get as decimal.
             </summary>
@@ -294,7 +957,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Decimal.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetValueOrDefault(System.String,System.String)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetValueOrDefault(System.String,System.String)">
             <summary>
             Get with default value.
             </summary>
@@ -302,7 +965,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>String.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetBool(System.String,System.Boolean)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetBool(System.String,System.Boolean)">
             <summary>
             Get as boolean.
             </summary>
@@ -310,7 +973,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Boolean.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetDateTime(System.String,System.Nullable{System.DateTime})">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetDateTime(System.String,System.Nullable{System.DateTime})">
             <summary>
             Get as DateTime.
             </summary>
@@ -318,7 +981,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>DateTime.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetTimeSpan(System.String,System.Nullable{System.TimeSpan})">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetTimeSpan(System.String,System.Nullable{System.TimeSpan})">
             <summary>
             Get as TimeSpan.
             </summary>
@@ -326,7 +989,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>TimeSpan.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetGuid(System.String,System.Nullable{System.Guid})">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetGuid(System.String,System.Nullable{System.Guid})">
             <summary>
             Get as Guid.
             </summary>
@@ -334,7 +997,7 @@
             <param name="defaultValue">Default value.</param>
             <returns>Guid.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetEnum``1(System.String,``0,System.Boolean)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetEnum``1(System.String,``0,System.Boolean)">
             <summary>
             Get as enum.
             </summary>
@@ -344,7 +1007,7 @@
             <param name="ignoreCase">Ignore case when parsing.</param>
             <returns>Enum value.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetArray(System.String,System.Char)">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetArray(System.String,System.Char)">
             <summary>
             Get as array of strings (comma-separated).
             </summary>
@@ -352,20 +1015,20 @@
             <param name="separator">Separator character.  Default is comma.</param>
             <returns>String array.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.GetKeys">
+        <member name="M:SwiftStack.Rest.RequestParameters.GetKeys">
             <summary>
             Get all parameter keys.
             </summary>
             <returns>Keys.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.Contains(System.String)">
+        <member name="M:SwiftStack.Rest.RequestParameters.Contains(System.String)">
             <summary>
             Check if parameter exists.
             </summary>
             <param name="name">Name.</param>
             <returns>True if exists.</returns>
         </member>
-        <member name="M:SwiftStack.RequestParameters.TryGetValue``1(System.String,``0@)">
+        <member name="M:SwiftStack.Rest.RequestParameters.TryGetValue``1(System.String,``0@)">
             <summary>
             Try to get a value as a specific type.
             </summary>
@@ -374,6 +1037,154 @@
             <param name="result">The result if successful.</param>
             <returns>True if the parameter exists and was successfully converted.</returns>
         </member>
+        <member name="T:SwiftStack.Rest.RestApp">
+            <summary>
+            SwiftStack REST application.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.IsRunning">
+            <summary>
+            Boolean to indicate if the app is running.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.Header">
+            <summary>
+            Header to include in emitted log messages.  
+            Default is [RestApp].
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.WebserverSettings">
+            <summary>
+            Webserver settings.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.Webserver">
+            <summary>
+            Webserver.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.ExceptionRoute">
+            <summary>
+            Exception route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.PreflightRoute">
+            <summary>
+            Preflight route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.AuthenticationRoute">
+            <summary>
+            Authentication route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.FaviconFile">
+            <summary>
+            Favicon.ico file.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.#ctor(SwiftStack.SwiftStackApp)">
+            <summary>
+            SwiftStack REST application.
+            </summary>
+            <param name="app">SwiftStack app.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Run(System.Threading.CancellationToken)">
+            <summary>
+            Run the application.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Get(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a GET route.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Post``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a POST route.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Put``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a PUT route.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Patch``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a PATCH route.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Delete(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a DELETE route.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Delete``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a DELETE route.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Head(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a HEAD route.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Options(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add an OPTIONS route.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Route(System.String,System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Type,System.Boolean)">
+            <summary>
+            Add a route.
+            </summary>
+            <param name="method">HTTP method.</param>
+            <param name="path">URL path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requestType">Request body type.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="T:SwiftStack.SwiftStackApp">
             <summary>
             SwiftStack application.
@@ -381,19 +1192,13 @@
         </member>
         <member name="P:SwiftStack.SwiftStackApp.Name">
             <summary>
-            Name of the application.
+            Application name.
             </summary>
         </member>
-        <member name="P:SwiftStack.SwiftStackApp.IsRunning">
+        <member name="P:SwiftStack.SwiftStackApp.Header">
             <summary>
-            Boolean to indicate if the app is running.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.LogHeader">
-            <summary>
-            String to prepend to log messages.  
-            A space character will automatically be appended to the end if 
-            the value supplied doesn't end with a space character.
+            Header to include in emitted log messages.  
+            Default is [SwiftStackApp].
             </summary>
         </member>
         <member name="P:SwiftStack.SwiftStackApp.LoggingSettings">
@@ -406,39 +1211,9 @@
             Logging servers.
             </summary>
         </member>
-        <member name="P:SwiftStack.SwiftStackApp.Logger">
+        <member name="P:SwiftStack.SwiftStackApp.Logging">
             <summary>
             Logger.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.WebserverSettings">
-            <summary>
-            Webserver settings.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.Webserver">
-            <summary>
-            Webserver.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.ExceptionRoute">
-            <summary>
-            Exception route.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.PreflightRoute">
-            <summary>
-            Preflight route.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.AuthenticationRoute">
-            <summary>
-            Authentication route.
-            </summary>
-        </member>
-        <member name="P:SwiftStack.SwiftStackApp.FaviconFile">
-            <summary>
-            Favicon.ico file.
             </summary>
         </member>
         <member name="P:SwiftStack.SwiftStackApp.Serializer">
@@ -446,106 +1221,21 @@
             JSON serializer.
             </summary>
         </member>
+        <member name="P:SwiftStack.SwiftStackApp.Rest">
+            <summary>
+            REST application.
+            </summary>
+        </member>
         <member name="M:SwiftStack.SwiftStackApp.#ctor">
             <summary>
-            Instantiate.
+            SwiftStack application.
             </summary>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.Run(System.Threading.CancellationToken)">
+        <member name="M:SwiftStack.SwiftStackApp.#ctor(System.String)">
             <summary>
-            Run the application.
+            SwiftStack application.
             </summary>
-            <param name="token">Cancellation token.</param>
-            <returns>Task.</returns>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Dispose(System.Boolean)">
-            <summary>
-            Dispose.
-            </summary>
-            <param name="disposing">Disposing.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Dispose">
-            <summary>
-            Dispose.
-            </summary>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Get(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a GET route.
-            </summary>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Post``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a POST route.
-            </summary>
-            <typeparam name="T">Request body type.</typeparam>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Put``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a PUT route.
-            </summary>
-            <typeparam name="T">Request body type.</typeparam>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Patch``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a PATCH route.
-            </summary>
-            <typeparam name="T">Request body type.</typeparam>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Delete(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a DELETE route.
-            </summary>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Delete``1(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a DELETE route.
-            </summary>
-            <typeparam name="T">Request body type.</typeparam>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Head(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add a HEAD route.
-            </summary>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Options(System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
-            <summary>
-            Add an OPTIONS route.
-            </summary>
-            <param name="path">Path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.Route(System.String,System.String,System.Func{SwiftStack.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Type,System.Boolean)">
-            <summary>
-            Add a route.
-            </summary>
-            <param name="method">HTTP method.</param>
-            <param name="path">URL path.</param>
-            <param name="handler">Route body.</param>
-            <param name="requestType">Request body type.</param>
-            <param name="requireAuthentication">True to require authentication.</param>
+            <param name="name">Application name.</param>
         </member>
         <member name="T:SwiftStack.SwiftStackException">
             <summary>
@@ -562,13 +1252,13 @@
             HTTP status code that corresponds to the Result.
             </summary>
         </member>
-        <member name="M:SwiftStack.SwiftStackException.#ctor(SwiftStack.ApiResultEnum)">
+        <member name="M:SwiftStack.SwiftStackException.#ctor(SwiftStack.Rest.ApiResultEnum)">
             <summary>
             SwiftStack exception.
             </summary>
             <param name="result">Result.</param>
         </member>
-        <member name="M:SwiftStack.SwiftStackException.#ctor(SwiftStack.ApiResultEnum,System.String)">
+        <member name="M:SwiftStack.SwiftStackException.#ctor(SwiftStack.Rest.ApiResultEnum,System.String)">
             <summary>
             SwiftStack exception.
             </summary>
