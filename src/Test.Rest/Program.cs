@@ -26,6 +26,14 @@
 
             app.Rest.Get("/", async (req) => "Hello, unauthenticated user");
 
+            app.Rest.Get("/null-200", async (req) => null);
+
+            app.Rest.Get("/null-204", async (req) =>
+            {
+                req.Http.Response.StatusCode = 204;
+                return null;
+            });
+
             app.Rest.Post<string>("/loopback", async (req) => req.Data);
 
             app.Rest.Get("/search", async (req) =>

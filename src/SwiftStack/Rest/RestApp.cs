@@ -48,6 +48,11 @@
         }
 
         /// <summary>
+        /// Set to true to disable log messages on startup.
+        /// </summary>
+        public bool QuietStartup { get; set; } = false;
+
+        /// <summary>
         /// Webserver settings.
         /// </summary>
         public WebserverSettings WebserverSettings
@@ -168,11 +173,11 @@
                             _Webserver.Routes.PreAuthentication.Static.Add(HttpMethod.HEAD, "/favicon.ico", FaviconExistsRoute);
                         }
 
-                        string unauthenticatedRoutes = "";
-                        int unauthMaxMethodLength = _UnauthenticatedRoutes.Max(s => s.Method.ToString().Length);
-
                         if (_UnauthenticatedRoutes != null && _UnauthenticatedRoutes.Count > 0)
                         {
+                            string unauthenticatedRoutes = "";
+                            int unauthMaxMethodLength = _UnauthenticatedRoutes.Max(s => s.Method.ToString().Length);
+
                             for (int i = 0; i < _UnauthenticatedRoutes.Count; i++)
                             {
                                 _Webserver.Routes.PreAuthentication.Parameter.Add(
@@ -183,19 +188,18 @@
 
                                 if (i > 0) unauthenticatedRoutes += Environment.NewLine;
                                 unauthenticatedRoutes +=
-                                    "| [" + _UnauthenticatedRoutes[i].Method.ToString().PadRight(unauthMaxMethodLength) + "] " +
-                                    _UnauthenticatedRoutes[i].Path;
+                                    "| [" + _UnauthenticatedRoutes[i].Method.ToString().PadRight(unauthMaxMethodLength) + "] " + _UnauthenticatedRoutes[i].Path;
                             }
+
+                            if (!string.IsNullOrEmpty(unauthenticatedRoutes) && !QuietStartup)
+                                _App.Logging.Debug(_Header + "initialized unauthenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
                         }
-
-                        if (!string.IsNullOrEmpty(unauthenticatedRoutes))
-                            _App.Logging.Debug(_Header + "initialized unauthenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
-
-                        string authenticatedRoutes = "";
-                        int authMaxMethodLength = _AuthenticatedRoutes.Max(s => s.Method.ToString().Length);
 
                         if (_AuthenticatedRoutes != null && _AuthenticatedRoutes.Count > 0)
                         {
+                            string authenticatedRoutes = "";
+                            int authMaxMethodLength = _AuthenticatedRoutes.Max(s => s.Method.ToString().Length);
+
                             for (int i = 0; i < _AuthenticatedRoutes.Count; i++)
                             {
                                 _Webserver.Routes.PostAuthentication.Parameter.Add(
@@ -206,13 +210,12 @@
 
                                 if (i > 0) authenticatedRoutes += Environment.NewLine;
                                 authenticatedRoutes +=
-                                    "| [" + _AuthenticatedRoutes[i].Method.ToString().PadRight(authMaxMethodLength) + "] " +
-                                    _AuthenticatedRoutes[i].Path;
+                                    "| [" + _AuthenticatedRoutes[i].Method.ToString().PadRight(authMaxMethodLength) + "] " + _AuthenticatedRoutes[i].Path;
                             }
-                        }
 
-                        if (!string.IsNullOrEmpty(unauthenticatedRoutes))
-                            _App.Logging.Debug(_Header + "initialized authenticated routes:" + Environment.NewLine + unauthenticatedRoutes);
+                            if (!string.IsNullOrEmpty(authenticatedRoutes) && !QuietStartup)
+                                _App.Logging.Debug(_Header + "initialized authenticated routes:" + Environment.NewLine + authenticatedRoutes);
+                        }
 
                         _Webserver.Routes.Preflight = PreflightRoute != null ? PreflightRoute : PreflightInternalRoute;
                         _Webserver.Routes.PreRouting = PreRoutingRoute;
@@ -736,15 +739,12 @@
             {
                 if (!ctx.Response.ServerSentEvents)
                 {
-                    // Handle null result
                     if (result == null)
                     {
-                        ctx.Response.StatusCode = 204; // No Content
                         await ctx.Response.Send();
                         return;
                     }
 
-                    // Handle string result
                     if (result is string stringResult)
                     {
                         ctx.Response.Headers.Add("Content-Type", "text/plain");
@@ -752,7 +752,6 @@
                         return;
                     }
 
-                    // Handle primitive result
                     if (result != null && result.GetType().IsPrimitive)
                     {
                         ctx.Response.Headers.Add("Content-Type", "text/plain");
@@ -787,7 +786,6 @@
                         }
                     }
 
-                    // Handle Tuple with 2 items (data, statusCode)
                     if (result.GetType().IsGenericType && result.GetType().GetGenericTypeDefinition() == typeof(Tuple<,>))
                     {
                         PropertyInfo item1Prop = result.GetType().GetProperty("Item1");
@@ -827,7 +825,6 @@
                         }
                     }
 
-                    // Default: treat as JSON
                     ctx.Response.Headers.Add("Content-Type", "application/json");
                     await ctx.Response.Send(_App.Serializer.SerializeJson(result));
                 }

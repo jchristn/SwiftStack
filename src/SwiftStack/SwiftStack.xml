@@ -1053,6 +1053,11 @@
             Default is [RestApp].
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.RestApp.QuietStartup">
+            <summary>
+            Set to true to disable log messages on startup.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.RestApp.WebserverSettings">
             <summary>
             Webserver settings.
@@ -1226,10 +1231,11 @@
             REST application.
             </summary>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.#ctor">
+        <member name="M:SwiftStack.SwiftStackApp.#ctor(System.Boolean)">
             <summary>
             SwiftStack application.
             </summary>
+            <param name="quiet">Set to true to disable log messages on startup.</param>
         </member>
         <member name="M:SwiftStack.SwiftStackApp.#ctor(System.String)">
             <summary>

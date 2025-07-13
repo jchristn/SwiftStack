@@ -120,22 +120,23 @@
         /// <summary>
         /// SwiftStack application.
         /// </summary>
-        public SwiftStackApp()
+        /// <param name="quiet">Set to true to disable log messages on startup.</param>
+        public SwiftStackApp(bool quiet = false)
         {
-            try
-            {
+            if (!quiet)
+            { 
                 Console.WriteLine(
                     Environment.NewLine + Constants.Logo +
                     Environment.NewLine + Constants.Copyright +
                     Environment.NewLine);
             }
-            catch { }
 
             _Logging = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole);
             _Logging.Settings = _LoggingSettings;
             _Logging.Settings.HeaderFormat = "{ts} {sev}";
 
             Rest = new RestApp(this);
+            Rest.QuietStartup = quiet;
 
             _Logging.Info(_Header + "started application " + Name);
         }
