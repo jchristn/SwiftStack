@@ -737,7 +737,7 @@
         {
             try
             {
-                if (!ctx.Response.ServerSentEvents)
+                if (!ctx.Response.ServerSentEvents && !ctx.Response.ChunkedTransfer)
                 {
                     if (result == null)
                     {
