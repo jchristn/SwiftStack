@@ -120,8 +120,9 @@
         /// <summary>
         /// SwiftStack application.
         /// </summary>
+        /// <param name="name">The name of the application.</param>
         /// <param name="quiet">Set to true to disable log messages on startup.</param>
-        public SwiftStackApp(bool quiet = false)
+        public SwiftStackApp(string name = "My SwiftStack App", bool quiet = false)
         {
             if (!quiet)
             { 
@@ -133,21 +134,11 @@
 
             _Logging = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole);
             _Logging.Settings = _LoggingSettings;
-            _Logging.Settings.HeaderFormat = "{ts} {sev}";
 
             Rest = new RestApp(this);
             Rest.QuietStartup = quiet;
 
             _Logging.Info(_Header + "started application " + Name);
-        }
-
-        /// <summary>
-        /// SwiftStack application.
-        /// </summary>
-        /// <param name="name">Application name.</param>
-        public SwiftStackApp(string name) : this()
-        {
-            Name = name;
         }
 
         #endregion

@@ -747,14 +747,16 @@
 
                     if (result is string stringResult)
                     {
-                        ctx.Response.Headers.Add("Content-Type", "text/plain");
+                        if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                            ctx.Response.Headers.Add("Content-Type", "text/plain");
                         await ctx.Response.Send(stringResult);
                         return;
                     }
 
                     if (result != null && result.GetType().IsPrimitive)
                     {
-                        ctx.Response.Headers.Add("Content-Type", "text/plain");
+                        if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                            ctx.Response.Headers.Add("Content-Type", "text/plain");
                         await ctx.Response.Send(result.ToString());
                         return;
                     }
@@ -774,7 +776,8 @@
 
                             if (item1 != null)
                             {
-                                ctx.Response.Headers.Add("Content-Type", "application/json");
+                                if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                                    ctx.Response.Headers.Add("Content-Type", "application/json");
                                 await ctx.Response.Send(_App.Serializer.SerializeJson(item1));
                             }
                             else
@@ -802,17 +805,20 @@
                             {
                                 if (item1 is string itemString)
                                 {
-                                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                    if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                                        ctx.Response.Headers.Add("Content-Type", "text/plain");
                                     await ctx.Response.Send(itemString);
                                 }
                                 else if (item1.GetType().IsPrimitive)
                                 {
-                                    ctx.Response.Headers.Add("Content-Type", "text/plain");
+                                    if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                                        ctx.Response.Headers.Add("Content-Type", "text/plain");
                                     await ctx.Response.Send(item1.ToString());
                                 }
                                 else
                                 {
-                                    ctx.Response.Headers.Add("Content-Type", "application/json");
+                                    if (String.IsNullOrEmpty(ctx.Response.ContentType))
+                                        ctx.Response.Headers.Add("Content-Type", "application/json");
                                     await ctx.Response.Send(_App.Serializer.SerializeJson(item1));
                                 }
                             }
@@ -830,7 +836,7 @@
                 }
                 else
                 {
-                    // SSE responses are managed within the route implementation
+                    // SSE and chunked transfer encoding responses are managed within the route implementation
                 }
             }
             catch (Exception e)

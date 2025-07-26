@@ -1231,17 +1231,12 @@
             REST application.
             </summary>
         </member>
-        <member name="M:SwiftStack.SwiftStackApp.#ctor(System.Boolean)">
+        <member name="M:SwiftStack.SwiftStackApp.#ctor(System.String,System.Boolean)">
             <summary>
             SwiftStack application.
             </summary>
+            <param name="name">The name of the application.</param>
             <param name="quiet">Set to true to disable log messages on startup.</param>
-        </member>
-        <member name="M:SwiftStack.SwiftStackApp.#ctor(System.String)">
-            <summary>
-            SwiftStack application.
-            </summary>
-            <param name="name">Application name.</param>
         </member>
         <member name="T:SwiftStack.SwiftStackException">
             <summary>
