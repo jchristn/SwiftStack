@@ -4,19 +4,23 @@
 
 [![NuGet Version](https://img.shields.io/nuget/v/SwiftStack.svg?style=flat)](https://www.nuget.org/packages/SwiftStack/) [![NuGet](https://img.shields.io/nuget/dt/SwiftStack.svg)](https://www.nuget.org/packages/SwiftStack) 
 
-SwiftStack is an opinionated and easy way to build distributed systems, including RESTful and message queue oriented, taking inspiration from elegant model shown in FastAPI in Python.
+SwiftStack is an opinionated and easy way to build distributed systems — RESTful, message queue–oriented, or WebSocket–based — inspired by the elegant model shown in FastAPI (Python) but designed for C# developers who value clarity and speed.
 
-## New in v0.2.x
+MIT Licensed • No ceremony • Just build.
 
-- Collapse REST methods into `RestApp`
+---
 
-## Donations
+## ✨ New in v0.3.x
 
-If you would like to financially support my efforts, first of all, thank you!  Please refer to DONATIONS.md.
+- **WebSockets application support** via `WebsocketsApp`
+- **RabbitMQ resilient interfaces** with on-disk indexing for recovery
 
-## Simple Example
+---
 
-Refer to the `Test` project and the `test.bat` batch file to test a simple example of SwiftStack.
+## 🚀 Simple REST Example
+
+<details>
+<summary>Click to expand</summary>
 
 ```csharp
 using SwiftStack;
@@ -45,111 +49,175 @@ class Program
             };
         });
 
-        app.Rest.Put<User>("/user/{id}", async (req) =>
-        {
-            string id = req.Parameters["id"];
-            User user = req.GetData<User>();
-            return new User
-            {
-                Id = id,
-                Email = user.Email,
-                Password = user.Password
-            };
-        });
-
-        app.Rest.Get("/events/{count}", async (req) => // server-sent events
-        {
-            int count = Convert.ToInt32(req.Parameters["count"].ToString());
-            req.Http.Response.ServerSentEvents = true;
-
-            for (int i = 0; i < count; i++)
-            {
-                await req.Http.Response.SendEvent("Event " + i, false);
-                await Task.Delay(500);
-            }
-
-            await req.Http.Response.SendEvent(null, true);
-            return null;
-        });
-
         await app.Rest.Run();
     }
 }
-
-public class User
-{
-    public string Id { get; set; }
-    public string Email { get; set; }
-    public string Password { get; set; }
-}
 ```
+</details>
 
-## Example with Authentication
+---
+
+## 🔐 REST Example with Authentication
+
+<details>
+<summary>Click to expand</summary>
 
 ```csharp
 using SwiftStack;
-using SerializationHelper;
 
 class Program
 {
     static async Task Main(string[] args)
     {
-        Serializer serializer = new Serializer();
-        SwiftStackApp app = new SwiftStackApp("My test application");
+        SwiftStackApp app = new SwiftStackApp("My secure app");
         app.Rest.AuthenticationRoute = AuthenticationRoute;
-        app.Rest.Route("GET", "/authenticated", async (req) => 
-        {
-            Console.WriteLine("HTTP context metadata: " + Environment.NewLine + serializer.SerializeJson(req.Http.Metadata, true));
 
-            // HTTP context metadata: 
-            // {
-            //     "Authorized": true,
-            //     "Method": "credentials"
-            // }
-
-            return "Hello, authenticated user";
-        }, true);
+        app.Rest.Route("GET", "/authenticated", async (req) => "Hello, authenticated user", true);
 
         await app.Rest.Run();
     }
 
     static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)
     {
-        if (ctx.Request.Authorization != null)
+        if (ctx.Request.Authorization?.Username == "user" &&
+            ctx.Request.Authorization?.Password == "password")
         {
-            if (!String.IsNullOrEmpty(ctx.Request.Authorization.Username)
-                && !String.IsNullOrEmpty(ctx.Request.Authorization.Password)
-                && ctx.Request.Authorization.Username.Equals("user")
-                && ctx.Request.Authorization.Password.Equals("password"))
-            {
-                // pass any object back to your code
-                ctx.Metadata = new
-                {
-                    Authorized = true,
-                    Method = "credentials"
-                };
-
-                return new AuthResult
-                {
-                    AuthenticationResult = AuthenticationResultEnum.Success,
-                    AuthorizationResult = AuthorizationResultEnum.Permitted
-                };
-            }
+            ctx.Metadata = new { Authorized = true };
+            return AuthResult.Permit();
         }
-
-        return new AuthResult
-        {
-            AuthenticationResult = AuthenticationResultEnum.NotFound,
-            AuthorizationResult = AuthorizationResultEnum.Denied
-        };
+        return AuthResult.Deny();
     }
 }
 ```
+</details>
 
-## Version History
+---
 
-Please refer to CHANGELOG.md for details.
+## 📨 RabbitMQ Example
 
-## Logo
+SwiftStack includes **first-class RabbitMQ support**, including *resilient* producer/consumer and broadcaster/receiver patterns.  
+Resilient modes use on-disk index files to recover state across process restarts.
 
-Thanks to [pngall.com](https://www.pngall.com/fast-png/download/92775/) for making this fantastic logo available.
+```csharp
+using SwiftStack;
+using SwiftStack.RabbitMq;
+
+// Initialize app and RabbitMQ integration
+SwiftStackApp app = new SwiftStackApp("RabbitMQ Example");
+RabbitMqApp rabbit = new RabbitMqApp(app);
+
+// Define queue settings
+QueueProperties queueProps = new QueueProperties
+{
+    Hostname = "localhost",
+    Name = "demo-queue",
+    AutoDelete = true
+};
+
+// Create producer and consumer
+var producer = new RabbitMqProducer<string>(app.Logging, queueProps, 1024 * 1024);
+var consumer = new RabbitMqConsumer<string>(app.Logging, queueProps, true);
+
+consumer.MessageReceived += (sender, e) =>
+{
+    Console.WriteLine($"[Consumer] {e.Data}");
+};
+
+// Initialize and send
+await producer.InitializeAsync();
+await consumer.InitializeAsync();
+
+for (int i = 1; i <= 5; i++)
+{
+    await producer.SendMessage($"Message {i}", Guid.NewGuid().ToString());
+    await Task.Delay(500);
+}
+```
+
+**Resilient** versions are identical except you use:
+
+```csharp
+var producer = new ResilientRabbitMqProducer<string>(app.Logging, queueProps, "./producer.idx", 1024 * 1024);
+var consumer = new ResilientRabbitMqConsumer<string>(app.Logging, queueProps, "./consumer.idx", 4, true);
+```
+
+and the same for broadcaster/receiver via:
+
+```csharp
+var broadcaster = new RabbitMqBroadcaster<MyType>(...);
+var receiver = new RabbitMqBroadcastReceiver<MyType>(...);
+```
+
+---
+
+## 🔌 WebSockets Example
+
+SwiftStack makes it trivial to stand up **WebSocket servers** with routing, default handlers, and direct server→client messaging.
+
+```csharp
+using SwiftStack;
+using SwiftStack.Websockets;
+
+SwiftStackApp app = new SwiftStackApp("WebSockets Demo");
+WebsocketsApp wsApp = new WebsocketsApp(app);
+
+// Route for "echo"
+wsApp.AddRoute("echo", async (msg, token) =>
+{
+    await msg.RespondAsync($"Echo: {msg.DataAsString}");
+});
+
+// Default route
+wsApp.DefaultRoute = async (msg, token) =>
+{
+    await msg.RespondAsync("No route matched, sorry!");
+};
+
+// Start server
+app.LoggingSettings.EnableConsole = true;
+Task serverTask = wsApp.Run("127.0.0.1", 9006, CancellationToken.None);
+
+// Example: sending server→client message after connect
+wsApp.ClientConnected += async (sender, client) =>
+{
+    await wsApp.WebsocketServer.SendAsync(client.Guid, "Welcome to the server!");
+};
+
+await serverTask;
+```
+
+**Client** (any WebSocket library works — here’s with `System.Net.WebSockets`):
+
+```csharp
+using var ws = new ClientWebSocket();
+await ws.ConnectAsync(new Uri("ws://127.0.0.1:9006/echo"), CancellationToken.None);
+await ws.SendAsync(Encoding.UTF8.GetBytes("Hello"), WebSocketMessageType.Text, true, CancellationToken.None);
+```
+
+---
+
+## 📦 Installation
+
+```bash
+dotnet add package SwiftStack
+```
+
+---
+
+## 📜 Version History
+
+See [CHANGELOG.md](CHANGELOG.md) for details.
+
+---
+
+## ❤️ Donations
+
+If you’d like to financially support development: see [DONATIONS.md](DONATIONS.md).
+
+---
+
+## 🖼 Logo
+
+Thanks to [pngall.com](https://www.pngall.com/fast-png/download/92775/) for the lightning icon.
+
+---

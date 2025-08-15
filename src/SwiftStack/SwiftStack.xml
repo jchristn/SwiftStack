@@ -1266,5 +1266,220 @@
             <param name="result">Result.</param>
             <param name="message">Message.</param>
         </member>
+        <member name="T:SwiftStack.Websockets.WebsocketsApp">
+            <summary>
+            SwiftStack websockets application.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.IsRunning">
+            <summary>
+            Boolean to indicate if the app is running.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.Header">
+            <summary>
+            Header to include in emitted log messages.  
+            Default is [RestApp].
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.QuietStartup">
+            <summary>
+            Set to true to disable log messages on startup.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.WebsocketSettings">
+            <summary>
+            Websocket settings.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.WebsocketServer">
+            <summary>
+            Websocket server.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.OnConnection">
+            <summary>
+            Event to fire when a client connects.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.OnDisconnection">
+            <summary>
+            Event to fire when a client disconnects.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.DefaultRoute">
+            <summary>
+            Default route, used when no matching route handler is found.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.NotFoundRoute">
+            <summary>
+            Not found route, used when a message specifies a route that doesn't exist.
+            If not set, falls back to DefaultRoute.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.ExceptionRoute">
+            <summary>
+            Exception route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.SendExceptionMessagesToClient">
+            <summary>
+            When true and no ExceptionRoute is set, sends a default error message to the client.
+            Default is false for backward compatibility.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsApp.IncludeExceptionDetailsInClientMessages">
+            <summary>
+            When true, includes exception details in default error messages sent to clients.
+            Only applies when SendExceptionMessagesToClient is true and no ExceptionRoute is set.
+            Default is false for security.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsApp.#ctor(SwiftStack.SwiftStackApp)">
+            <summary>
+            SwiftStack websockets application.
+            </summary>
+            <param name="app">SwiftStack app.</param>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsApp.AddRoute(System.String,System.Func{SwiftStack.Websockets.WebsocketsMessage,System.Threading.CancellationToken,System.Threading.Tasks.Task})">
+            <summary>
+            Add a route.  
+            </summary>
+            <param name="name">Name of the route.</param>
+            <param name="handler">Method to invoke.</param>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsApp.Run(System.Threading.CancellationToken)">
+            <summary>
+            Run the application.
+            </summary>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsApp.Dispose(System.Boolean)">
+            <summary>
+            Dispose.
+            </summary>
+            <param name="disposing">Disposing.</param>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsApp.Dispose">
+            <summary>
+            Dispose.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Websockets.WebsocketsMessage">
+            <summary>
+            Websockets message.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Payload">
+            <summary>
+            Websocket payload type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.GUID">
+            <summary>
+            GUID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Sender">
+            <summary>
+            Sender GUID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Conversation">
+            <summary>
+            Conversation GUID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.IpPort">
+            <summary>
+            IP:port of the sender.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Ip">
+            <summary>
+            IP address of the sender.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Port">
+            <summary>
+            Port number for the sender.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Name">
+            <summary>
+            Sender name, if any.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.ReplyTo">
+            <summary>
+            Reply-to GUID.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Route">
+            <summary>
+            Route by which the message should be handled.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Data">
+            <summary>
+            Message payload.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.#ctor">
+            <summary>
+            Websockets message.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.SetWebsocketServer(WatsonWebsocket.WatsonWsServer)">
+            <summary>
+            Set the WebSocket server reference for response helper methods.
+            This is typically called internally by WebsocketsApp.
+            </summary>
+            <param name="server">The WebSocket server.</param>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.RespondAsync(System.Object)">
+            <summary>
+            Send a response back to the client that sent this message.
+            </summary>
+            <param name="response">The response to send. Can be a string or an object that will be serialized to JSON.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.RespondAsync(WatsonWebsocket.WatsonWsServer,System.Object)">
+            <summary>
+            Send a response back to the client that sent this message, using a custom WebSocket server instance.
+            </summary>
+            <param name="server">The WebSocket server to use.</param>
+            <param name="response">The response to send.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.DataAsString">
+            <summary>
+            Get the message data as a UTF-8 string.
+            </summary>
+            <returns>The data as a string.</returns>
+        </member>
+        <member name="M:SwiftStack.Websockets.WebsocketsMessage.DataAsBytes">
+            <summary>
+            Get the message data as a byte array.
+            </summary>
+            <returns>The data as a byte array.</returns>
+        </member>
+        <member name="T:SwiftStack.Websockets.WebsocketsMessageTypeEnum">
+            <summary>
+            Websockets message type.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Websockets.WebsocketsMessageTypeEnum.Request">
+            <summary>
+            Request.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Websockets.WebsocketsMessageTypeEnum.Response">
+            <summary>
+            Response.
+            </summary>
+        </member>
     </members>
 </doc>

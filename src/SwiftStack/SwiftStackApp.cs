@@ -132,6 +132,8 @@
                     Environment.NewLine);
             }
 
+            if (!String.IsNullOrEmpty(name)) Name = name;
+
             _Logging = new LoggingModule(_LoggingServers, _LoggingSettings.EnableConsole);
             _Logging.Settings = _LoggingSettings;
 
