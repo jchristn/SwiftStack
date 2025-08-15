@@ -93,7 +93,10 @@ class Program
 
 ---
 
-## 📨 RabbitMQ Example
+## 📨 Simple RabbitMQ Example
+
+<details>
+<summary>Click to expand</summary>
 
 SwiftStack includes **first-class RabbitMQ support**, including *resilient* producer/consumer and broadcaster/receiver patterns.  
 Resilient modes use on-disk index files to recover state across process restarts.
@@ -147,10 +150,14 @@ and the same for broadcaster/receiver via:
 var broadcaster = new RabbitMqBroadcaster<MyType>(...);
 var receiver = new RabbitMqBroadcastReceiver<MyType>(...);
 ```
+</details>
 
 ---
 
-## 🔌 WebSockets Example
+## 🔌Simple WebSockets Example
+
+<details>
+<summary>Click to expand</summary>
 
 SwiftStack makes it trivial to stand up **WebSocket servers** with routing, default handlers, and direct server→client messaging.
 
@@ -193,6 +200,7 @@ using var ws = new ClientWebSocket();
 await ws.ConnectAsync(new Uri("ws://127.0.0.1:9006/echo"), CancellationToken.None);
 await ws.SendAsync(Encoding.UTF8.GetBytes("Hello"), WebSocketMessageType.Text, true, CancellationToken.None);
 ```
+</details>
 
 ---
 
