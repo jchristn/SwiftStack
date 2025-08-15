@@ -79,13 +79,25 @@ class Program
 
     static async Task<AuthResult> AuthenticationRoute(HttpContextBase ctx)
     {
+
         if (ctx.Request.Authorization?.Username == "user" &&
             ctx.Request.Authorization?.Password == "password")
         {
-            ctx.Metadata = new { Authorized = true };
-            return AuthResult.Permit();
+            ctx.Metadata = new { Authorized = true };                    
+            return new AuthResult
+            {
+                AuthenticationResult = AuthenticationResultEnum.Success,
+                AuthorizationResult = AuthorizationResultEnum.Permitted
+            };
         }
-        return AuthResult.Deny();
+        else
+        {
+            return new AuthResult
+            {
+                AuthenticationResult = AuthenticationResultEnum.NotFound,
+                AuthorizationResult = AuthorizationResultEnum.DeniedImplicit
+            };
+        }
     }
 }
 ```
