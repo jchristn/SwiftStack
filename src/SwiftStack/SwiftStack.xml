@@ -1078,9 +1078,19 @@
             Preflight route.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.RestApp.PreRoutingRoute">
+            <summary>
+            Pre-routing route.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.RestApp.AuthenticationRoute">
             <summary>
             Authentication route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.PostRoutingRoute">
+            <summary>
+            Post-routing route.
             </summary>
         </member>
         <member name="P:SwiftStack.Rest.RestApp.FaviconFile">

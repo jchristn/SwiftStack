@@ -101,9 +101,19 @@
         public Func<HttpContextBase, Task> PreflightRoute { get; set; } = null;
 
         /// <summary>
+        /// Pre-routing route.
+        /// </summary>
+        public Func<HttpContextBase, Task> PreRoutingRoute { get; set; } = null;
+
+        /// <summary>
         /// Authentication route.
         /// </summary>
         public Func<HttpContextBase, Task<AuthResult>> AuthenticationRoute { get; set; } = null;
+
+        /// <summary>
+        /// Post-routing route.
+        /// </summary>
+        public Func<HttpContextBase, Task> PostRoutingRoute { get; set; } = null;
 
         /// <summary>
         /// Favicon.ico file.
@@ -218,8 +228,8 @@
                         }
 
                         _Webserver.Routes.Preflight = PreflightRoute != null ? PreflightRoute : PreflightInternalRoute;
-                        _Webserver.Routes.PreRouting = PreRoutingRoute;
-                        _Webserver.Routes.PostRouting = PostRoutingRoute;
+                        _Webserver.Routes.PreRouting = PreRoutingRoute != null ? PreRoutingRoute : PreRoutingInternalRoute;
+                        _Webserver.Routes.PostRouting = PostRoutingRoute != null ? PostRoutingRoute : PostRoutingInternalRoute;
                         if (AuthenticationRoute != null) _Webserver.Routes.AuthenticateRequest = AuthenticateRequest;
 
                         await _Webserver.StartAsync(token);
@@ -614,12 +624,12 @@
             await ctx.Response.Send();
         }
 
-        private async Task PreRoutingRoute(HttpContextBase ctx)
+        private async Task PreRoutingInternalRoute(HttpContextBase ctx)
         {
 
         }
 
-        private async Task PostRoutingRoute(HttpContextBase ctx)
+        private async Task PostRoutingInternalRoute(HttpContextBase ctx)
         {
             ctx.Request.Timestamp.End = DateTime.UtcNow;
 
