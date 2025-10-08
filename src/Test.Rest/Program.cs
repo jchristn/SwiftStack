@@ -18,7 +18,7 @@
 
         public static async Task Main(string[] args)
         {
-            SwiftStackApp app = new SwiftStackApp("My test application");
+            SwiftStackApp app = new SwiftStackApp("My test application", false);
 
             #region REST
 
