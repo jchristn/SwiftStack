@@ -103,11 +103,16 @@
 
                 for (int i = 0; i < count; i++)
                 {
-                    await req.Http.Response.SendEvent("Event " + i, false);
+                    await req.Http.Response.SendEvent(
+                        new ServerSentEvent 
+                        {
+                            Data = ("Event " + i)
+                        }, 
+                        false);
                     await Task.Delay(500);
                 }
 
-                await req.Http.Response.SendEvent(null, true);
+                await req.Http.Response.SendEvent(new ServerSentEvent { Data = "" }, true);
 
                 return null;
             });
