@@ -16,8 +16,6 @@
     {
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        #region Public-Members
-
         /// <summary>
         /// Boolean to indicate if the app is running.
         /// </summary>
@@ -41,10 +39,6 @@
             }
         }
 
-        #endregion
-
-        #region Private-Members
-
         private SwiftStackApp _App = null;
 
         private string _Header = "[RabbitMqApp] ";
@@ -56,10 +50,6 @@
 
         private bool _Disposed = false;
 
-        #endregion
-
-        #region Constructors-and-Factories
-
         /// <summary>
         /// SwiftStack RabbitMQ application.
         /// </summary>
@@ -70,10 +60,6 @@
 
             _App = app;
         }
-
-        #endregion
-
-        #region Public-Methods
 
         /// <summary>
         /// Run the application.
@@ -253,12 +239,6 @@
                 _Interfaces.Add(consumer);
             }
         }
-
-        #endregion
-
-        #region Private-Methods
-
-        #endregion
 
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
     }

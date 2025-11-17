@@ -144,8 +144,8 @@
             };
 
             // Create broadcaster and receiver
-            var broadcaster = new RabbitMqBroadcaster<TestMessage>(_App.Logging, queueProps, _MaxMessageSize);
-            var receiver = new RabbitMqBroadcastReceiver<TestMessage>(_App.Logging, queueProps);
+            var broadcaster = new RabbitMqBroadcaster<TestMessage>(_App.Serializer, _App.Logging, queueProps, _MaxMessageSize);
+            var receiver = new RabbitMqBroadcastReceiver<TestMessage>(_App.Serializer, _App.Logging, queueProps);
 
             // Set up message received event handler
             receiver.MessageReceived += (sender, e) =>
@@ -212,8 +212,8 @@
             };
 
             // Create producer and consumer
-            var producer = new RabbitMqProducer<TestMessage>(_App.Logging, queueProps, _MaxMessageSize);
-            var consumer = new RabbitMqConsumer<TestMessage>(_App.Logging, queueProps, true);
+            var producer = new RabbitMqProducer<TestMessage>(_App.Serializer, _App.Logging, queueProps, _MaxMessageSize);
+            var consumer = new RabbitMqConsumer<TestMessage>(_App.Serializer, _App.Logging, queueProps, true);
 
             // Set up message received event handler
             consumer.MessageReceived += (sender, e) =>
@@ -281,10 +281,10 @@
 
             // Create resilient broadcaster and receiver
             var broadcaster = new ResilientRabbitMqBroadcaster<TestMessage>(
-                _App.Logging, queueProps, "./broadcaster.idx", _MaxMessageSize);
+                _App.Serializer, _App.Logging, queueProps, "./broadcaster.idx", _MaxMessageSize);
 
             var receiver = new ResilientRabbitMqBroadcastReceiver<TestMessage>(
-                _App.Logging, queueProps, "./receiver.idx");
+                _App.Serializer, _App.Logging, queueProps, "./receiver.idx");
 
             // Set up message received event handler with null checking
             receiver.MessageReceived += (sender, e) =>
@@ -372,10 +372,10 @@
 
             // Create resilient producer and consumer
             var producer = new ResilientRabbitMqProducer<TestMessage>(
-                _App.Logging, queueProps, "./producer.idx", _MaxMessageSize);
+                _App.Serializer, _App.Logging, queueProps, "./producer.idx", _MaxMessageSize);
 
             var consumer = new ResilientRabbitMqConsumer<TestMessage>(
-                _App.Logging, queueProps, "./consumer.idx", 4, true);
+                _App.Serializer, _App.Logging, queueProps, "./consumer.idx", 4, true);
 
             // Set up message received event handler with null checking
             consumer.MessageReceived += (sender, e) =>

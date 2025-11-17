@@ -24,6 +24,7 @@
         private DateTimeConverter _DateTimeConverter = new DateTimeConverter();
         private IPAddressConverter _IPAddressConverter = new IPAddressConverter();
         private StrictEnumConverterFactory _StrictEnumConverter = new StrictEnumConverterFactory();
+        private ArraySegmentByteConverter _ArraySegmentByteConverter = new ArraySegmentByteConverter();
 
         /// <summary>
         /// Serializer.
@@ -45,6 +46,7 @@
                 Activator.CreateInstance<DateTimeConverter>();
                 Activator.CreateInstance<IPAddressConverter>();
                 Activator.CreateInstance<StrictEnumConverterFactory>();
+                Activator.CreateInstance<ArraySegmentByteConverter>();
             }
             catch (Exception)
             {
@@ -72,6 +74,7 @@
             options.Converters.Add(_DateTimeConverter);
             options.Converters.Add(_IPAddressConverter);
             options.Converters.Add(_StrictEnumConverter);
+            options.Converters.Add(_ArraySegmentByteConverter);
 
             return JsonSerializer.Deserialize<T>(json, options);
         }
@@ -107,6 +110,7 @@
             options.Converters.Add(_DateTimeConverter);
             options.Converters.Add(_IPAddressConverter);
             options.Converters.Add(_StrictEnumConverter);
+            options.Converters.Add(_ArraySegmentByteConverter);
 
             if (!pretty)
             {

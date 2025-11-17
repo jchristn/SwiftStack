@@ -308,10 +308,11 @@
             Debug logging.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcaster`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
             <summary>
             Create an instance.  Initialize the instance using InitializeAsync.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="maxMessageSize">Maximum message size.</param>
@@ -364,10 +365,11 @@
             Event to fire when a message is received.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties)">
+        <member name="M:SwiftStack.RabbitMq.RabbitMqBroadcastReceiver`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties)">
             <summary>
             Create an instance.  Initialize the instance using InitializeAsync.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
         </member>
@@ -410,10 +412,11 @@
             Event to fire when a message is received.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Boolean)">
+        <member name="M:SwiftStack.RabbitMq.RabbitMqConsumer`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Boolean)">
             <summary>
             Create an instance.  Initialize the instance using InitializeAsync.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="autoAck">Automatically acknowledge messages; default is true.</param>
@@ -458,10 +461,11 @@
             Debug logging.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
+        <member name="M:SwiftStack.RabbitMq.RabbitMqProducer`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.Int32)">
             <summary>
             Create an instance.  Initialize the instance using InitializeAsync.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="maxMessageSize">Maximum message size.</param>
@@ -506,10 +510,11 @@
             Boolean indicating whether or not the channel is connected.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcaster`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
             <summary>
             Create an instance.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
@@ -558,10 +563,11 @@
             Event to fire when a message is received.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqBroadcastReceiver`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
             <summary>
             Create an instance.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
@@ -594,10 +600,11 @@
             Event to fire when a message is received.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32,System.Boolean)">
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqConsumer`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32,System.Boolean)">
             <summary>
             Create an instance.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
@@ -632,10 +639,11 @@
             Boolean indicating whether or not the channel is connected.
             </summary>
         </member>
-        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.#ctor(SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
+        <member name="M:SwiftStack.RabbitMq.ResilientRabbitMqProducer`1.#ctor(SwiftStack.Serialization.ISerializer,SyslogLogging.LoggingModule,SwiftStack.RabbitMq.QueueProperties,System.String,System.Int32)">
             <summary>
             Create an instance.
             </summary>
+            <param name="serializer">Serializer.</param>
             <param name="logging">Logging module.</param>
             <param name="queue">Queue properties.</param>
             <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
@@ -1200,6 +1208,28 @@
             <param name="requestType">Request body type.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="T:SwiftStack.Serialization.ArraySegmentByteConverter">
+            <summary>
+            ArraySegment&lt;byte&gt; converter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.ArraySegmentByteConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>ArraySegment&lt;byte&gt;.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.ArraySegmentByteConverter.Write(System.Text.Json.Utf8JsonWriter,System.ArraySegment{System.Byte},System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="value">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
         <member name="T:SwiftStack.Serialization.DateTimeConverter">
             <summary>
             DateTime converter.
@@ -1221,6 +1251,11 @@
             <param name="writer">Writer.</param>
             <param name="dateTimeValue">Value.</param>
             <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.SerializableProperty">
+            <summary>
+            Serializable property wrapper for exception serialization.
+            </summary>
         </member>
         <member name="T:SwiftStack.Serialization.ExceptionConverter`1">
             <summary>
@@ -1490,6 +1525,11 @@
             <param name="result">Result.</param>
             <param name="message">Message.</param>
         </member>
+        <member name="T:SwiftStack.Websockets.WebsocketErrorResponse">
+            <summary>
+            Error response for websocket messages.
+            </summary>
+        </member>
         <member name="T:SwiftStack.Websockets.WebsocketsApp">
             <summary>
             SwiftStack websockets application.
@@ -1644,6 +1684,11 @@
         <member name="P:SwiftStack.Websockets.WebsocketsMessage.Route">
             <summary>
             Route by which the message should be handled.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Websockets.WebsocketsMessage.Serializer">
+            <summary>
+            Serializer.
             </summary>
         </member>
         <member name="P:SwiftStack.Websockets.WebsocketsMessage.Data">

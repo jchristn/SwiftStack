@@ -1,9 +1,20 @@
 ﻿namespace SwiftStack.Serialization
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
+    using System.Reflection;
     using System.Text.Json.Serialization;
     using System.Text.Json;
+
+    /// <summary>
+    /// Serializable property wrapper for exception serialization.
+    /// </summary>
+    internal class SerializableProperty
+    {
+        public string Name { get; set; }
+        public object Value { get; set; }
+    }
 
     /// <summary>
     /// Exception converter.
@@ -41,9 +52,9 @@
         /// <param name="options">JSON serializer options.</param>
         public override void Write(Utf8JsonWriter writer, TExceptionType value, JsonSerializerOptions options)
         {
-            var serializableProperties = value.GetType()
+            IEnumerable<SerializableProperty> serializableProperties = value.GetType()
                 .GetProperties()
-                .Select(uu => new { uu.Name, Value = uu.GetValue(value) })
+                .Select(uu => new SerializableProperty { Name = uu.Name, Value = uu.GetValue(value) })
                 .Where(uu => uu.Name != nameof(Exception.TargetSite));
 
             if (options.DefaultIgnoreCondition == JsonIgnoreCondition.WhenWritingNull)
@@ -51,7 +62,7 @@
                 serializableProperties = serializableProperties.Where(uu => uu.Value != null);
             }
 
-            var propList = serializableProperties.ToList();
+            List<SerializableProperty> propList = serializableProperties.ToList();
 
             if (propList.Count == 0)
             {
@@ -61,7 +72,7 @@
 
             writer.WriteStartObject();
 
-            foreach (var prop in propList)
+            foreach (SerializableProperty prop in propList)
             {
                 writer.WritePropertyName(prop.Name);
                 JsonSerializer.Serialize(writer, prop.Value, options);

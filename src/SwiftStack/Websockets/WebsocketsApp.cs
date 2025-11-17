@@ -15,6 +15,17 @@
     using WatsonWebsocket;
 
     /// <summary>
+    /// Error response for websocket messages.
+    /// </summary>
+    internal class WebsocketErrorResponse
+    {
+        public bool error { get; set; }
+        public string message { get; set; }
+        public string details { get; set; }
+        public string type { get; set; }
+    }
+
+    /// <summary>
     /// SwiftStack websockets application.
     /// </summary>
     public class WebsocketsApp : IDisposable
@@ -212,7 +223,13 @@
                         _WebsocketServer?.Stop();
 
                     _TokenSource.Cancel();
-                    _WebsocketTask.Wait();
+
+                    // Wait for the websocket task with a timeout to avoid hanging
+                    if (_WebsocketTask != null)
+                    {
+                        _WebsocketTask.Wait(TimeSpan.FromMilliseconds(500));
+                    }
+
                     _TokenSource.Dispose();
                 }
 
@@ -269,6 +286,12 @@
                         msg.Conversation = payload.Conversation;
                         msg.ReplyTo = payload.ReplyTo;
                         msg.Route = payload.Route;
+
+                        // if the payload has data, use it; otherwise keep the raw data
+                        if (payload.Data.Array != null && payload.Data.Count > 0)
+                        {
+                            msg.Data = payload.Data;
+                        }
                     }
                     catch (JsonException)
                     {
@@ -330,7 +353,7 @@
                     // Send default error response to client
                     try
                     {
-                        var errorResponse = new
+                        WebsocketErrorResponse errorResponse = new WebsocketErrorResponse
                         {
                             error = true,
                             message = "An error occurred processing your request",

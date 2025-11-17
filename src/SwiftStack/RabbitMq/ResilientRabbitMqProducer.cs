@@ -13,6 +13,7 @@
     using RabbitMQ.Client.Exceptions;
     using SyslogLogging;
     using SerializationHelper;
+    using SwiftStack.Serialization;
 
     /// <summary>
     /// Resilient RabbitMQ producer client.
@@ -43,7 +44,7 @@
         private string _Header = "[ResilientRabbitMqProducer] ";
         private int _MaxMessageSize = 32 * 1024 * 1024;
 
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = null;
         private LoggingModule _Logging = null;
         private QueueProperties _Queue = null;
 
@@ -69,11 +70,13 @@
         /// <summary>
         /// Create an instance.
         /// </summary>
+        /// <param name="serializer">Serializer.</param>
         /// <param name="logging">Logging module.</param>
         /// <param name="queue">Queue properties.</param>
         /// <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
         /// <param name="maxMessageSize">Maximum message size.</param>
         public ResilientRabbitMqProducer(
+            ISerializer serializer,
             LoggingModule logging,
             QueueProperties queue,
             string storeAndForwardPath,
@@ -82,6 +85,7 @@
             if (String.IsNullOrEmpty(storeAndForwardPath)) throw new ArgumentNullException(nameof(storeAndForwardPath));
             if (maxMessageSize < 1024) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
 
+            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _Logging = logging ?? new LoggingModule();
             _Queue = queue ?? throw new ArgumentNullException(nameof(queue));
             _MaxMessageSize = maxMessageSize;

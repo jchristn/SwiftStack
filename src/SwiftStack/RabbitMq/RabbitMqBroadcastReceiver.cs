@@ -8,6 +8,7 @@
     using RabbitMQ.Client.Events;
     using SerializationHelper;
     using SyslogLogging;
+    using SwiftStack.Serialization;
 
     /// <summary>
     /// RabbitMQ broadcast receiver client.
@@ -54,7 +55,7 @@
         private string _Header = "[RabbitMqBroadcastReceiver] ";
         private bool _IsInitialized = false;
 
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = null;
         private LoggingModule _Logging = null;
         private QueueProperties _Queue = null;
 
@@ -70,10 +71,15 @@
         /// <summary>
         /// Create an instance.  Initialize the instance using InitializeAsync.
         /// </summary>
+        /// <param name="serializer">Serializer.</param>
         /// <param name="logging">Logging module.</param>
         /// <param name="queue">Queue properties.</param>
-        public RabbitMqBroadcastReceiver(LoggingModule logging, QueueProperties queue)
+        public RabbitMqBroadcastReceiver(
+            ISerializer serializer,
+            LoggingModule logging,
+            QueueProperties queue)
         {
+            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _Logging = logging ?? new LoggingModule();
             _Queue = queue ?? throw new ArgumentNullException(nameof(queue));
             _Header = "[RabbitMqConsumer " + _Queue.FullyQualifiedName + "] ";

@@ -267,7 +267,13 @@
                 if (disposing)
                 {
                     _TokenSource.Cancel();
-                    _WebserverTask.Wait();
+
+                    // Wait for the webserver task with a timeout to avoid hanging
+                    if (_WebserverTask != null)
+                    {
+                        _WebserverTask.Wait(TimeSpan.FromMilliseconds(500));
+                    }
+
                     _TokenSource.Dispose();
                 }
 

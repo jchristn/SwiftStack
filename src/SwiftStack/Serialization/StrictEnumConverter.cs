@@ -24,7 +24,8 @@
             if (reader.TokenType == JsonTokenType.String)
             {
                 string stringValue = reader.GetString();
-                if (!Enum.TryParse<TEnum>(stringValue, ignoreCase: true, out var enumValue) ||
+                TEnum enumValue;
+                if (!Enum.TryParse<TEnum>(stringValue, ignoreCase: true, out enumValue) ||
                     !Enum.IsDefined(typeof(TEnum), enumValue))
                 {
                     throw new JsonException($"String value '{stringValue}' is not valid for enum type {typeof(TEnum).Name}");
@@ -36,7 +37,7 @@
             {
                 int intValue = reader.GetInt32();
                 // Explicitly get the defined values
-                var definedValues = (int[])Enum.GetValues(typeof(TEnum));
+                int[] definedValues = (int[])Enum.GetValues(typeof(TEnum));
 
                 if (!Array.Exists(definedValues, x => x == intValue))
                 {

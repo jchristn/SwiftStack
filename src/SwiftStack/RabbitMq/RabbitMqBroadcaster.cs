@@ -8,6 +8,7 @@
     using RabbitMQ.Client.Events;
     using SerializationHelper;
     using SyslogLogging;
+    using SwiftStack.Serialization;
 
     /// <summary>
     /// RabbitMQ broadcaster client.
@@ -53,7 +54,7 @@
         private bool _IsInitialized = false;
         private int _MaxMessageSize = 32 * 1024 * 1024;
 
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = null;
         private LoggingModule _Logging = null;
         private QueueProperties _Queue = null;
 
@@ -70,13 +71,19 @@
         /// <summary>
         /// Create an instance.  Initialize the instance using InitializeAsync.
         /// </summary>
+        /// <param name="serializer">Serializer.</param>
         /// <param name="logging">Logging module.</param>
         /// <param name="queue">Queue properties.</param>
         /// <param name="maxMessageSize">Maximum message size.</param>
-        public RabbitMqBroadcaster(LoggingModule logging, QueueProperties queue, int maxMessageSize = (32 * 1024 * 1024))
+        public RabbitMqBroadcaster(
+            ISerializer serializer,
+            LoggingModule logging,
+            QueueProperties queue,
+            int maxMessageSize = (32 * 1024 * 1024))
         {
             if (maxMessageSize < 1024) throw new ArgumentOutOfRangeException(nameof(maxMessageSize));
 
+            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _Logging = logging ?? new LoggingModule();
             _Queue = queue ?? throw new ArgumentNullException(nameof(queue));
             _MaxMessageSize = maxMessageSize;

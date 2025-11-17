@@ -12,6 +12,7 @@
     using RabbitMQ.Client.Exceptions;
     using SyslogLogging;
     using SerializationHelper;
+    using SwiftStack.Serialization;
 
     /// <summary>
     /// Resilient RabbitMQ broadcast receiver client.
@@ -46,7 +47,7 @@
 
         private string _Header = "[ResilientRabbitMqBroadcastReceiver] ";
 
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = null;
         private LoggingModule _Logging = null;
         private QueueProperties _Queue = null;
         private int _MaxParallelTasks = 4;
@@ -72,11 +73,13 @@
         /// <summary>
         /// Create an instance.
         /// </summary>
+        /// <param name="serializer">Serializer.</param>
         /// <param name="logging">Logging module.</param>
         /// <param name="queue">Queue properties.</param>
         /// <param name="storeAndForwardPath">Directory for store-and-forward data.</param>
         /// <param name="maxParallelTasks">Maximum number of parallel tasks.</param>
         public ResilientRabbitMqBroadcastReceiver(
+            ISerializer serializer,
             LoggingModule logging,
             QueueProperties queue,
             string storeAndForwardPath,
@@ -85,6 +88,7 @@
             if (String.IsNullOrEmpty(storeAndForwardPath)) throw new ArgumentNullException(nameof(storeAndForwardPath));
             if (maxParallelTasks < 1) throw new ArgumentOutOfRangeException(nameof(maxParallelTasks));
 
+            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _Logging = logging ?? new LoggingModule();
             _Queue = queue ?? throw new ArgumentNullException(nameof(queue));
             _StoreAndForwardPath = storeAndForwardPath;

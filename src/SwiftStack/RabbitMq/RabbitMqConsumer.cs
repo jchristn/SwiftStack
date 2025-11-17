@@ -6,8 +6,8 @@
     using System.Threading.Tasks;
     using RabbitMQ.Client;
     using RabbitMQ.Client.Events;
+    using SwiftStack.Serialization;
     using SyslogLogging;
-    using SerializationHelper;
 
     /// <summary>
     /// RabbitMQ consumer client.
@@ -54,7 +54,7 @@
         private string _Header = "[RabbitMqConsumer] ";
         private bool _IsInitialized = false;
 
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = null;
         private LoggingModule _Logging = null;
         private QueueProperties _Queue = null;
         private bool _AutoAcknowledge = false;
@@ -71,11 +71,13 @@
         /// <summary>
         /// Create an instance.  Initialize the instance using InitializeAsync.
         /// </summary>
+        /// <param name="serializer">Serializer.</param>
         /// <param name="logging">Logging module.</param>
         /// <param name="queue">Queue properties.</param>
         /// <param name="autoAck">Automatically acknowledge messages; default is true.</param>
-        public RabbitMqConsumer(LoggingModule logging, QueueProperties queue, bool autoAck = true)
+        public RabbitMqConsumer(ISerializer serializer, LoggingModule logging, QueueProperties queue, bool autoAck = true)
         {
+            _Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _Logging = logging ?? new LoggingModule();
             _Queue = queue ?? throw new ArgumentNullException(nameof(queue));
             _AutoAcknowledge = autoAck;

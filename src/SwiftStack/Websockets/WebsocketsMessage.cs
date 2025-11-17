@@ -6,7 +6,9 @@
     using System.Net.WebSockets;
     using System.Text;
     using System.Text.Json;
+    using System.Text.Json.Serialization;
     using System.Threading.Tasks;
+    using SwiftStack.Serialization;
     using WatsonWebsocket;
 
     /// <summary>
@@ -14,8 +16,6 @@
     /// </summary>
     public class WebsocketsMessage
     {
-        #region Public-Members
-
         /// <summary>
         /// Websocket payload type.
         /// </summary>
@@ -73,19 +73,22 @@
         public string Route { get; set; } = null;
 
         /// <summary>
+        /// Serializer.
+        /// </summary>
+        [JsonIgnore]
+        public ISerializer Serializer
+        {
+            get => _Serializer;
+            set => _Serializer = (value != null ? value : throw new ArgumentNullException(nameof(Serializer)));
+        }
+
+        /// <summary>
         /// Message payload.
         /// </summary>
         public ArraySegment<byte> Data { get; set; } = new ArraySegment<byte>(Array.Empty<byte>());
 
-        #endregion
-
-        #region Private-Members
-
         private WatsonWsServer _Server = null;
-
-        #endregion
-
-        #region Constructors-and-Factories
+        private ISerializer _Serializer = new Serializer();
 
         /// <summary>
         /// Websockets message.
@@ -94,10 +97,6 @@
         {
 
         }
-
-        #endregion
-
-        #region Public-Methods
 
         /// <summary>
         /// Set the WebSocket server reference for response helper methods.
@@ -119,8 +118,8 @@
             if (_Server == null)
                 throw new InvalidOperationException("WebSocket server reference not set. Cannot send response.");
 
-            var clients = _Server.ListClients().ToList();
-            var client = clients.FirstOrDefault(c => c.IpPort == this.IpPort);
+            List<ClientMetadata> clients = _Server.ListClients().ToList();
+            ClientMetadata client = clients.FirstOrDefault(c => c.IpPort == this.IpPort);
 
             if (client != null)
             {
@@ -135,7 +134,9 @@
                 else
                 {
                     // Serialize object to JSON
-                    string json = JsonSerializer.Serialize(response);
+                    if (_Serializer == null)
+                        throw new InvalidOperationException("Serializer not set. Cannot serialize response.");
+                    string json = _Serializer.SerializeJson(response, false);
                     await _Server.SendAsync(client.Guid, json);
                 }
             }
@@ -156,8 +157,8 @@
             if (server == null)
                 throw new ArgumentNullException(nameof(server));
 
-            var clients = server.ListClients().ToList();
-            var client = clients.FirstOrDefault(c => c.IpPort == this.IpPort);
+            List<ClientMetadata> clients = server.ListClients().ToList();
+            ClientMetadata client = clients.FirstOrDefault(c => c.IpPort == this.IpPort);
 
             if (client != null)
             {
@@ -172,7 +173,9 @@
                 else
                 {
                     // Serialize object to JSON
-                    string json = JsonSerializer.Serialize(response);
+                    if (_Serializer == null)
+                        throw new InvalidOperationException("Serializer not set. Cannot serialize response.");
+                    string json = _Serializer.SerializeJson(response, false);
                     await server.SendAsync(client.Guid, json);
                 }
             }
@@ -207,7 +210,5 @@
             Array.Copy(Data.Array, Data.Offset, result, 0, Data.Count);
             return result;
         }
-
-        #endregion
     }
 }
