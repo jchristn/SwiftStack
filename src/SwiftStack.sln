@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.RabbitMq", "Test.Rabbi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Websockets", "Test.Websockets\Test.Websockets.csproj", "{05278872-3E27-47B7-AB2D-B9C649B3AC10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Automated", "Test.Automated\Test.Automated.csproj", "{A1B2C3D4-E5F6-47A8-B9C0-D1E2F3A4B5C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

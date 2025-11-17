@@ -1,11 +1,11 @@
 ﻿namespace SwiftStack
 {
-    using SerializationHelper;
-    using SwiftStack.Rest;
-    using SyslogLogging;
     using System;
     using System.Collections.Generic;
     using System.Text;
+    using SwiftStack.Rest;
+    using SwiftStack.Serialization;
+    using SyslogLogging;
 
     /// <summary>
     /// SwiftStack application.
@@ -82,7 +82,7 @@
         /// <summary>
         /// JSON serializer.
         /// </summary>
-        public Serializer Serializer
+        public ISerializer Serializer
         {
             get
             {
@@ -106,7 +106,7 @@
 
         private string _Header = "[SwiftStackApp] ";
         private LoggingModule _Logging = null;
-        private Serializer _Serializer = new Serializer();
+        private ISerializer _Serializer = new Serializer();
         private LoggingSettings _LoggingSettings = new LoggingSettings();
         private List<SyslogServer> _LoggingServers = new List<SyslogServer>
         {

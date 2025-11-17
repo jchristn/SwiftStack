@@ -818,7 +818,7 @@
             User-supplied metadata.
             </summary>
         </member>
-        <member name="M:SwiftStack.Rest.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SerializationHelper.Serializer,System.Object)">
+        <member name="M:SwiftStack.Rest.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SwiftStack.Serialization.ISerializer,System.Object)">
             <summary>
             Application request.
             </summary>
@@ -1199,6 +1199,220 @@
             <param name="handler">Route body.</param>
             <param name="requestType">Request body type.</param>
             <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.DateTimeConverter">
+            <summary>
+            DateTime converter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.DateTimeConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>DateTime.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.DateTimeConverter.Write(System.Text.Json.Utf8JsonWriter,System.DateTime,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="dateTimeValue">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.ExceptionConverter`1">
+            <summary>
+            Exception converter.
+            </summary>
+            <typeparam name="TExceptionType">Exception type.</typeparam>
+        </member>
+        <member name="M:SwiftStack.Serialization.ExceptionConverter`1.CanConvert(System.Type)">
+            <summary>
+            Can convert.
+            </summary>
+            <param name="typeToConvert">Type to convert.</param>
+            <returns>True if convertible.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.ExceptionConverter`1.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>Instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.ExceptionConverter`1.Write(System.Text.Json.Utf8JsonWriter,`0,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="value">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.IPAddressConverter">
+            <summary>
+            IP address converter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.IPAddressConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>IPAddress.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.IPAddressConverter.Write(System.Text.Json.Utf8JsonWriter,System.Net.IPAddress,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="value">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.ISerializer">
+            <summary>
+            Serializer interface.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.ISerializer.DeserializeJson``1(System.String)">
+            <summary>
+            Deserialize JSON to an object instance.
+            </summary>
+            <typeparam name="T">Type.</typeparam>
+            <param name="json">JSON.</param>
+            <returns>Object instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.ISerializer.DeserializeJson``1(System.Byte[])">
+            <summary>
+            Deserialize bytes containing JSON to an object instance.
+            </summary>
+            <typeparam name="T">Type.</typeparam>
+            <param name="bytes">Bytes containing JSON.</param>
+            <returns>Object instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.ISerializer.SerializeJson(System.Object,System.Boolean)">
+            <summary>
+            Serialize object instance to JSON.
+            </summary>
+            <param name="obj">Object instance.</param>
+            <param name="pretty">True to enable pretty-print.</param>
+            <returns>JSON string.</returns>
+        </member>
+        <member name="T:SwiftStack.Serialization.NameValueCollectionConverter">
+            <summary>
+            NameValueCollection converter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.NameValueCollectionConverter.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>NameValueCollection.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.NameValueCollectionConverter.Write(System.Text.Json.Utf8JsonWriter,System.Collections.Specialized.NameValueCollection,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="value">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.Serializer">
+            <summary>
+            Serializer.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.#ctor">
+            <summary>
+            Serializer.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.InstantiateConverters">
+            <summary>
+            Instantiation method to support fixups for various environments, e.g. Unity.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.DeserializeJson``1(System.String)">
+            <summary>
+            Deserialize JSON to an instance.
+            </summary>
+            <typeparam name="T">Type.</typeparam>
+            <param name="json">JSON string.</param>
+            <returns>Instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.DeserializeJson``1(System.Byte[])">
+            <summary>
+            Deserialize JSON to an instance.
+            </summary>
+            <typeparam name="T">Type.</typeparam>
+            <param name="bytes">Bytes containing JSON.</param>
+            <returns>Instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.SerializeJson(System.Object,System.Boolean)">
+            <summary>
+            Serialize object to JSON.
+            </summary>
+            <param name="obj">Object.</param>
+            <param name="pretty">Pretty print.</param>
+            <returns>JSON.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.Serializer.CopyObject``1(System.Object)">
+            <summary>
+            Copy an object.
+            </summary>
+            <typeparam name="T">Type.</typeparam>
+            <param name="o">Object.</param>
+            <returns>Instance.</returns>
+        </member>
+        <member name="T:SwiftStack.Serialization.StrictEnumConverter`1">
+            <summary>
+            Strict enum converter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.StrictEnumConverter`1.Read(System.Text.Json.Utf8JsonReader@,System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Read.
+            </summary>
+            <param name="reader">Reader.</param>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>DateTime.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.StrictEnumConverter`1.Write(System.Text.Json.Utf8JsonWriter,`0,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Write.
+            </summary>
+            <param name="writer">Writer.</param>
+            <param name="value">Value.</param>
+            <param name="options">JSON serializer options.</param>
+        </member>
+        <member name="T:SwiftStack.Serialization.StrictEnumConverterFactory">
+            <summary>
+            Strict enum converter factory.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Serialization.StrictEnumConverterFactory.CanConvert(System.Type)">
+            <summary>
+            Can convert.
+            </summary>
+            <param name="typeToConvert">Type to convert.</param>
+            <returns>True if convertible.</returns>
+        </member>
+        <member name="M:SwiftStack.Serialization.StrictEnumConverterFactory.CreateConverter(System.Type,System.Text.Json.JsonSerializerOptions)">
+            <summary>
+            Create converter.
+            </summary>
+            <param name="typeToConvert">Type to convert.</param>
+            <param name="options">JSON serializer options.</param>
+            <returns>JsonConverter.</returns>
         </member>
         <member name="T:SwiftStack.SwiftStackApp">
             <summary>

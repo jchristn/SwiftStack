@@ -2,11 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Reflection;
     using System.Text;
+    using SwiftStack.Serialization;
     using WatsonWebserver.Core;
-    using SerializationHelper;
-    using System.Linq;
 
     /// <summary>
     /// Application request.
@@ -43,7 +43,7 @@
         /// <summary>
         /// Serializer instance.
         /// </summary>
-        public Serializer Serializer { get; }
+        public ISerializer Serializer { get; }
 
         /// <summary>
         /// Authentication and authorization result.
@@ -66,7 +66,7 @@
         /// <summary>
         /// Application request.
         /// </summary>
-        public AppRequest(HttpContextBase ctx, Serializer serializer, object data)
+        public AppRequest(HttpContextBase ctx, ISerializer serializer, object data)
         {
             Http = ctx ?? throw new ArgumentNullException(nameof(ctx));
             Serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
