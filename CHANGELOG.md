@@ -2,12 +2,16 @@
 
 ## Current Version
 
-✨ New in v0.3.x
+✨ New in v0.4.x
+
+- **OpenAPI 3.0 and Swagger UI support** for REST APIs
+
+## Previous Versions
+
+v0.3.x
 
 - **WebSockets application support** via `WebsocketsApp`
 - **RabbitMQ resilient interfaces** with on-disk indexing for recovery
-
-## Previous Versions
 
 v0.2.0
 

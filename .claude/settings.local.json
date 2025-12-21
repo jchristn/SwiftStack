@@ -3,7 +3,16 @@
     "allow": [
       "Bash(cat:*)",
       "Bash(find:*)",
-      "Bash(dotnet build:*)"
+      "Bash(dotnet build:*)",
+      "Bash(Test.Automated.exe)",
+      "Bash(dotnet run:*)",
+      "Bash(timeout 90 dotnet run:*)",
+      "Bash(timeout 30 dotnet run:*)",
+      "Bash(timeout 20 dotnet run:*)",
+      "Bash(timeout 60 dotnet run:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(./Test.Automated.exe)",
+      "Bash(exit)"
     ],
     "deny": [],
     "ask": []

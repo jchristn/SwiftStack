@@ -10,10 +10,9 @@ MIT Licensed • No ceremony • Just build.
 
 ---
 
-## ✨ New in v0.3.x
+## ✨ New in v0.4.x
 
-- **WebSockets application support** via `WebsocketsApp`
-- **RabbitMQ resilient interfaces** with on-disk indexing for recovery
+- **OpenAPI 3.0 and Swagger UI support** for REST APIs
 
 ---
 
@@ -101,6 +100,182 @@ class Program
     }
 }
 ```
+</details>
+
+---
+
+## 📖 REST with OpenAPI and Swagger UI
+
+<details>
+<summary>Click to expand</summary>
+
+SwiftStack includes built-in **OpenAPI 3.0** documentation and **Swagger UI** for your REST APIs.
+
+### Basic Setup
+
+```csharp
+using SwiftStack;
+using SwiftStack.Rest.OpenApi;
+
+SwiftStackApp app = new SwiftStackApp("My API");
+
+// Enable OpenAPI with configuration
+app.Rest.UseOpenApi(openApi =>
+{
+    openApi.Info.Title = "My API";
+    openApi.Info.Version = "1.0.0";
+    openApi.Info.Description = "A sample API built with SwiftStack";
+    openApi.Info.Contact = new OpenApiContact("Support", "support@example.com");
+
+    // Define tags for grouping endpoints
+    openApi.Tags.Add(new OpenApiTag("Users", "User management endpoints"));
+    openApi.Tags.Add(new OpenApiTag("Products", "Product catalog endpoints"));
+
+    // Define security schemes
+    openApi.SecuritySchemes["Bearer"] = OpenApiSecurityScheme.Bearer(
+        "JWT",
+        "Enter your JWT token");
+    openApi.SecuritySchemes["Basic"] = OpenApiSecurityScheme.Basic(
+        "Use username:password");
+});
+
+await app.Rest.Run();
+```
+
+This automatically creates:
+- **OpenAPI JSON** at `/openapi.json`
+- **Swagger UI** at `/swagger`
+
+### Documenting Routes
+
+Use the fluent API to add metadata to your routes:
+
+```csharp
+// Simple route with documentation
+app.Rest.Get("/", async (req) => "Hello, World!",
+    api => api
+        .WithTag("General")
+        .WithSummary("Root endpoint")
+        .WithDescription("Returns a simple greeting message"));
+
+// Route with path parameters
+app.Rest.Get("/users/{id}", async (req) =>
+{
+    string id = req.Parameters["id"];
+    return new { Id = id, Name = "John Doe" };
+},
+api => api
+    .WithTag("Users")
+    .WithSummary("Get user by ID")
+    .WithParameter(OpenApiParameterMetadata.Path("id", "The user ID"))
+    .WithResponse(200, OpenApiResponseMetadata.Json<User>("User details"))
+    .WithResponse(404, OpenApiResponseMetadata.NotFound()));
+
+// Route with query parameters
+app.Rest.Get("/search", async (req) =>
+{
+    string query = req.Query["q"];
+    int page = int.TryParse(req.Query["page"] as string, out int p) ? p : 1;
+    return new { Query = query, Page = page };
+},
+api => api
+    .WithTag("General")
+    .WithSummary("Search endpoint")
+    .WithParameter(OpenApiParameterMetadata.Query("q", "Search query", true))
+    .WithParameter(OpenApiParameterMetadata.Query("page", "Page number", false,
+        OpenApiSchemaMetadata.Integer())));
+
+// Route with request body (type is inferred from generic parameter)
+app.Rest.Post<User>("/users", async (req) =>
+{
+    User user = req.GetData<User>();
+    return new { Id = Guid.NewGuid(), user.Email };
+},
+api => api
+    .WithTag("Users")
+    .WithSummary("Create a new user")
+    .WithRequestBody(OpenApiRequestBodyMetadata.Json<User>("User to create", true))
+    .WithResponse(201, OpenApiResponseMetadata.Json<User>("Created user")));
+
+// Authenticated route
+app.Rest.Get("/profile", async (req) => new { Email = "user@example.com" },
+    api => api
+        .WithTag("Users")
+        .WithSummary("Get current user profile")
+        .WithSecurity("Bearer")
+        .WithResponse(200, OpenApiResponseMetadata.Json<User>("User profile"))
+        .WithResponse(401, OpenApiResponseMetadata.Unauthorized()),
+    requireAuthentication: true);
+```
+
+### Schema Generation
+
+Schemas are automatically generated from your C# types:
+
+```csharp
+public class User
+{
+    public string Id { get; set; }
+    public string Email { get; set; }
+    public string Name { get; set; }
+    public DateTime CreatedAt { get; set; }
+}
+
+// Use in responses - schema is auto-generated via reflection
+.WithResponse(200, OpenApiResponseMetadata.Json<User>("User data"))
+
+// Or create schemas manually
+OpenApiSchemaMetadata.String()                    // string
+OpenApiSchemaMetadata.Integer()                   // int32
+OpenApiSchemaMetadata.Long()                      // int64
+OpenApiSchemaMetadata.Number()                    // double
+OpenApiSchemaMetadata.Boolean()                   // boolean
+OpenApiSchemaMetadata.Array(OpenApiSchemaMetadata.String())  // string[]
+OpenApiSchemaMetadata.FromType<MyClass>()         // complex object
+```
+
+### Common Response Helpers
+
+```csharp
+OpenApiResponseMetadata.Json<T>(description)      // 200 with JSON body
+OpenApiResponseMetadata.Text(description)         // 200 with text body
+OpenApiResponseMetadata.NoContent()               // 204 No Content
+OpenApiResponseMetadata.BadRequest()              // 400 Bad Request
+OpenApiResponseMetadata.Unauthorized()            // 401 Unauthorized
+OpenApiResponseMetadata.NotFound()                // 404 Not Found
+OpenApiResponseMetadata.Conflict()                // 409 Conflict
+OpenApiResponseMetadata.InternalServerError()     // 500 Internal Server Error
+```
+
+### Configuration Options
+
+```csharp
+app.Rest.UseOpenApi(openApi =>
+{
+    // Customize paths (defaults shown)
+    openApi.DocumentPath = "/openapi.json";
+    openApi.SwaggerUiPath = "/swagger";
+    openApi.EnableSwaggerUi = true;
+
+    // API info
+    openApi.Info.Title = "My API";
+    openApi.Info.Version = "1.0.0";
+    openApi.Info.Description = "API description";
+    openApi.Info.TermsOfService = "https://example.com/terms";
+    openApi.Info.Contact = new OpenApiContact("Name", "email@example.com");
+    openApi.Info.License = new OpenApiLicense("MIT", "https://opensource.org/licenses/MIT");
+
+    // External docs
+    openApi.ExternalDocs = new OpenApiExternalDocs(
+        "https://docs.example.com",
+        "Full documentation");
+
+    // Server configuration
+    openApi.Servers.Add(new OpenApiServer("https://api.example.com", "Production"));
+    openApi.Servers.Add(new OpenApiServer("https://staging-api.example.com", "Staging"));
+});
+```
+
 </details>
 
 ---

@@ -8,6 +8,7 @@
     using SerializationHelper;
     using SwiftStack;
     using SwiftStack.Rest;
+    using SwiftStack.Rest.OpenApi;
     using WatsonWebserver.Core;
 
     public static class Program
@@ -22,9 +23,33 @@
 
             #region REST
 
+            #region OpenAPI-Configuration
+
+            app.Rest.UseOpenApi(openApi =>
+            {
+                openApi.Info.Title = "SwiftStack Test API";
+                openApi.Info.Version = "1.0.0";
+                openApi.Info.Description = "Test API demonstrating SwiftStack REST capabilities with OpenAPI documentation.";
+                openApi.Info.Contact = new OpenApiContact("SwiftStack", "support@swiftstack.io");
+
+                // Define tags for route grouping
+                openApi.Tags.Add(new OpenApiTag("General", "General test endpoints"));
+                openApi.Tags.Add(new OpenApiTag("Users", "User management endpoints"));
+                openApi.Tags.Add(new OpenApiTag("Types", "Response type demonstrations"));
+                openApi.Tags.Add(new OpenApiTag("Exceptions", "Exception handling test endpoints"));
+                openApi.Tags.Add(new OpenApiTag("Authentication", "Authenticated endpoints"));
+
+                // Define security schemes
+                openApi.SecuritySchemes["Bearer"] = OpenApiSecurityScheme.Bearer("JWT", "Use 'password' as the bearer token for testing");
+                openApi.SecuritySchemes["Basic"] = OpenApiSecurityScheme.Basic("Use user:password for testing");
+            });
+
+            #endregion
+
             #region Unauthenticated-Routes
 
-            app.Rest.Get("/", async (req) => "Hello, unauthenticated user");
+            app.Rest.Get("/", async (req) => "Hello, unauthenticated user",
+                api => api.WithTag("General").WithSummary("Root endpoint").WithDescription("Returns a simple greeting message"));
 
             app.Rest.Get("/null-200", async (req) => null);
 
@@ -48,17 +73,28 @@
                     Page = page,
                     Message = $"Searching for '{query}' on page {page}"
                 };
-            });
+            },
+            api => api
+                .WithTag("General")
+                .WithSummary("Search endpoint")
+                .WithDescription("Demonstrates query parameter handling with pagination")
+                .WithParameter(OpenApiParameterMetadata.Query("q", "Search query string", false))
+                .WithParameter(OpenApiParameterMetadata.Query("page", "Page number (default: 1)", false, OpenApiSchemaMetadata.Integer())));
 
             app.Rest.Get("/user", async (req) =>
             {
-                return new 
+                return new
                 {
                     Email = "foo@bar.com",
                     Password = "password"
                 };
-            }); 
-            
+            },
+            api => api
+                .WithTag("Users")
+                .WithSummary("Get sample user")
+                .WithDescription("Returns a sample user object")
+                .WithResponse(200, OpenApiResponseMetadata.Json<User>("Sample user data")));
+
             app.Rest.Put<User>("/user/{id}", async (req) =>
             {
                 string id = req.Parameters["id"];
@@ -70,7 +106,14 @@
                     Email = user.Email,
                     Password = user.Password
                 };
-            });
+            },
+            api => api
+                .WithTag("Users")
+                .WithSummary("Update user by ID")
+                .WithDescription("Updates a user's information by their ID")
+                .WithParameter(OpenApiParameterMetadata.Path("id", "User ID"))
+                .WithRequestBody(OpenApiRequestBodyMetadata.Json<User>("User data to update", true))
+                .WithResponse(200, OpenApiResponseMetadata.Json<User>("Updated user")));
 
             app.Rest.Get("/types/{type}", async (req) =>
             {
@@ -117,30 +160,35 @@
                 return null;
             });
 
-            app.Rest.Get("/exception/400", async (req) => 
+            app.Rest.Get("/exception/400", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.BadRequest);
-            });
+            },
+            api => api.WithTag("Exceptions").WithSummary("400 Bad Request").WithResponse(400, OpenApiResponseMetadata.BadRequest()));
 
             app.Rest.Get("/exception/401", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.NotAuthorized);
-            });
+            },
+            api => api.WithTag("Exceptions").WithSummary("401 Unauthorized").WithResponse(401, OpenApiResponseMetadata.Unauthorized()));
 
             app.Rest.Get("/exception/404", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.NotFound);
-            });
+            },
+            api => api.WithTag("Exceptions").WithSummary("404 Not Found").WithResponse(404, OpenApiResponseMetadata.NotFound()));
 
             app.Rest.Get("/exception/409", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.Conflict);
-            });
+            },
+            api => api.WithTag("Exceptions").WithSummary("409 Conflict").WithResponse(409, OpenApiResponseMetadata.Conflict()));
 
             app.Rest.Get("/exception/500", async (req) =>
             {
                 throw new SwiftStackException(ApiResultEnum.InternalError);
-            });
+            },
+            api => api.WithTag("Exceptions").WithSummary("500 Internal Server Error").WithResponse(500, OpenApiResponseMetadata.InternalServerError()));
 
             #endregion
 
@@ -148,11 +196,20 @@
 
             app.Rest.AuthenticationRoute = AuthenticationRoute;
 
-            app.Rest.Get("/authenticated", async (req) => 
+            app.Rest.Get("/authenticated", async (req) =>
             {
                 Console.WriteLine("HTTP context metadata: " + Environment.NewLine + _Serializer.SerializeJson(req.Http.Metadata, true));
                 return "Hello, authenticated user";
-            }, true);
+            },
+            api => api
+                .WithTag("Authentication")
+                .WithSummary("Authenticated endpoint")
+                .WithDescription("Demonstrates authenticated access using Bearer or Basic auth")
+                .WithSecurity("Bearer")
+                .WithSecurity("Basic")
+                .WithResponse(200, OpenApiResponseMetadata.Text("Success message"))
+                .WithResponse(401, OpenApiResponseMetadata.Unauthorized()),
+            requireAuthentication: true);
 
             #endregion
 
@@ -160,6 +217,12 @@
 
             #endregion
 
+            Console.WriteLine("REST API running on http://localhost:8080");
+            Console.WriteLine();
+            Console.WriteLine("OpenAPI Documentation:");
+            Console.WriteLine("  - OpenAPI JSON: http://localhost:8080/openapi.json");
+            Console.WriteLine("  - Swagger UI:   http://localhost:8080/swagger");
+            Console.WriteLine();
             Console.WriteLine("Press ENTER to exit");
             Console.ReadLine();
         }

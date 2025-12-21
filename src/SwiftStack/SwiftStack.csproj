@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0</TargetFrameworks>
-		<Version>0.3.5</Version>
+		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net10.0</TargetFrameworks>
+		<Version>0.4.0</Version>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
 		<Title>SwiftStack</Title>
 		<Authors>Joel Christner</Authors>
-		<Description>SwiftStack is an opinionated and easy way to build REST APIs and RabbitMQ interfaces taking inspiration from the elegant model shown in FastAPI in Python.  Built on Watson webserver.</Description>
+		<Description>SwiftStack is an opinionated and easy way to build REST APIs, websockets APIs, and RabbitMQ interfaces, taking inspiration from the elegant model shown in FastAPI in Python.  Built on Watson webserver.</Description>
 		<Copyright>(c)2025 Joel Christner</Copyright>
 		<PackageProjectUrl>https://github.com/jchristn/SwiftStack</PackageProjectUrl>
 		<PackageIcon>icon.png</PackageIcon>
@@ -46,7 +46,7 @@
 	  <PackageReference Include="PersistentCollection" Version="2.0.12" />
 	  <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
 	  <PackageReference Include="SyslogLogging" Version="2.0.11" />
-	  <PackageReference Include="Watson" Version="6.4.0" />
+	  <PackageReference Include="Watson" Version="6.5.0" />
 	  <PackageReference Include="WatsonWebsocket" Version="4.1.7" />
 	  <PackageReference Include="WhatTimeIsIt" Version="1.0.2" />
 	</ItemGroup>
