@@ -13,6 +13,7 @@ namespace Test.Automated
     using System.Threading.Tasks;
     using SwiftStack;
     using SwiftStack.Rest;
+    using SwiftStack.Rest.OpenApi;
     using SwiftStack.Serialization;
     using SwiftStack.Websockets;
     using SwiftStack.RabbitMq;
@@ -34,6 +35,7 @@ namespace Test.Automated
             runner.RegisterSuite(new SerializationTests());
             runner.RegisterSuite(new ParameterTests());
             runner.RegisterSuite(new RestApiTests());
+            runner.RegisterSuite(new OpenApiTests());
             runner.RegisterSuite(new WebSocketTests());
             runner.RegisterSuite(new RabbitMqTests());
 
@@ -1143,6 +1145,344 @@ namespace Test.Automated
         private class PutData
         {
             public string Value { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region OpenAPI Tests
+
+    public class OpenApiTests : TestSuite
+    {
+        public override string Name => "OpenAPI Tests";
+        private SwiftStackApp _app;
+        private int _testPort = 18889;
+        private string _baseUrl;
+        private CancellationTokenSource _cts;
+        private HttpClient _httpClient;
+
+        protected override async Task RunTestsAsync()
+        {
+            _baseUrl = $"http://127.0.0.1:{_testPort}";
+            Task serverTask = null;
+
+            try
+            {
+                // Setup
+                _app = new SwiftStackApp("TestApp", quiet: true);
+                _app.LoggingSettings.EnableConsole = false;
+                _app.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _app.Rest.WebserverSettings.Port = _testPort;
+
+                // Enable OpenAPI
+                _app.Rest.UseOpenApi(openApi =>
+                {
+                    openApi.Info.Title = "Test API";
+                    openApi.Info.Version = "1.0.0";
+                    openApi.Info.Description = "Test API for OpenAPI validation";
+
+                    openApi.Tags.Add(new OpenApiTag("Users", "User operations"));
+                    openApi.SecuritySchemes["Bearer"] = OpenApiSecurityScheme.Bearer("JWT");
+                });
+
+                // Register test routes with OpenAPI metadata
+                RegisterTestRoutes();
+
+                // Start server in background
+                _cts = new CancellationTokenSource();
+                serverTask = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _app.Rest.Run(_cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected when canceling
+                    }
+                });
+
+                // Create HTTP client
+                _httpClient = new HttpClient(new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(1),
+                    MaxConnectionsPerServer = 10
+                })
+                {
+                    Timeout = TimeSpan.FromSeconds(5)
+                };
+
+                // Wait for server to start
+                await Task.Delay(1000);
+
+                // Run unit tests (no server required)
+                await Task.Run(() => Test_Schema_PrimitiveTypes());
+                await Task.Run(() => Test_Schema_ComplexObject());
+                await Task.Run(() => Test_Schema_Enum());
+                await Task.Run(() => Test_Schema_Array());
+                await Task.Run(() => Test_RouteMetadata_FluentApi());
+
+                // Run integration tests
+                await Test_OpenApiEndpoint_ReturnsJson();
+                await Test_OpenApiEndpoint_ContainsInfo();
+                await Test_OpenApiEndpoint_ContainsPaths();
+                await Test_SwaggerUi_ReturnsHtml();
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI setup", ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    _httpClient?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    _cts?.Cancel();
+                    await Task.Delay(100);
+                }
+                catch { }
+
+                try
+                {
+                    var disposeTask = Task.Run(() => _app?.Rest?.Dispose());
+                    await Task.WhenAny(disposeTask, Task.Delay(500));
+                }
+                catch { }
+            }
+        }
+
+        private void RegisterTestRoutes()
+        {
+            _app.Rest.Get("/users", async (req) => new[] { new TestUser { Id = 1, Name = "Test" } },
+                api => api
+                    .WithTag("Users")
+                    .WithSummary("Get all users")
+                    .WithResponse(200, OpenApiResponseMetadata.Json("List of users", OpenApiSchemaMetadata.Array(OpenApiSchemaMetadata.FromType<TestUser>()))));
+
+            _app.Rest.Get("/users/{id}", async (req) => new TestUser { Id = 1, Name = "Test" },
+                api => api
+                    .WithTag("Users")
+                    .WithSummary("Get user by ID")
+                    .WithParameter(OpenApiParameterMetadata.Path("id", "User ID")));
+
+            _app.Rest.Post<TestUser>("/users", async (req) => req.GetData<TestUser>(),
+                api => api
+                    .WithTag("Users")
+                    .WithSummary("Create user")
+                    .WithRequestBody(OpenApiRequestBodyMetadata.Json<TestUser>("User to create")));
+
+            _app.Rest.AuthenticationRoute = async (ctx) => new AuthResult
+            {
+                AuthenticationResult = AuthenticationResultEnum.Success,
+                AuthorizationResult = AuthorizationResultEnum.Permitted
+            };
+
+            _app.Rest.Get("/protected", async (req) => "Secret",
+                api => api
+                    .WithSummary("Protected endpoint")
+                    .WithSecurity("Bearer"),
+                requireAuthentication: true);
+        }
+
+        private void Test_Schema_PrimitiveTypes()
+        {
+            try
+            {
+                OpenApiSchemaMetadata intSchema = OpenApiSchemaMetadata.FromType<int>();
+                OpenApiSchemaMetadata strSchema = OpenApiSchemaMetadata.FromType<string>();
+                OpenApiSchemaMetadata boolSchema = OpenApiSchemaMetadata.FromType<bool>();
+
+                if (intSchema.Type == "integer" && strSchema.Type == "string" && boolSchema.Type == "boolean")
+                    Pass("OpenAPI schema primitive types");
+                else
+                    Fail("OpenAPI schema primitive types", $"int={intSchema.Type}, string={strSchema.Type}, bool={boolSchema.Type}");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI schema primitive types", ex.Message);
+            }
+        }
+
+        private void Test_Schema_ComplexObject()
+        {
+            try
+            {
+                OpenApiSchemaMetadata schema = OpenApiSchemaMetadata.FromType<TestUser>();
+
+                if (schema.Type == "object" &&
+                    schema.Properties != null &&
+                    schema.Properties.ContainsKey("Id") &&
+                    schema.Properties.ContainsKey("Name"))
+                    Pass("OpenAPI schema complex object");
+                else
+                    Fail("OpenAPI schema complex object", "Object schema missing expected properties");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI schema complex object", ex.Message);
+            }
+        }
+
+        private void Test_Schema_Enum()
+        {
+            try
+            {
+                OpenApiSchemaMetadata schema = OpenApiSchemaMetadata.FromType<TestStatus>();
+
+                if (schema.Type == "string" &&
+                    schema.Enum != null &&
+                    schema.Enum.Count == 3)
+                    Pass("OpenAPI schema enum");
+                else
+                    Fail("OpenAPI schema enum", $"Type={schema.Type}, Enum count={schema.Enum?.Count}");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI schema enum", ex.Message);
+            }
+        }
+
+        private void Test_Schema_Array()
+        {
+            try
+            {
+                OpenApiSchemaMetadata schema = OpenApiSchemaMetadata.FromType<List<string>>();
+
+                if (schema.Type == "array" && schema.Items != null && schema.Items.Type == "string")
+                    Pass("OpenAPI schema array");
+                else
+                    Fail("OpenAPI schema array", $"Type={schema.Type}, Items type={schema.Items?.Type}");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI schema array", ex.Message);
+            }
+        }
+
+        private void Test_RouteMetadata_FluentApi()
+        {
+            try
+            {
+                OpenApiRouteMetadata metadata = new OpenApiRouteMetadata()
+                    .WithTag("TestTag")
+                    .WithSummary("Test summary")
+                    .WithDescription("Test description")
+                    .WithParameter(OpenApiParameterMetadata.Path("id"))
+                    .WithResponse(200, OpenApiResponseMetadata.Ok(OpenApiSchemaMetadata.String()))
+                    .WithSecurity("Bearer");
+
+                if (metadata.Tags != null && metadata.Tags.Contains("TestTag") &&
+                    metadata.Summary == "Test summary" &&
+                    metadata.Parameters != null && metadata.Parameters.Count == 1 &&
+                    metadata.Responses != null && metadata.Responses.ContainsKey("200") &&
+                    metadata.Security != null && metadata.Security.Count == 1)
+                    Pass("OpenAPI route metadata fluent API");
+                else
+                    Fail("OpenAPI route metadata fluent API", "Metadata not properly configured");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI route metadata fluent API", ex.Message);
+            }
+        }
+
+        private async Task Test_OpenApiEndpoint_ReturnsJson()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/openapi.json");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode &&
+                    response.Content.Headers.ContentType?.MediaType == "application/json")
+                    Pass("OpenAPI endpoint returns JSON");
+                else
+                    Fail("OpenAPI endpoint returns JSON", $"Status: {response.StatusCode}, ContentType: {response.Content.Headers.ContentType?.MediaType}");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI endpoint returns JSON", ex.Message);
+            }
+        }
+
+        private async Task Test_OpenApiEndpoint_ContainsInfo()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/openapi.json");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (content.Contains("\"openapi\"") &&
+                    content.Contains("\"info\"") &&
+                    content.Contains("Test API"))
+                    Pass("OpenAPI endpoint contains info");
+                else
+                    Fail("OpenAPI endpoint contains info", "Missing required OpenAPI fields");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI endpoint contains info", ex.Message);
+            }
+        }
+
+        private async Task Test_OpenApiEndpoint_ContainsPaths()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/openapi.json");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (content.Contains("\"paths\"") &&
+                    content.Contains("/users") &&
+                    content.Contains("/users/{id}"))
+                    Pass("OpenAPI endpoint contains paths");
+                else
+                    Fail("OpenAPI endpoint contains paths", "Missing paths in OpenAPI document");
+            }
+            catch (Exception ex)
+            {
+                Fail("OpenAPI endpoint contains paths", ex.Message);
+            }
+        }
+
+        private async Task Test_SwaggerUi_ReturnsHtml()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/swagger");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode &&
+                    content.Contains("<!DOCTYPE html>") &&
+                    content.Contains("swagger-ui") &&
+                    content.Contains("/openapi.json"))
+                    Pass("Swagger UI returns HTML");
+                else
+                    Fail("Swagger UI returns HTML", "Invalid Swagger UI response");
+            }
+            catch (Exception ex)
+            {
+                Fail("Swagger UI returns HTML", ex.Message);
+            }
+        }
+
+        private class TestUser
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Email { get; set; }
+        }
+
+        private enum TestStatus
+        {
+            Active,
+            Inactive,
+            Pending
         }
     }
 

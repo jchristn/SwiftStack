@@ -12,6 +12,7 @@
     using System.Threading.Tasks;
     using SerializationHelper;
     using SyslogLogging;
+    using SwiftStack.Rest.OpenApi;
     using WatsonWebserver;
     using WatsonWebserver.Core;
 
@@ -120,6 +121,16 @@
         /// </summary>
         public string FaviconFile { get; set; } = "./assets/favicon.ico";
 
+        /// <summary>
+        /// OpenAPI settings. Null if OpenAPI is not enabled.
+        /// Call UseOpenApi() to enable OpenAPI support.
+        /// </summary>
+        public OpenApiSettings OpenApiSettings
+        {
+            get { return _OpenApiSettings; }
+            internal set { _OpenApiSettings = value; }
+        }
+
         #endregion
 
         #region Private-Members
@@ -129,6 +140,8 @@
         private string _Header = "[RestApp] ";
         private List<ParameterRoute> _AuthenticatedRoutes = new List<ParameterRoute>();
         private List<ParameterRoute> _UnauthenticatedRoutes = new List<ParameterRoute>();
+        private List<RouteInfo> _RouteInfoList = new List<RouteInfo>();
+        private OpenApiSettings _OpenApiSettings = null;
         private WebserverSettings _WebserverSettings = new WebserverSettings();
         private Webserver _Webserver = null;
         private Func<HttpContextBase, Exception, Task> _ExceptionRoute;
@@ -309,7 +322,25 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false)
         {
-            RegisterNoBodyRoute(HttpMethod.GET, path, handler, requireAuthentication);
+            RegisterNoBodyRoute(HttpMethod.GET, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a GET route with OpenAPI documentation.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Get(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.GET, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -324,7 +355,26 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false) where T : class
         {
-            RegisterBodyRoute<T>(HttpMethod.POST, path, handler, requireAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.POST, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a POST route with OpenAPI documentation.
+        /// </summary>
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Post<T>(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false) where T : class
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterBodyRoute<T>(HttpMethod.POST, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -339,7 +389,26 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false) where T : class
         {
-            RegisterBodyRoute<T>(HttpMethod.PUT, path, handler, requireAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.PUT, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a PUT route with OpenAPI documentation.
+        /// </summary>
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Put<T>(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false) where T : class
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterBodyRoute<T>(HttpMethod.PUT, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -354,7 +423,26 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false) where T : class
         {
-            RegisterBodyRoute<T>(HttpMethod.PATCH, path, handler, requireAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.PATCH, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a PATCH route with OpenAPI documentation.
+        /// </summary>
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Patch<T>(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false) where T : class
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterBodyRoute<T>(HttpMethod.PATCH, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -368,11 +456,29 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false)
         {
-            RegisterNoBodyRoute(HttpMethod.DELETE, path, handler, requireAuthentication);
+            RegisterNoBodyRoute(HttpMethod.DELETE, path, handler, requireAuthentication, null);
         }
 
         /// <summary>
-        /// Add a DELETE route.
+        /// Add a DELETE route with OpenAPI documentation.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Delete(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.DELETE, path, handler, requireAuthentication, metadata);
+        }
+
+        /// <summary>
+        /// Add a DELETE route with request body.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -383,7 +489,26 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false) where T : class
         {
-            RegisterBodyRoute<T>(HttpMethod.DELETE, path, handler, requireAuthentication);
+            RegisterBodyRoute<T>(HttpMethod.DELETE, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a DELETE route with request body and OpenAPI documentation.
+        /// </summary>
+        /// <typeparam name="T">Request body type.</typeparam>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Delete<T>(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false) where T : class
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterBodyRoute<T>(HttpMethod.DELETE, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -397,7 +522,25 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false)
         {
-            RegisterNoBodyRoute(HttpMethod.HEAD, path, handler, requireAuthentication);
+            RegisterNoBodyRoute(HttpMethod.HEAD, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a HEAD route with OpenAPI documentation.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Head(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.HEAD, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -411,7 +554,25 @@
             Func<AppRequest, Task<object>> handler,
             bool requireAuthentication = false)
         {
-            RegisterNoBodyRoute(HttpMethod.OPTIONS, path, handler, requireAuthentication);
+            RegisterNoBodyRoute(HttpMethod.OPTIONS, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add an OPTIONS route with OpenAPI documentation.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Options(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.OPTIONS, path, handler, requireAuthentication, metadata);
         }
 
         /// <summary>
@@ -512,7 +673,8 @@
             HttpMethod method,
             string path,
             Func<AppRequest, Task<object>> handler,
-            bool requireAuthentication)
+            bool requireAuthentication,
+            OpenApiRouteMetadata openApiMetadata)
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
@@ -531,13 +693,23 @@
             };
 
             RegisterRoute(method, path, routeHandler, requireAuthentication);
+
+            // Track route info for OpenAPI
+            _RouteInfoList.Add(new RouteInfo(
+                method,
+                path,
+                requireAuthentication,
+                null,
+                null,
+                openApiMetadata));
         }
 
         private void RegisterBodyRoute<T>(
             HttpMethod method,
             string path,
             Func<AppRequest, Task<object>> handler,
-            bool requireAuthentication) where T : class
+            bool requireAuthentication,
+            OpenApiRouteMetadata openApiMetadata) where T : class
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
@@ -576,6 +748,15 @@
             };
 
             RegisterRoute(method, path, routeHandler, requireAuthentication);
+
+            // Track route info for OpenAPI with request body type
+            _RouteInfoList.Add(new RouteInfo(
+                method,
+                path,
+                requireAuthentication,
+                typeof(T),
+                null,
+                openApiMetadata));
         }
 
         private async Task DefaultRoute(HttpContextBase ctx)
@@ -968,6 +1149,33 @@
 
             ctx.Response.StatusCode = 404;
             await ctx.Response.Send();
+        }
+
+        #endregion
+
+        #region Internal-Methods
+
+        /// <summary>
+        /// Gets the list of registered route information for OpenAPI document generation.
+        /// </summary>
+        /// <returns>The list of route information.</returns>
+        internal IEnumerable<RouteInfo> GetRouteInfoList()
+        {
+            return _RouteInfoList;
+        }
+
+        /// <summary>
+        /// Generates the OpenAPI JSON document from registered routes.
+        /// </summary>
+        /// <returns>The OpenAPI JSON document as a string.</returns>
+        /// <exception cref="InvalidOperationException">Thrown when OpenAPI is not enabled.</exception>
+        internal string GenerateOpenApiDocument()
+        {
+            if (_OpenApiSettings == null)
+                throw new InvalidOperationException("OpenAPI is not enabled. Call UseOpenApi() first.");
+
+            OpenApiDocumentGenerator generator = new OpenApiDocumentGenerator();
+            return generator.Generate(_RouteInfoList, _OpenApiSettings);
         }
 
         #endregion

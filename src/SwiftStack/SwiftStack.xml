@@ -916,6 +916,1395 @@
             Authentication and authorization result.
             </summary>
         </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiContact">
+            <summary>
+            Contact information for the exposed API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiContact.Name">
+            <summary>
+            The identifying name of the contact person/organization.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiContact.Url">
+            <summary>
+            The URL pointing to the contact information.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiContact.Email">
+            <summary>
+            The email address of the contact person/organization.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiContact.#ctor">
+            <summary>
+            Instantiates an empty contact.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiContact.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Instantiates a contact with the specified values.
+            </summary>
+            <param name="name">The identifying name of the contact person/organization.</param>
+            <param name="email">The email address of the contact person/organization.</param>
+            <param name="url">The URL pointing to the contact information.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiDocumentGenerator">
+            <summary>
+            Generates OpenAPI 3.0 JSON documents from registered routes.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiDocumentGenerator.#ctor">
+            <summary>
+            Instantiates a new document generator.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiDocumentGenerator.Generate(System.Collections.Generic.IEnumerable{SwiftStack.Rest.OpenApi.RouteInfo},SwiftStack.Rest.OpenApi.OpenApiSettings)">
+            <summary>
+            Generates an OpenAPI 3.0 JSON document from the provided routes and settings.
+            </summary>
+            <param name="routes">The routes to document.</param>
+            <param name="settings">The OpenAPI settings.</param>
+            <returns>The OpenAPI JSON document as a string.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiExternalDocs">
+            <summary>
+            Allows referencing an external resource for extended documentation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExternalDocs.Description">
+            <summary>
+            A short description of the target documentation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExternalDocs.Url">
+            <summary>
+            The URL for the target documentation.
+            Required.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiExternalDocs.#ctor">
+            <summary>
+            Instantiates empty external documentation.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiExternalDocs.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates external documentation with the specified values.
+            </summary>
+            <param name="url">The URL for the target documentation.</param>
+            <param name="description">A short description of the target documentation.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiInfo">
+            <summary>
+            Provides metadata about the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.Title">
+            <summary>
+            The title of the API.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.Version">
+            <summary>
+            The version of the OpenAPI document.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.Summary">
+            <summary>
+            A short summary of the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.Description">
+            <summary>
+            A description of the API.
+            CommonMark syntax MAY be used for rich text representation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.TermsOfService">
+            <summary>
+            A URL to the Terms of Service for the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.Contact">
+            <summary>
+            The contact information for the exposed API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiInfo.License">
+            <summary>
+            The license information for the exposed API.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiInfo.#ctor">
+            <summary>
+            Instantiates an empty info object with default title and version.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiInfo.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Instantiates an info object with the specified values.
+            </summary>
+            <param name="title">The title of the API.</param>
+            <param name="version">The version of the OpenAPI document.</param>
+            <param name="description">A description of the API.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiLicense">
+            <summary>
+            License information for the exposed API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiLicense.Name">
+            <summary>
+            The license name used for the API.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiLicense.Url">
+            <summary>
+            A URL to the license used for the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiLicense.Identifier">
+            <summary>
+            An SPDX license expression for the API.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiLicense.#ctor">
+            <summary>
+            Instantiates an empty license with default MIT name.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiLicense.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates a license with the specified values.
+            </summary>
+            <param name="name">The license name used for the API.</param>
+            <param name="url">A URL to the license used for the API.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiMediaType">
+            <summary>
+            Each Media Type Object provides schema and examples for the media type identified by its key.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiMediaType.Schema">
+            <summary>
+            The schema defining the content of the request, response, or parameter.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiMediaType.Example">
+            <summary>
+            Example of the media type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiMediaType.Examples">
+            <summary>
+            Examples of the media type.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiMediaType.#ctor">
+            <summary>
+            Instantiates an empty media type.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiMediaType.#ctor(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Instantiates a media type with the specified schema.
+            </summary>
+            <param name="schema">The schema defining the content.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiExample">
+            <summary>
+            An example associated with a media type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExample.Summary">
+            <summary>
+            Short description for the example.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExample.Description">
+            <summary>
+            Long description for the example.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExample.Value">
+            <summary>
+            Embedded literal example value.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiExample.ExternalValue">
+            <summary>
+            A URL that points to the literal example.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiExample.#ctor">
+            <summary>
+            Instantiates an empty example.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiExample.#ctor(System.Object,System.String)">
+            <summary>
+            Instantiates an example with the specified value.
+            </summary>
+            <param name="value">Embedded literal example value.</param>
+            <param name="summary">Short description for the example.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata">
+            <summary>
+            Describes a single operation parameter.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Name">
+            <summary>
+            The name of the parameter.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.In">
+            <summary>
+            The location of the parameter.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Description">
+            <summary>
+            A brief description of the parameter.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Required">
+            <summary>
+            Whether the parameter is required.
+            If the parameter location is "path", this is required and must be true.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Deprecated">
+            <summary>
+            Whether the parameter value should be deprecated.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.AllowEmptyValue">
+            <summary>
+            Whether empty values are allowed for this parameter.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Schema">
+            <summary>
+            The schema defining the type used for the parameter.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Example">
+            <summary>
+            Example of the parameter's potential value.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Style">
+            <summary>
+            Describes how the parameter value will be serialized for arrays and objects.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Explode">
+            <summary>
+            When true, parameter values of type array or object generate separate parameters
+            for each value of the array or key-value pair of the map.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.#ctor">
+            <summary>
+            Instantiates an empty parameter.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.#ctor(System.String,SwiftStack.Rest.OpenApi.ParameterLocation,System.String,System.Boolean,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Instantiates a parameter with the specified values.
+            </summary>
+            <param name="name">The name of the parameter.</param>
+            <param name="location">The location of the parameter.</param>
+            <param name="description">A brief description of the parameter.</param>
+            <param name="required">Whether the parameter is required.</param>
+            <param name="schema">The schema defining the type used for the parameter.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Path(System.String,System.String,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a path parameter.
+            Path parameters are always required.
+            </summary>
+            <param name="name">The name of the parameter.</param>
+            <param name="description">A brief description of the parameter.</param>
+            <param name="schema">The schema defining the type used for the parameter. Default is string.</param>
+            <returns>A path parameter.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Query(System.String,System.String,System.Boolean,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a query parameter.
+            </summary>
+            <param name="name">The name of the parameter.</param>
+            <param name="description">A brief description of the parameter.</param>
+            <param name="required">Whether the parameter is required.</param>
+            <param name="schema">The schema defining the type used for the parameter. Default is string.</param>
+            <returns>A query parameter.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Header(System.String,System.String,System.Boolean,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a header parameter.
+            </summary>
+            <param name="name">The name of the header.</param>
+            <param name="description">A brief description of the parameter.</param>
+            <param name="required">Whether the parameter is required.</param>
+            <param name="schema">The schema defining the type used for the parameter. Default is string.</param>
+            <returns>A header parameter.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiParameterMetadata.Cookie(System.String,System.String,System.Boolean,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a cookie parameter.
+            </summary>
+            <param name="name">The name of the cookie.</param>
+            <param name="description">A brief description of the parameter.</param>
+            <param name="required">Whether the parameter is required.</param>
+            <param name="schema">The schema defining the type used for the parameter. Default is string.</param>
+            <returns>A cookie parameter.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata">
+            <summary>
+            Describes a single request body.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Description">
+            <summary>
+            A brief description of the request body.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Content">
+            <summary>
+            The content of the request body.
+            The key is a media type (e.g., "application/json").
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Required">
+            <summary>
+            Whether the request body is required.
+            Default is false.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.#ctor">
+            <summary>
+            Instantiates an empty request body.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Json(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata,System.String,System.Boolean)">
+            <summary>
+            Creates a JSON request body.
+            </summary>
+            <param name="schema">The schema for the request body.</param>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A JSON request body.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Json``1(System.String,System.Boolean)">
+            <summary>
+            Creates a JSON request body from a .NET type.
+            </summary>
+            <typeparam name="T">The type to create a schema for.</typeparam>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A JSON request body with schema derived from the type.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.FormData(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata,System.String,System.Boolean)">
+            <summary>
+            Creates a form data request body.
+            </summary>
+            <param name="schema">The schema for the request body.</param>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A form data request body.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.MultipartFormData(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata,System.String,System.Boolean)">
+            <summary>
+            Creates a multipart form data request body.
+            </summary>
+            <param name="schema">The schema for the request body.</param>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A multipart form data request body.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Text(System.String,System.Boolean)">
+            <summary>
+            Creates a plain text request body.
+            </summary>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A plain text request body.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata.Binary(System.String,System.Boolean)">
+            <summary>
+            Creates a binary request body.
+            </summary>
+            <param name="description">A brief description of the request body.</param>
+            <param name="required">Whether the request body is required.</param>
+            <returns>A binary request body.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata">
+            <summary>
+            Describes a single response from an API Operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Description">
+            <summary>
+            A short description of the response.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Headers">
+            <summary>
+            Maps a header name to its definition.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Content">
+            <summary>
+            A map containing descriptions of potential response payloads.
+            The key is a media type (e.g., "application/json").
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.#ctor">
+            <summary>
+            Instantiates an empty response.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.#ctor(System.String)">
+            <summary>
+            Instantiates a response with the specified description.
+            </summary>
+            <param name="description">A short description of the response.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Create(System.String)">
+            <summary>
+            Creates a response with no content.
+            </summary>
+            <param name="description">A short description of the response.</param>
+            <returns>A response with no content.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Json(System.String,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a JSON response.
+            </summary>
+            <param name="description">A short description of the response.</param>
+            <param name="schema">The schema for the response body.</param>
+            <returns>A JSON response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Json``1(System.String)">
+            <summary>
+            Creates a JSON response from a .NET type.
+            </summary>
+            <typeparam name="T">The type to create a schema for.</typeparam>
+            <param name="description">A short description of the response.</param>
+            <returns>A JSON response with schema derived from the type.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Text(System.String)">
+            <summary>
+            Creates a plain text response.
+            </summary>
+            <param name="description">A short description of the response.</param>
+            <returns>A plain text response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Ok(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a 200 OK response with JSON content.
+            </summary>
+            <param name="schema">The schema for the response body.</param>
+            <returns>A 200 OK JSON response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Created(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates a 201 Created response.
+            </summary>
+            <param name="schema">The schema for the response body.</param>
+            <returns>A 201 Created response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.NoContent">
+            <summary>
+            Creates a 204 No Content response.
+            </summary>
+            <returns>A 204 No Content response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.BadRequest(System.String)">
+            <summary>
+            Creates a 400 Bad Request response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 400 Bad Request response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Unauthorized(System.String)">
+            <summary>
+            Creates a 401 Unauthorized response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 401 Unauthorized response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Forbidden(System.String)">
+            <summary>
+            Creates a 403 Forbidden response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 403 Forbidden response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.NotFound(System.String)">
+            <summary>
+            Creates a 404 Not Found response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 404 Not Found response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.Conflict(System.String)">
+            <summary>
+            Creates a 409 Conflict response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 409 Conflict response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.TooManyRequests(System.String)">
+            <summary>
+            Creates a 429 Too Many Requests response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 429 Too Many Requests response.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiResponseMetadata.InternalServerError(System.String)">
+            <summary>
+            Creates a 500 Internal Server Error response.
+            </summary>
+            <param name="description">A short description of the error.</param>
+            <returns>A 500 Internal Server Error response.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata">
+            <summary>
+            Describes a header included in a response.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.Description">
+            <summary>
+            A brief description of the header.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.Required">
+            <summary>
+            Whether the header is required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.Deprecated">
+            <summary>
+            Whether the header is deprecated.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.Schema">
+            <summary>
+            The schema for the header value.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.#ctor">
+            <summary>
+            Instantiates an empty header.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiHeaderMetadata.#ctor(System.String,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata,System.Boolean)">
+            <summary>
+            Instantiates a header with the specified values.
+            </summary>
+            <param name="description">A brief description of the header.</param>
+            <param name="schema">The schema for the header value.</param>
+            <param name="required">Whether the header is required.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata">
+            <summary>
+            OpenAPI metadata for a single route/operation.
+            Provides a fluent API for building route documentation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Tags">
+            <summary>
+            A list of tags for API documentation control.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Summary">
+            <summary>
+            A short summary of what the operation does.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Description">
+            <summary>
+            A verbose explanation of the operation behavior.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.ExternalDocs">
+            <summary>
+            Additional external documentation for this operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.OperationId">
+            <summary>
+            Unique string used to identify the operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Parameters">
+            <summary>
+            A list of parameters that are applicable for this operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.RequestBody">
+            <summary>
+            The request body applicable for this operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Responses">
+            <summary>
+            The possible responses as they are returned from executing this operation.
+            The key is the HTTP status code as a string (e.g., "200", "404").
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Security">
+            <summary>
+            A declaration of which security mechanisms can be used for this operation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Deprecated">
+            <summary>
+            Declares this operation to be deprecated.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.#ctor">
+            <summary>
+            Instantiates an empty route metadata.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates route metadata with summary and optional tag.
+            </summary>
+            <param name="summary">A short summary of what the operation does.</param>
+            <param name="tag">A tag for API documentation control.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.Create(System.String,System.String)">
+            <summary>
+            Creates route metadata with summary and optional tag.
+            </summary>
+            <param name="summary">A short summary of what the operation does.</param>
+            <param name="tag">A tag for API documentation control.</param>
+            <returns>A new route metadata instance.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithTag(System.String)">
+            <summary>
+            Adds a tag to the operation.
+            </summary>
+            <param name="tag">The tag to add.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithTags(System.String[])">
+            <summary>
+            Adds multiple tags to the operation.
+            </summary>
+            <param name="tags">The tags to add.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithSummary(System.String)">
+            <summary>
+            Sets the summary for the operation.
+            </summary>
+            <param name="summary">A short summary of what the operation does.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithDescription(System.String)">
+            <summary>
+            Sets the description for the operation.
+            </summary>
+            <param name="description">A verbose explanation of the operation behavior.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithOperationId(System.String)">
+            <summary>
+            Sets the operation ID.
+            </summary>
+            <param name="operationId">Unique string used to identify the operation.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithParameter(SwiftStack.Rest.OpenApi.OpenApiParameterMetadata)">
+            <summary>
+            Adds a parameter to the operation.
+            </summary>
+            <param name="parameter">The parameter to add.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithParameters(SwiftStack.Rest.OpenApi.OpenApiParameterMetadata[])">
+            <summary>
+            Adds multiple parameters to the operation.
+            </summary>
+            <param name="parameters">The parameters to add.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithRequestBody(SwiftStack.Rest.OpenApi.OpenApiRequestBodyMetadata)">
+            <summary>
+            Sets the request body for the operation.
+            </summary>
+            <param name="requestBody">The request body.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithResponse(System.Int32,SwiftStack.Rest.OpenApi.OpenApiResponseMetadata)">
+            <summary>
+            Adds a response to the operation.
+            </summary>
+            <param name="statusCode">The HTTP status code as an integer.</param>
+            <param name="response">The response metadata.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithSuccessResponse(SwiftStack.Rest.OpenApi.OpenApiResponseMetadata)">
+            <summary>
+            Adds a successful (200) response to the operation.
+            </summary>
+            <param name="response">The response metadata.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithSecurity(System.String,System.String[])">
+            <summary>
+            Adds a security requirement to the operation.
+            </summary>
+            <param name="schemeName">The name of the security scheme.</param>
+            <param name="scopes">Optional scopes for OAuth2.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.AsDeprecated">
+            <summary>
+            Marks the operation as deprecated.
+            </summary>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiRouteMetadata.WithExternalDocs(System.String,System.String)">
+            <summary>
+            Sets external documentation for the operation.
+            </summary>
+            <param name="url">The URL for the external documentation.</param>
+            <param name="description">A description of the external documentation.</param>
+            <returns>This instance for method chaining.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata">
+            <summary>
+            The Schema Object allows the definition of input and output data types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Type">
+            <summary>
+            The data type. Common values: "string", "number", "integer", "boolean", "array", "object".
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Format">
+            <summary>
+            The format of the data type. Examples: "int32", "int64", "float", "double", "date", "date-time", "email", "uri", "uuid".
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Title">
+            <summary>
+            A title for the schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Description">
+            <summary>
+            A description of the schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Nullable">
+            <summary>
+            Whether the value can be null.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Example">
+            <summary>
+            An example value for the schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Default">
+            <summary>
+            The default value for the schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Enum">
+            <summary>
+            A list of allowed values for the schema (for enums).
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Items">
+            <summary>
+            The schema for items in an array.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Properties">
+            <summary>
+            The properties of an object schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Required">
+            <summary>
+            A list of required property names for an object schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.AdditionalProperties">
+            <summary>
+            The schema for additional properties in an object.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Ref">
+            <summary>
+            A reference to another schema.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Minimum">
+            <summary>
+            Minimum value for numeric types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Maximum">
+            <summary>
+            Maximum value for numeric types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.MinLength">
+            <summary>
+            Minimum length for string types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.MaxLength">
+            <summary>
+            Maximum length for string types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Pattern">
+            <summary>
+            Pattern (regular expression) for string types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.MinItems">
+            <summary>
+            Minimum number of items for array types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.MaxItems">
+            <summary>
+            Maximum number of items for array types.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.UniqueItems">
+            <summary>
+            Whether items in an array must be unique.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.#ctor">
+            <summary>
+            Instantiates an empty schema.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.String(System.String)">
+            <summary>
+            Creates a string schema.
+            </summary>
+            <param name="format">The format of the string (e.g., "email", "uri", "uuid", "date", "date-time").</param>
+            <returns>A string schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Integer(System.String)">
+            <summary>
+            Creates an integer schema.
+            </summary>
+            <param name="format">The format ("int32" or "int64"). Default is "int32".</param>
+            <returns>An integer schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Long">
+            <summary>
+            Creates a long integer schema.
+            </summary>
+            <returns>A long integer schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Number(System.String)">
+            <summary>
+            Creates a number schema.
+            </summary>
+            <param name="format">The format ("float" or "double"). Default is "double".</param>
+            <returns>A number schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Boolean">
+            <summary>
+            Creates a boolean schema.
+            </summary>
+            <returns>A boolean schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Array(SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata)">
+            <summary>
+            Creates an array schema.
+            </summary>
+            <param name="items">The schema for items in the array.</param>
+            <returns>An array schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.Object(System.Collections.Generic.Dictionary{System.String,SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata},System.Collections.Generic.List{System.String})">
+            <summary>
+            Creates an object schema.
+            </summary>
+            <param name="properties">The properties of the object.</param>
+            <param name="required">A list of required property names.</param>
+            <returns>An object schema.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.CreateRef(System.String)">
+            <summary>
+            Creates a reference to another schema.
+            </summary>
+            <param name="schemaName">The name of the schema to reference.</param>
+            <returns>A schema reference.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.FromType``1">
+            <summary>
+            Creates a schema from a .NET type using reflection.
+            </summary>
+            <typeparam name="T">The type to create a schema for.</typeparam>
+            <returns>A schema representing the type.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSchemaMetadata.FromType(System.Type)">
+            <summary>
+            Creates a schema from a .NET type using reflection.
+            </summary>
+            <param name="type">The type to create a schema for.</param>
+            <returns>A schema representing the type.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme">
+            <summary>
+            Defines a security scheme that can be used by the operations.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Type">
+            <summary>
+            The type of the security scheme.
+            Valid values are "apiKey", "http", "mutualTLS", "oauth2", "openIdConnect".
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Description">
+            <summary>
+            A short description for the security scheme.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Name">
+            <summary>
+            The name of the header, query or cookie parameter to be used.
+            Required for apiKey type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.In">
+            <summary>
+            The location of the API key.
+            Valid values are "query", "header", or "cookie".
+            Required for apiKey type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Scheme">
+            <summary>
+            The name of the HTTP Authorization scheme to be used in the Authorization header.
+            Required for http type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.BearerFormat">
+            <summary>
+            A hint to the client to identify how the bearer token is formatted.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Flows">
+            <summary>
+            An object containing configuration information for the flow types supported.
+            Required for oauth2 type.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.OpenIdConnectUrl">
+            <summary>
+            OpenId Connect URL to discover OAuth2 configuration values.
+            Required for openIdConnect type.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.#ctor">
+            <summary>
+            Instantiates an empty security scheme.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.ApiKey(System.String,System.String,System.String)">
+            <summary>
+            Creates an API Key security scheme.
+            </summary>
+            <param name="name">The name of the header, query or cookie parameter.</param>
+            <param name="location">The location of the API key ("query", "header", or "cookie").</param>
+            <param name="description">A short description for the security scheme.</param>
+            <returns>A configured API Key security scheme.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Bearer(System.String,System.String)">
+            <summary>
+            Creates a Bearer token security scheme.
+            </summary>
+            <param name="bearerFormat">A hint to the client to identify how the bearer token is formatted (e.g., "JWT").</param>
+            <param name="description">A short description for the security scheme.</param>
+            <returns>A configured Bearer security scheme.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSecurityScheme.Basic(System.String)">
+            <summary>
+            Creates a Basic authentication security scheme.
+            </summary>
+            <param name="description">A short description for the security scheme.</param>
+            <returns>A configured Basic auth security scheme.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows">
+            <summary>
+            Allows configuration of the supported OAuth Flows.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows.Implicit">
+            <summary>
+            Configuration for the OAuth Implicit flow.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows.Password">
+            <summary>
+            Configuration for the OAuth Resource Owner Password flow.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows.ClientCredentials">
+            <summary>
+            Configuration for the OAuth Client Credentials flow.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows.AuthorizationCode">
+            <summary>
+            Configuration for the OAuth Authorization Code flow.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiOAuthFlows.#ctor">
+            <summary>
+            Instantiates empty OAuth flows.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow">
+            <summary>
+            Configuration details for a supported OAuth Flow.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow.AuthorizationUrl">
+            <summary>
+            The authorization URL to be used for this flow.
+            Required for implicit and authorizationCode flows.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow.TokenUrl">
+            <summary>
+            The token URL to be used for this flow.
+            Required for password, clientCredentials and authorizationCode flows.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow.RefreshUrl">
+            <summary>
+            The URL to be used for obtaining refresh tokens.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow.Scopes">
+            <summary>
+            The available scopes for the OAuth2 security scheme.
+            Required.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiOAuthFlow.#ctor">
+            <summary>
+            Instantiates an empty OAuth flow.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiServer">
+            <summary>
+            An object representing a Server.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServer.Url">
+            <summary>
+            A URL to the target host.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServer.Description">
+            <summary>
+            An optional string describing the host designated by the URL.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServer.Variables">
+            <summary>
+            A map between a variable name and its value used for substitution in the server's URL template.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiServer.#ctor">
+            <summary>
+            Instantiates an empty server.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiServer.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates a server with the specified values.
+            </summary>
+            <param name="url">A URL to the target host.</param>
+            <param name="description">An optional string describing the host designated by the URL.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiServerVariable">
+            <summary>
+            An object representing a Server Variable for server URL template substitution.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServerVariable.Default">
+            <summary>
+            The default value to use for substitution, which SHALL be sent if an alternate value is not supplied.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServerVariable.Description">
+            <summary>
+            An optional description for the server variable.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiServerVariable.Enum">
+            <summary>
+            An enumeration of string values to be used if the substitution options are from a limited set.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiServerVariable.#ctor">
+            <summary>
+            Instantiates an empty server variable.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiServerVariable.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates a server variable with the specified default value.
+            </summary>
+            <param name="defaultValue">The default value to use for substitution.</param>
+            <param name="description">An optional description for the server variable.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiSettings">
+            <summary>
+            OpenAPI configuration settings for the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.Info">
+            <summary>
+            Provides metadata about the API.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.Servers">
+            <summary>
+            An array of Server Objects, which provide connectivity information to a target server.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.Tags">
+            <summary>
+            A list of tags used by the specification with additional metadata.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.ExternalDocs">
+            <summary>
+            Additional external documentation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.SecuritySchemes">
+            <summary>
+            A map of security schemes that can be used across the specification.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.DocumentPath">
+            <summary>
+            The path at which the OpenAPI JSON document will be served.
+            Default is "/openapi.json".
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.SwaggerUiPath">
+            <summary>
+            The path at which the Swagger UI will be served.
+            Default is "/swagger".
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.EnableSwaggerUi">
+            <summary>
+            Whether to enable the Swagger UI.
+            Default is true.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.IncludeUnauthenticatedRoutes">
+            <summary>
+            Whether to include unauthenticated routes in the documentation.
+            Default is true.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.IncludeAuthenticatedRoutes">
+            <summary>
+            Whether to include authenticated routes in the documentation.
+            Default is true.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.SwaggerUiVersion">
+            <summary>
+            The version of Swagger UI to use.
+            Default is "5.11.0".
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.Security">
+            <summary>
+            A security requirement that applies to all operations unless overridden.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSettings.#ctor">
+            <summary>
+            Instantiates OpenAPI settings with defaults.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiSettings.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates OpenAPI settings with the specified title and version.
+            </summary>
+            <param name="title">The title of the API.</param>
+            <param name="version">The version of the API.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.OpenApiTag">
+            <summary>
+            Adds metadata to a single tag that is used by the Operation Object.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiTag.Name">
+            <summary>
+            The name of the tag.
+            Required.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiTag.Description">
+            <summary>
+            A short description for the tag.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiTag.ExternalDocs">
+            <summary>
+            Additional external documentation for this tag.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiTag.#ctor">
+            <summary>
+            Instantiates an empty tag.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.OpenApiTag.#ctor(System.String,System.String)">
+            <summary>
+            Instantiates a tag with the specified values.
+            </summary>
+            <param name="name">The name of the tag.</param>
+            <param name="description">A short description for the tag.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.ParameterLocation">
+            <summary>
+            Specifies the location of a parameter in an HTTP request.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.OpenApi.ParameterLocation.Path">
+            <summary>
+            Parameter is part of the URL path (e.g., /users/{id}).
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.OpenApi.ParameterLocation.Query">
+            <summary>
+            Parameter is in the query string (e.g., ?page=1).
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.OpenApi.ParameterLocation.Header">
+            <summary>
+            Parameter is in the request headers.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.OpenApi.ParameterLocation.Cookie">
+            <summary>
+            Parameter is in a cookie.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.RestAppExtensions">
+            <summary>
+            Extension methods for RestApp to enable OpenAPI/Swagger support.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.RestAppExtensions.UseOpenApi(SwiftStack.Rest.RestApp,System.Action{SwiftStack.Rest.OpenApi.OpenApiSettings})">
+            <summary>
+            Enables OpenAPI documentation and Swagger UI for the REST application.
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="configure">Optional action to configure OpenAPI settings.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app is null.</exception>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.RouteInfo">
+            <summary>
+            Extended route information including OpenAPI metadata.
+            Used internally to track route registration for OpenAPI document generation.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.Method">
+            <summary>
+            HTTP method for the route.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.Path">
+            <summary>
+            URL path pattern (e.g., "/users/{id}").
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.RequestBodyType">
+            <summary>
+            Request body type for routes that accept a body (POST, PUT, PATCH, DELETE).
+            Null for routes without a request body.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.ResponseType">
+            <summary>
+            Response type for the route.
+            Null if not explicitly specified.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.OpenApiMetadata">
+            <summary>
+            OpenAPI documentation metadata for the route.
+            May be null if no explicit documentation was provided.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.OpenApi.RouteInfo.RequiresAuthentication">
+            <summary>
+            Whether the route requires authentication.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.RouteInfo.#ctor">
+            <summary>
+            Instantiates an empty route info.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.RouteInfo.#ctor(WatsonWebserver.Core.HttpMethod,System.String,System.Boolean,System.Type,System.Type,SwiftStack.Rest.OpenApi.OpenApiRouteMetadata)">
+            <summary>
+            Instantiates route info with the specified values.
+            </summary>
+            <param name="method">HTTP method for the route.</param>
+            <param name="path">URL path pattern.</param>
+            <param name="requiresAuthentication">Whether the route requires authentication.</param>
+            <param name="requestBodyType">Request body type.</param>
+            <param name="responseType">Response type.</param>
+            <param name="openApiMetadata">OpenAPI documentation metadata.</param>
+        </member>
+        <member name="T:SwiftStack.Rest.OpenApi.SwaggerUiHandler">
+            <summary>
+            Generates the Swagger UI HTML page that renders OpenAPI documentation.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.OpenApi.SwaggerUiHandler.GenerateHtml(System.String,System.String,System.String)">
+            <summary>
+            Generates the HTML for the Swagger UI page.
+            </summary>
+            <param name="openApiUrl">The URL to the OpenAPI JSON document.</param>
+            <param name="title">The title of the API.</param>
+            <param name="swaggerUiVersion">The version of Swagger UI to use. Default is "5.11.0".</param>
+            <returns>The HTML content for the Swagger UI page.</returns>
+        </member>
         <member name="T:SwiftStack.Rest.RequestParameters">
             <summary>
             Request parameters.
@@ -1106,6 +2495,12 @@
             Favicon.ico file.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.RestApp.OpenApiSettings">
+            <summary>
+            OpenAPI settings. Null if OpenAPI is not enabled.
+            Call UseOpenApi() to enable OpenAPI support.
+            </summary>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.#ctor(SwiftStack.SwiftStackApp)">
             <summary>
             SwiftStack REST application.
@@ -1138,6 +2533,15 @@
             <param name="handler">Route body.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Get(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a GET route with OpenAPI documentation.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Post``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
             Add a POST route.
@@ -1145,6 +2549,16 @@
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
             <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Post``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a POST route with OpenAPI documentation.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Put``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
@@ -1156,6 +2570,16 @@
             <param name="handler">Route body.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Put``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a PUT route with OpenAPI documentation.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Patch``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
             Add a PATCH route.
@@ -1163,6 +2587,16 @@
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
             <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Patch``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a PATCH route with OpenAPI documentation.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Delete(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
@@ -1173,13 +2607,32 @@
             <param name="handler">Route body.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Delete(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a DELETE route with OpenAPI documentation.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Delete``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Add a DELETE route.
+            Add a DELETE route with request body.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
             <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Delete``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a DELETE route with request body and OpenAPI documentation.
+            </summary>
+            <typeparam name="T">Request body type.</typeparam>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Head(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
@@ -1190,12 +2643,30 @@
             <param name="handler">Route body.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Head(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a HEAD route with OpenAPI documentation.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Options(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
             Add an OPTIONS route.
             </summary>
             <param name="path">Path.</param>
             <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Options(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add an OPTIONS route with OpenAPI documentation.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Route(System.String,System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Type,System.Boolean)">
@@ -1207,6 +2678,19 @@
             <param name="handler">Route body.</param>
             <param name="requestType">Request body type.</param>
             <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.GetRouteInfoList">
+            <summary>
+            Gets the list of registered route information for OpenAPI document generation.
+            </summary>
+            <returns>The list of route information.</returns>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.GenerateOpenApiDocument">
+            <summary>
+            Generates the OpenAPI JSON document from registered routes.
+            </summary>
+            <returns>The OpenAPI JSON document as a string.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown when OpenAPI is not enabled.</exception>
         </member>
         <member name="T:SwiftStack.Serialization.ArraySegmentByteConverter">
             <summary>
