@@ -2086,6 +2086,14 @@
             OpenAPI configuration settings for the API.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.EnableOpenApi">
+            <summary>
+            Whether to enable OpenAPI document generation and the OpenAPI JSON endpoint.
+            When set to false, the OpenAPI document endpoint will not be registered and
+            Swagger UI will also be disabled regardless of the EnableSwaggerUi setting.
+            Default is true.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.OpenApi.OpenApiSettings.Info">
             <summary>
             Provides metadata about the API.

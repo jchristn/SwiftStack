@@ -26,38 +26,42 @@ namespace SwiftStack.Rest.OpenApi
             // Store settings in the app
             app.OpenApiSettings = settings;
 
-            // Register OpenAPI JSON endpoint (unauthenticated)
-            app.Get(settings.DocumentPath, async (req) =>
+            // Only register endpoints if OpenAPI is enabled
+            if (settings.EnableOpenApi)
             {
-                string json = app.GenerateOpenApiDocument();
-                req.Http.Response.ContentType = "application/json";
-                return json;
-            },
-            openApi: api => api
-                .WithTag("OpenAPI")
-                .WithSummary("OpenAPI specification")
-                .WithDescription("Returns the OpenAPI 3.0 specification document in JSON format")
-                .WithResponse(200, OpenApiResponseMetadata.Json(
-                    "OpenAPI specification",
-                    new OpenApiSchemaMetadata { Type = "object", Description = "OpenAPI 3.0 specification" })));
-
-            // Register Swagger UI endpoint (unauthenticated) if enabled
-            if (settings.EnableSwaggerUi)
-            {
-                app.Get(settings.SwaggerUiPath, async (req) =>
+                // Register OpenAPI JSON endpoint (unauthenticated)
+                app.Get(settings.DocumentPath, async (req) =>
                 {
-                    string html = SwaggerUiHandler.GenerateHtml(
-                        settings.DocumentPath,
-                        settings.Info.Title,
-                        settings.SwaggerUiVersion);
-                    req.Http.Response.ContentType = "text/html";
-                    return html;
+                    string json = app.GenerateOpenApiDocument();
+                    req.Http.Response.ContentType = "application/json";
+                    return json;
                 },
                 openApi: api => api
                     .WithTag("OpenAPI")
-                    .WithSummary("Swagger UI")
-                    .WithDescription("Interactive API documentation interface")
-                    .WithResponse(200, OpenApiResponseMetadata.Create("Swagger UI HTML page")));
+                    .WithSummary("OpenAPI specification")
+                    .WithDescription("Returns the OpenAPI 3.0 specification document in JSON format")
+                    .WithResponse(200, OpenApiResponseMetadata.Json(
+                        "OpenAPI specification",
+                        new OpenApiSchemaMetadata { Type = "object", Description = "OpenAPI 3.0 specification" })));
+
+                // Register Swagger UI endpoint (unauthenticated) if enabled
+                if (settings.EnableSwaggerUi)
+                {
+                    app.Get(settings.SwaggerUiPath, async (req) =>
+                    {
+                        string html = SwaggerUiHandler.GenerateHtml(
+                            settings.DocumentPath,
+                            settings.Info.Title,
+                            settings.SwaggerUiVersion);
+                        req.Http.Response.ContentType = "text/html";
+                        return html;
+                    },
+                    openApi: api => api
+                        .WithTag("OpenAPI")
+                        .WithSummary("Swagger UI")
+                        .WithDescription("Interactive API documentation interface")
+                        .WithResponse(200, OpenApiResponseMetadata.Create("Swagger UI HTML page")));
+                }
             }
 
             return app;

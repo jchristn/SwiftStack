@@ -247,15 +247,46 @@ OpenApiResponseMetadata.Conflict()                // 409 Conflict
 OpenApiResponseMetadata.InternalServerError()     // 500 Internal Server Error
 ```
 
+### Enabling and Disabling OpenAPI/Swagger
+
+You can control whether OpenAPI and Swagger UI endpoints are exposed:
+
+```csharp
+// Both OpenAPI and Swagger UI enabled (default)
+app.Rest.UseOpenApi();
+
+// Disable Swagger UI but keep OpenAPI JSON endpoint
+app.Rest.UseOpenApi(openApi =>
+{
+    openApi.EnableSwaggerUi = false;
+});
+
+// Disable both OpenAPI and Swagger UI entirely
+app.Rest.UseOpenApi(openApi =>
+{
+    openApi.EnableOpenApi = false;
+});
+```
+
+| Setting | Default | Effect |
+|---------|---------|--------|
+| `EnableOpenApi` | `true` | When `false`, disables `/openapi.json` endpoint and Swagger UI |
+| `EnableSwaggerUi` | `true` | When `false`, disables `/swagger` endpoint only |
+
+> **Note:** Swagger UI depends on the OpenAPI document, so setting `EnableOpenApi = false` will disable Swagger UI regardless of the `EnableSwaggerUi` setting.
+
 ### Configuration Options
 
 ```csharp
 app.Rest.UseOpenApi(openApi =>
 {
+    // Enable/disable endpoints (defaults shown)
+    openApi.EnableOpenApi = true;      // Set to false to disable OpenAPI entirely
+    openApi.EnableSwaggerUi = true;    // Set to false to disable Swagger UI only
+
     // Customize paths (defaults shown)
     openApi.DocumentPath = "/openapi.json";
     openApi.SwaggerUiPath = "/swagger";
-    openApi.EnableSwaggerUi = true;
 
     // API info
     openApi.Info.Title = "My API";

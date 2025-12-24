@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net10.0</TargetFrameworks>
-		<Version>0.4.0</Version>
+		<Version>0.4.1</Version>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
@@ -24,41 +24,41 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <Content Include="icon.ico" />
+		<Content Include="icon.ico" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\..\Assets\icon.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
-	  <None Include="..\..\LICENSE.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
-	  <None Include="..\..\README.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Include="..\..\Assets\icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="PersistentCollection" Version="2.0.12" />
-	  <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
-	  <PackageReference Include="SyslogLogging" Version="2.0.11" />
-	  <PackageReference Include="Watson" Version="6.5.0" />
-	  <PackageReference Include="WatsonWebsocket" Version="4.1.7" />
-	  <PackageReference Include="WhatTimeIsIt" Version="1.0.2" />
+		<PackageReference Include="PersistentCollection" Version="2.0.12" />
+		<PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+		<PackageReference Include="SyslogLogging" Version="2.0.11" />
+		<PackageReference Include="Watson" Version="6.5.0" />
+		<PackageReference Include="WatsonWebsocket" Version="4.1.7" />
+		<PackageReference Include="WhatTimeIsIt" Version="1.0.2" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="assets\" />
+		<Folder Include="assets\" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="assets\favicon.ico">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
+		<None Update="assets\favicon.ico">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 	</ItemGroup>
 
 </Project>

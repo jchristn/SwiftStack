@@ -11,6 +11,14 @@ namespace SwiftStack.Rest.OpenApi
         #region Public-Members
 
         /// <summary>
+        /// Whether to enable OpenAPI document generation and the OpenAPI JSON endpoint.
+        /// When set to false, the OpenAPI document endpoint will not be registered and
+        /// Swagger UI will also be disabled regardless of the EnableSwaggerUi setting.
+        /// Default is true.
+        /// </summary>
+        public bool EnableOpenApi { get; set; } = true;
+
+        /// <summary>
         /// Provides metadata about the API.
         /// </summary>
         public OpenApiInfo Info
