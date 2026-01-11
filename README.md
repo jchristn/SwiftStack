@@ -12,6 +12,7 @@ MIT Licensed • No ceremony • Just build.
 
 ## ✨ New in v0.4.x
 
+- **Default route support** for custom catch-all handling of unmatched requests
 - **OpenAPI 3.0 and Swagger UI support** for REST APIs
 
 ---
@@ -100,6 +101,73 @@ class Program
     }
 }
 ```
+</details>
+
+---
+
+## 🎯 REST with Default/Catch-All Route
+
+<details>
+<summary>Click to expand</summary>
+
+You can set a custom default route to handle requests that don't match any registered routes. This is useful for:
+- Serving a single-page application (SPA) where all unmatched routes should return the index page
+- Implementing custom 404 handling with logging or analytics
+- Proxying unmatched requests to another service
+- Returning helpful error messages with available endpoints
+
+```csharp
+using SwiftStack;
+using WatsonWebserver.Core;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        SwiftStackApp app = new SwiftStackApp("My app with catch-all");
+
+        // Register your specific routes
+        app.Rest.Get("/api/users", async (req) => new[] { "Alice", "Bob" });
+        app.Rest.Get("/api/health", async (req) => new { Status = "OK" });
+
+        // Set a custom default route for unmatched requests
+        app.Rest.DefaultRoute = async (HttpContextBase ctx) =>
+        {
+            // Example: Return a custom 404 response
+            ctx.Response.StatusCode = 404;
+            ctx.Response.ContentType = "application/json";
+            await ctx.Response.Send("{\"error\": \"Not Found\", \"message\": \"The requested endpoint does not exist.\"}");
+        };
+
+        await app.Rest.Run();
+    }
+}
+```
+
+### SPA Fallback Example
+
+For single-page applications, you typically want to serve the index page for any route that doesn't match an API endpoint:
+
+```csharp
+app.Rest.DefaultRoute = async (HttpContextBase ctx) =>
+{
+    // Skip API routes - let them 404 normally
+    if (ctx.Request.Url.RawWithoutQuery.StartsWith("/api/"))
+    {
+        ctx.Response.StatusCode = 404;
+        await ctx.Response.Send("{\"error\": \"API endpoint not found\"}");
+        return;
+    }
+
+    // Serve index.html for all other routes (SPA fallback)
+    ctx.Response.ContentType = "text/html";
+    string indexContent = File.ReadAllText("./wwwroot/index.html");
+    await ctx.Response.Send(indexContent);
+};
+```
+
+When `DefaultRoute` is not set, the built-in handler returns a `400 Bad Request` response for unmatched requests.
+
 </details>
 
 ---

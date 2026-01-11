@@ -2498,6 +2498,13 @@
             Post-routing route.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.RestApp.DefaultRoute">
+            <summary>
+            Default route, invoked when no other route matches the request.
+            Use this to implement custom catch-all handling for unmatched requests.
+            When null, the built-in default handler returns a 400 Bad Request response.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.RestApp.FaviconFile">
             <summary>
             Favicon.ico file.

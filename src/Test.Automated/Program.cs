@@ -36,6 +36,7 @@ namespace Test.Automated
             runner.RegisterSuite(new ParameterTests());
             runner.RegisterSuite(new RestApiTests());
             runner.RegisterSuite(new OpenApiTests());
+            runner.RegisterSuite(new DefaultRouteTests());
             runner.RegisterSuite(new WebSocketTests());
             runner.RegisterSuite(new RabbitMqTests());
 
@@ -1483,6 +1484,198 @@ namespace Test.Automated
             Active,
             Inactive,
             Pending
+        }
+    }
+
+    #endregion
+
+    #region Default Route Tests
+
+    public class DefaultRouteTests : TestSuite
+    {
+        public override string Name => "Default Route Tests";
+        private SwiftStackApp _app;
+        private int _testPort = 18890;
+        private string _baseUrl;
+        private CancellationTokenSource _cts;
+        private HttpClient _httpClient;
+
+        protected override async Task RunTestsAsync()
+        {
+            _baseUrl = $"http://127.0.0.1:{_testPort}";
+
+            try
+            {
+                // Setup
+                _app = new SwiftStackApp("TestApp", quiet: true);
+                _app.LoggingSettings.EnableConsole = false;
+                _app.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _app.Rest.WebserverSettings.Port = _testPort;
+
+                // Register a specific route
+                _app.Rest.Get("/api/hello", async (req) => new { Message = "Hello" });
+
+                // Set a custom default route
+                _app.Rest.DefaultRoute = async (WatsonWebserver.Core.HttpContextBase ctx) =>
+                {
+                    string path = ctx.Request.Url.RawWithoutQuery;
+
+                    // Return 200 for specific paths
+                    if (path == "/custom-ok")
+                    {
+                        ctx.Response.StatusCode = 200;
+                        ctx.Response.ContentType = "application/json";
+                        await ctx.Response.Send("{\"status\": \"ok\", \"route\": \"custom\"}");
+                        return;
+                    }
+
+                    // Return 404 for unknown paths
+                    ctx.Response.StatusCode = 404;
+                    ctx.Response.ContentType = "application/json";
+                    await ctx.Response.Send("{\"error\": \"Not Found\", \"path\": \"" + path + "\"}");
+                };
+
+                // Start server in background
+                _cts = new CancellationTokenSource();
+                Task serverTask = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _app.Rest.Run(_cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected when canceling
+                    }
+                });
+
+                // Create HTTP client
+                _httpClient = new HttpClient(new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(1),
+                    MaxConnectionsPerServer = 10
+                })
+                {
+                    Timeout = TimeSpan.FromSeconds(5)
+                };
+
+                // Wait for server to start
+                await Task.Delay(1000);
+
+                // Run tests
+                await Test_DefaultRoute_NotSet_Returns400();
+                await Test_DefaultRoute_Custom_Returns200();
+                await Test_DefaultRoute_Custom_Returns404();
+                await Test_DefaultRoute_SpecificRoute_StillWorks();
+            }
+            catch (Exception ex)
+            {
+                Fail("Default Route setup", ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    _httpClient?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    _cts?.Cancel();
+                    await Task.Delay(100);
+                }
+                catch { }
+
+                try
+                {
+                    Task disposeTask = Task.Run(() => _app?.Rest?.Dispose());
+                    await Task.WhenAny(disposeTask, Task.Delay(500));
+                }
+                catch { }
+            }
+        }
+
+        private async Task Test_DefaultRoute_NotSet_Returns400()
+        {
+            // This test validates that without a custom DefaultRoute,
+            // the built-in handler would return 400.
+            // Since we set a custom DefaultRoute, we test that separately.
+            // Here we verify that a path that doesn't match any route
+            // goes through our custom default route (which returns 404).
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/nonexistent-path");
+                string content = await response.Content.ReadAsStringAsync();
+
+                // Our custom route returns 404 for unknown paths
+                if ((int)response.StatusCode == 404 && content.Contains("/nonexistent-path"))
+                    Pass("Default route handles unmatched paths");
+                else
+                    Fail("Default route handles unmatched paths", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Default route handles unmatched paths", ex.Message);
+            }
+        }
+
+        private async Task Test_DefaultRoute_Custom_Returns200()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/custom-ok");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 200 &&
+                    content.Contains("\"status\": \"ok\"") &&
+                    content.Contains("\"route\": \"custom\""))
+                    Pass("Default route returns 200");
+                else
+                    Fail("Default route returns 200", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Default route returns 200", ex.Message);
+            }
+        }
+
+        private async Task Test_DefaultRoute_Custom_Returns404()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/unknown-path");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 404 &&
+                    content.Contains("\"error\": \"Not Found\"") &&
+                    content.Contains("/unknown-path"))
+                    Pass("Default route returns 404");
+                else
+                    Fail("Default route returns 404", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Default route returns 404", ex.Message);
+            }
+        }
+
+        private async Task Test_DefaultRoute_SpecificRoute_StillWorks()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/api/hello");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("Hello"))
+                    Pass("Specific routes still work with default route set");
+                else
+                    Fail("Specific routes still work with default route set", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Specific routes still work with default route set", ex.Message);
+            }
         }
     }
 

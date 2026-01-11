@@ -117,6 +117,13 @@
         public Func<HttpContextBase, Task> PostRoutingRoute { get; set; } = null;
 
         /// <summary>
+        /// Default route, invoked when no other route matches the request.
+        /// Use this to implement custom catch-all handling for unmatched requests.
+        /// When null, the built-in default handler returns a 400 Bad Request response.
+        /// </summary>
+        public Func<HttpContextBase, Task> DefaultRoute { get; set; } = null;
+
+        /// <summary>
         /// Favicon.ico file.
         /// </summary>
         public string FaviconFile { get; set; } = "./assets/favicon.ico";
@@ -186,7 +193,7 @@
             {
                 try
                 {
-                    using (_Webserver = new Webserver(_WebserverSettings, DefaultRoute))
+                    using (_Webserver = new Webserver(_WebserverSettings, DefaultInternalRoute))
                     {
                         _App.Logging.Debug(_Header + "starting webserver on " + _WebserverSettings.Prefix);
 
@@ -244,6 +251,7 @@
                         _Webserver.Routes.PreRouting = PreRoutingRoute != null ? PreRoutingRoute : PreRoutingInternalRoute;
                         _Webserver.Routes.PostRouting = PostRoutingRoute != null ? PostRoutingRoute : PostRoutingInternalRoute;
                         if (AuthenticationRoute != null) _Webserver.Routes.AuthenticateRequest = AuthenticateRequest;
+                        if (DefaultRoute != null) _Webserver.Routes.Default = DefaultRoute;
 
                         await _Webserver.StartAsync(token);
                     }
@@ -759,7 +767,7 @@
                 openApiMetadata));
         }
 
-        private async Task DefaultRoute(HttpContextBase ctx)
+        private async Task DefaultInternalRoute(HttpContextBase ctx)
         {
             string requestor = ctx.Request.Source.IpAddress + ":" + ctx.Request.Source.Port;
             _App.Logging.Warn(_Header + "invalid method or URL in request from " + requestor + ": " + ctx.Request.Method + " " + ctx.Request.Url.RawWithQuery);

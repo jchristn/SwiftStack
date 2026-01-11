@@ -4,6 +4,7 @@
 
 ✨ New in v0.4.x
 
+- **Default route support** for custom catch-all handling of unmatched requests
 - **OpenAPI 3.0 and Swagger UI support** for REST APIs
 
 ## Previous Versions
