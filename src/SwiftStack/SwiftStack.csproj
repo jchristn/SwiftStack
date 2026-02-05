@@ -2,7 +2,7 @@
 
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;netstandard2.1;net8.0;net10.0</TargetFrameworks>
-		<Version>0.4.2</Version>
+		<Version>0.4.4</Version>
 		<ApplicationIcon>icon.ico</ApplicationIcon>
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<DocumentationFile>SwiftStack.xml</DocumentationFile>
@@ -45,9 +45,9 @@
 	<ItemGroup>
 		<PackageReference Include="PersistentCollection" Version="2.0.12" />
 		<PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
-		<PackageReference Include="SyslogLogging" Version="2.0.11" />
-		<PackageReference Include="Watson" Version="6.5.0" />
-		<PackageReference Include="WatsonWebsocket" Version="4.1.7" />
+		<PackageReference Include="SyslogLogging" Version="2.0.13" />
+		<PackageReference Include="Watson" Version="6.5.3" />
+		<PackageReference Include="WatsonWebsocket" Version="4.1.8" />
 		<PackageReference Include="WhatTimeIsIt" Version="1.0.2" />
 	</ItemGroup>
 

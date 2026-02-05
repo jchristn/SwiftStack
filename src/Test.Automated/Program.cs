@@ -37,6 +37,7 @@ namespace Test.Automated
             runner.RegisterSuite(new RestApiTests());
             runner.RegisterSuite(new OpenApiTests());
             runner.RegisterSuite(new DefaultRouteTests());
+            runner.RegisterSuite(new ChunkedTransferTests());
             runner.RegisterSuite(new WebSocketTests());
             runner.RegisterSuite(new RabbitMqTests());
 
@@ -1675,6 +1676,527 @@ namespace Test.Automated
             catch (Exception ex)
             {
                 Fail("Specific routes still work with default route set", ex.Message);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Chunked Transfer Tests
+
+    public class ChunkedTransferTests : TestSuite
+    {
+        public override string Name => "Chunked Transfer Encoding Tests";
+        private SwiftStackApp _App;
+        private int _TestPort = 18891;
+        private string _BaseUrl;
+        private CancellationTokenSource _Cts;
+        private HttpClient _HttpClient;
+
+        protected override async Task RunTestsAsync()
+        {
+            _BaseUrl = $"http://127.0.0.1:{_TestPort}";
+
+            try
+            {
+                // Setup
+                _App = new SwiftStackApp("TestApp", quiet: true);
+                _App.LoggingSettings.EnableConsole = false;
+                _App.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _App.Rest.WebserverSettings.Port = _TestPort;
+
+                // Register routes
+                RegisterChunkedRoutes();
+
+                // Start server in background
+                _Cts = new CancellationTokenSource();
+                Task serverTask = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await _App.Rest.Run(_Cts.Token);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        // Expected when canceling
+                    }
+                });
+
+                // Create reusable HTTP client with optimized settings
+                _HttpClient = new HttpClient(new SocketsHttpHandler
+                {
+                    PooledConnectionLifetime = TimeSpan.FromMinutes(1),
+                    PooledConnectionIdleTimeout = TimeSpan.FromMinutes(1),
+                    MaxConnectionsPerServer = 10
+                })
+                {
+                    Timeout = TimeSpan.FromSeconds(10)
+                };
+
+                // Wait for server to start
+                await Task.Delay(1000);
+
+                // Run tests
+                await Test_Chunked_BasicResponse();
+                await Test_Chunked_MultipleChunks();
+                await Test_Chunked_EmptyResponse();
+                await Test_Chunked_LargePayload();
+                await Test_Chunked_BinaryData();
+                await Test_Chunked_SingleByteChunks();
+                await Test_Chunked_WithJsonContentType();
+                await Test_Chunked_CustomStatusCode();
+                await Test_Chunked_RequestEcho();
+                await Test_Chunked_RequestDetection();
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked Transfer setup", ex.Message);
+            }
+            finally
+            {
+                try
+                {
+                    _HttpClient?.Dispose();
+                }
+                catch { }
+
+                try
+                {
+                    _Cts?.Cancel();
+                    await Task.Delay(100);
+                }
+                catch { }
+
+                try
+                {
+                    Task disposeTask = Task.Run(() => _App?.Rest?.Dispose());
+                    await Task.WhenAny(disposeTask, Task.Delay(500));
+                }
+                catch { }
+            }
+        }
+
+        private void RegisterChunkedRoutes()
+        {
+            // GET /chunked/basic - Send "Hello, chunked world!" as one chunk + empty final
+            _App.Rest.Get("/chunked/basic", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                byte[] data = Encoding.UTF8.GetBytes("Hello, chunked world!");
+                await req.Http.Response.SendChunk(data, false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/multi - Send 5 numbered text chunks
+            _App.Rest.Get("/chunked/multi", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    byte[] chunk = Encoding.UTF8.GetBytes("Chunk " + i + "\n");
+                    await req.Http.Response.SendChunk(chunk, false, CancellationToken.None).ConfigureAwait(false);
+                }
+
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/empty - Set chunked mode, send only a final empty chunk
+            _App.Rest.Get("/chunked/empty", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/large - Send ~100KB payload in 10KB chunks
+            _App.Rest.Get("/chunked/large", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                int chunkSize = 10240; // 10KB
+                int totalChunks = 10;  // 10 chunks = ~100KB
+
+                for (int i = 0; i < totalChunks; i++)
+                {
+                    byte[] chunk = new byte[chunkSize];
+                    for (int j = 0; j < chunkSize; j++)
+                    {
+                        chunk[j] = (byte)((i * chunkSize + j) % 256);
+                    }
+                    await req.Http.Response.SendChunk(chunk, false, CancellationToken.None).ConfigureAwait(false);
+                }
+
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/binary - Send a 256-byte pattern (0x00-0xFF) in 64-byte chunks
+            _App.Rest.Get("/chunked/binary", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                byte[] fullPattern = new byte[256];
+                for (int i = 0; i < 256; i++)
+                {
+                    fullPattern[i] = (byte)i;
+                }
+
+                for (int offset = 0; offset < 256; offset += 64)
+                {
+                    byte[] chunk = new byte[64];
+                    Array.Copy(fullPattern, offset, chunk, 0, 64);
+                    await req.Http.Response.SendChunk(chunk, false, CancellationToken.None).ConfigureAwait(false);
+                }
+
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/single-byte - Send "ABCDEFGHIJ" one byte at a time
+            _App.Rest.Get("/chunked/single-byte", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+
+                string text = "ABCDEFGHIJ";
+                foreach (char c in text)
+                {
+                    byte[] chunk = new byte[] { (byte)c };
+                    await req.Http.Response.SendChunk(chunk, false, CancellationToken.None).ConfigureAwait(false);
+                }
+
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/json - Set Content-Type to application/json, send JSON in chunks
+            _App.Rest.Get("/chunked/json", async (req) =>
+            {
+                req.Http.Response.ChunkedTransfer = true;
+                req.Http.Response.ContentType = "application/json";
+
+                string jsonPart1 = "{\"name\":\"chunked\"";
+                string jsonPart2 = ",\"value\":42}";
+
+                await req.Http.Response.SendChunk(
+                    Encoding.UTF8.GetBytes(jsonPart1), false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(
+                    Encoding.UTF8.GetBytes(jsonPart2), false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(
+                    Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // GET /chunked/status/{code} - Set custom status code, send chunked response
+            _App.Rest.Get("/chunked/status/{code}", async (req) =>
+            {
+                int statusCode = Convert.ToInt32(req.Parameters["code"]);
+                req.Http.Response.StatusCode = statusCode;
+                req.Http.Response.ChunkedTransfer = true;
+
+                byte[] data = Encoding.UTF8.GetBytes("Custom status response");
+                await req.Http.Response.SendChunk(data, false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // POST /chunked/echo - Read buffered request body, echo it back as chunked response
+            _App.Rest.Post<string>("/chunked/echo", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                req.Http.Response.ChunkedTransfer = true;
+
+                byte[] data = Encoding.UTF8.GetBytes(body);
+                await req.Http.Response.SendChunk(data, false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+
+            // POST /chunked/receive - Verify ChunkedTransfer on request, respond with confirmation
+            _App.Rest.Post<string>("/chunked/receive", async (req) =>
+            {
+                bool isChunked = req.Http.Request.ChunkedTransfer;
+                string body = req.Http.Request.DataAsString;
+
+                req.Http.Response.ChunkedTransfer = true;
+                req.Http.Response.ContentType = "application/json";
+
+                string json = "{\"chunked\":" + (isChunked ? "true" : "false") +
+                              ",\"bodyLength\":" + (body != null ? body.Length : 0) + "}";
+
+                byte[] data = Encoding.UTF8.GetBytes(json);
+                await req.Http.Response.SendChunk(data, false, CancellationToken.None).ConfigureAwait(false);
+                await req.Http.Response.SendChunk(Array.Empty<byte>(), true, CancellationToken.None).ConfigureAwait(false);
+
+                return null;
+            });
+        }
+
+        private async Task Test_Chunked_BasicResponse()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/basic");
+                string content = await response.Content.ReadAsStringAsync();
+
+                bool hasChunkedHeader = response.Headers.TransferEncodingChunked == true;
+
+                if (response.IsSuccessStatusCode && content == "Hello, chunked world!" && hasChunkedHeader)
+                    Pass("Chunked basic response");
+                else
+                    Fail("Chunked basic response",
+                        $"Status: {response.StatusCode}, Content: '{content}', Chunked header: {hasChunkedHeader}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked basic response", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_MultipleChunks()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/multi");
+                string content = await response.Content.ReadAsStringAsync();
+
+                string expected = "Chunk 0\nChunk 1\nChunk 2\nChunk 3\nChunk 4\n";
+
+                if (response.IsSuccessStatusCode && content == expected)
+                    Pass("Chunked multiple chunks");
+                else
+                    Fail("Chunked multiple chunks",
+                        $"Status: {response.StatusCode}, Expected length: {expected.Length}, Got length: {content.Length}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked multiple chunks", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_EmptyResponse()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/empty");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Length == 0)
+                    Pass("Chunked empty response");
+                else
+                    Fail("Chunked empty response",
+                        $"Status: {response.StatusCode}, Content length: {content.Length}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked empty response", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_LargePayload()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/large");
+                byte[] content = await response.Content.ReadAsByteArrayAsync();
+
+                int expectedSize = 10240 * 10; // 100KB
+                bool sizeCorrect = content.Length == expectedSize;
+
+                // Verify content integrity - check a sample of bytes
+                bool contentCorrect = true;
+                for (int i = 0; i < content.Length && contentCorrect; i += 1024)
+                {
+                    if (content[i] != (byte)(i % 256))
+                    {
+                        contentCorrect = false;
+                    }
+                }
+
+                if (response.IsSuccessStatusCode && sizeCorrect && contentCorrect)
+                    Pass("Chunked large payload");
+                else
+                    Fail("Chunked large payload",
+                        $"Status: {response.StatusCode}, Expected: {expectedSize} bytes, Got: {content.Length} bytes, Integrity: {contentCorrect}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked large payload", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_BinaryData()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/binary");
+                byte[] content = await response.Content.ReadAsByteArrayAsync();
+
+                bool sizeCorrect = content.Length == 256;
+                bool patternCorrect = true;
+
+                for (int i = 0; i < content.Length && patternCorrect; i++)
+                {
+                    if (content[i] != (byte)i)
+                    {
+                        patternCorrect = false;
+                    }
+                }
+
+                if (response.IsSuccessStatusCode && sizeCorrect && patternCorrect)
+                    Pass("Chunked binary data");
+                else
+                    Fail("Chunked binary data",
+                        $"Status: {response.StatusCode}, Size correct: {sizeCorrect}, Pattern correct: {patternCorrect}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked binary data", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_SingleByteChunks()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/single-byte");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content == "ABCDEFGHIJ")
+                    Pass("Chunked single byte chunks");
+                else
+                    Fail("Chunked single byte chunks",
+                        $"Status: {response.StatusCode}, Content: '{content}'");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked single byte chunks", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_WithJsonContentType()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/json");
+                string content = await response.Content.ReadAsStringAsync();
+                string contentType = response.Content.Headers.ContentType?.MediaType;
+
+                // Verify it's valid JSON by parsing
+                bool validJson = false;
+                try
+                {
+                    JsonDocument doc = JsonDocument.Parse(content);
+                    validJson = doc.RootElement.GetProperty("name").GetString() == "chunked"
+                             && doc.RootElement.GetProperty("value").GetInt32() == 42;
+                }
+                catch
+                {
+                    validJson = false;
+                }
+
+                if (response.IsSuccessStatusCode && contentType == "application/json" && validJson)
+                    Pass("Chunked with JSON content type");
+                else
+                    Fail("Chunked with JSON content type",
+                        $"Status: {response.StatusCode}, ContentType: {contentType}, ValidJson: {validJson}, Content: '{content}'");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked with JSON content type", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_CustomStatusCode()
+        {
+            try
+            {
+                HttpResponseMessage response = await _HttpClient.GetAsync($"{_BaseUrl}/chunked/status/201");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 201 && content == "Custom status response")
+                    Pass("Chunked custom status code");
+                else
+                    Fail("Chunked custom status code",
+                        $"Expected 201, got {(int)response.StatusCode}, Content: '{content}'");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked custom status code", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_RequestEcho()
+        {
+            try
+            {
+                string testBody = "This is test data for chunked echo";
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_BaseUrl}/chunked/echo");
+                request.Content = new StringContent(testBody, Encoding.UTF8, "text/plain");
+                request.Headers.TransferEncodingChunked = true;
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content == testBody)
+                    Pass("Chunked request echo");
+                else
+                    Fail("Chunked request echo",
+                        $"Status: {response.StatusCode}, Expected: '{testBody}', Got: '{content}'");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked request echo", ex.Message);
+            }
+        }
+
+        private async Task Test_Chunked_RequestDetection()
+        {
+            try
+            {
+                string testBody = "Chunked detection test";
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, $"{_BaseUrl}/chunked/receive");
+                request.Content = new StringContent(testBody, Encoding.UTF8, "text/plain");
+                request.Headers.TransferEncodingChunked = true;
+
+                HttpResponseMessage response = await _HttpClient.SendAsync(request);
+                string content = await response.Content.ReadAsStringAsync();
+
+                bool validResponse = false;
+                try
+                {
+                    JsonDocument doc = JsonDocument.Parse(content);
+                    bool isChunked = doc.RootElement.GetProperty("chunked").GetBoolean();
+                    int bodyLength = doc.RootElement.GetProperty("bodyLength").GetInt32();
+                    validResponse = isChunked && bodyLength > 0;
+                }
+                catch
+                {
+                    validResponse = false;
+                }
+
+                if (response.IsSuccessStatusCode && validResponse)
+                    Pass("Chunked request detection");
+                else
+                    Fail("Chunked request detection",
+                        $"Status: {response.StatusCode}, Content: '{content}'");
+            }
+            catch (Exception ex)
+            {
+                Fail("Chunked request detection", ex.Message);
             }
         }
     }
