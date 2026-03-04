@@ -61,6 +61,36 @@
 
             app.Rest.Post<string>("/loopback", async (req) => req.Data);
 
+            app.Rest.Post("/post/raw", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
+            },
+            api => api
+                .WithTag("General")
+                .WithSummary("POST without deserialization")
+                .WithDescription("Demonstrates a POST route where the request body is not automatically deserialized"));
+
+            app.Rest.Put("/put/raw", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
+            },
+            api => api
+                .WithTag("General")
+                .WithSummary("PUT without deserialization")
+                .WithDescription("Demonstrates a PUT route where the request body is not automatically deserialized"));
+
+            app.Rest.Patch("/patch/raw", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
+            },
+            api => api
+                .WithTag("General")
+                .WithSummary("PATCH without deserialization")
+                .WithDescription("Demonstrates a PATCH route where the request body is not automatically deserialized"));
+
             app.Rest.Get("/search", async (req) =>
             {
                 string query = req.Query["q"];

@@ -2557,9 +2557,28 @@
             <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Post(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a POST route without request body deserialization.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Post(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a POST route without request body deserialization, with OpenAPI documentation.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Post``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Add a POST route.
+            Add a POST route with request body deserialization.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
@@ -2568,7 +2587,7 @@
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Post``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
             <summary>
-            Add a POST route with OpenAPI documentation.
+            Add a POST route with request body deserialization and OpenAPI documentation.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
@@ -2576,9 +2595,28 @@
             <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Put(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a PUT route without request body deserialization.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Put(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a PUT route without request body deserialization, with OpenAPI documentation.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Put``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Add a PUT route.
+            Add a PUT route with request body deserialization.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
@@ -2587,7 +2625,7 @@
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Put``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
             <summary>
-            Add a PUT route with OpenAPI documentation.
+            Add a PUT route with request body deserialization and OpenAPI documentation.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
@@ -2595,9 +2633,28 @@
             <param name="openApi">Action to configure OpenAPI metadata.</param>
             <param name="requireAuthentication">True to require authentication.</param>
         </member>
+        <member name="M:SwiftStack.Rest.RestApp.Patch(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
+            <summary>
+            Add a PATCH route without request body deserialization.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
+        <member name="M:SwiftStack.Rest.RestApp.Patch(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
+            <summary>
+            Add a PATCH route without request body deserialization, with OpenAPI documentation.
+            The request body can be accessed directly through the HttpContextBase.
+            </summary>
+            <param name="path">Path.</param>
+            <param name="handler">Route body.</param>
+            <param name="openApi">Action to configure OpenAPI metadata.</param>
+            <param name="requireAuthentication">True to require authentication.</param>
+        </member>
         <member name="M:SwiftStack.Rest.RestApp.Patch``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Boolean)">
             <summary>
-            Add a PATCH route.
+            Add a PATCH route with request body deserialization.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>
@@ -2606,7 +2663,7 @@
         </member>
         <member name="M:SwiftStack.Rest.RestApp.Patch``1(System.String,System.Func{SwiftStack.Rest.AppRequest,System.Threading.Tasks.Task{System.Object}},System.Action{SwiftStack.Rest.OpenApi.OpenApiRouteMetadata},System.Boolean)">
             <summary>
-            Add a PATCH route with OpenAPI documentation.
+            Add a PATCH route with request body deserialization and OpenAPI documentation.
             </summary>
             <typeparam name="T">Request body type.</typeparam>
             <param name="path">Path.</param>

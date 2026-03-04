@@ -824,7 +824,10 @@ namespace Test.Automated
                 await Test_Get_Simple();
                 await Test_Get_WithQueryParameters();
                 await Test_Post_WithBody();
+                await Test_Post_NoBodyDeserialization();
                 await Test_Put_WithUrlParameters();
+                await Test_Put_NoBodyDeserialization();
+                await Test_Patch_NoBodyDeserialization();
                 await Test_Delete_Simple();
                 await Test_Response_Null();
                 await Test_Response_Tuple();
@@ -885,6 +888,24 @@ namespace Test.Automated
                 string id = req.Parameters["id"];
                 var data = req.GetData<PutData>();
                 return new { Id = id, Value = data.Value };
+            });
+
+            _app.Rest.Post("/post/nobody", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
+            });
+
+            _app.Rest.Put("/put/nobody", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
+            });
+
+            _app.Rest.Patch("/patch/nobody", async (req) =>
+            {
+                string body = req.Http.Request.DataAsString;
+                return new { RawBody = body };
             });
 
             _app.Rest.Delete("/delete", async (req) => null);
@@ -1136,6 +1157,68 @@ namespace Test.Automated
             catch (Exception ex)
             {
                 Fail("REST authentication failure", ex.Message);
+            }
+        }
+
+        private async Task Test_Post_NoBodyDeserialization()
+        {
+            try
+            {
+                string rawBody = "raw post content";
+                StringContent httpContent = new StringContent(rawBody, Encoding.UTF8, "text/plain");
+                HttpResponseMessage response = await _httpClient.PostAsync($"{_baseUrl}/post/nobody", httpContent);
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("raw post content"))
+                    Pass("REST POST without body deserialization");
+                else
+                    Fail("REST POST without body deserialization", $"Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST POST without body deserialization", ex.Message);
+            }
+        }
+
+        private async Task Test_Put_NoBodyDeserialization()
+        {
+            try
+            {
+                string rawBody = "raw put content";
+                StringContent httpContent = new StringContent(rawBody, Encoding.UTF8, "text/plain");
+                HttpResponseMessage response = await _httpClient.PutAsync($"{_baseUrl}/put/nobody", httpContent);
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("raw put content"))
+                    Pass("REST PUT without body deserialization");
+                else
+                    Fail("REST PUT without body deserialization", $"Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST PUT without body deserialization", ex.Message);
+            }
+        }
+
+        private async Task Test_Patch_NoBodyDeserialization()
+        {
+            try
+            {
+                string rawBody = "raw patch content";
+                StringContent httpContent = new StringContent(rawBody, Encoding.UTF8, "text/plain");
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Patch, $"{_baseUrl}/patch/nobody");
+                request.Content = httpContent;
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("raw patch content"))
+                    Pass("REST PATCH without body deserialization");
+                else
+                    Fail("REST PATCH without body deserialization", $"Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST PATCH without body deserialization", ex.Message);
             }
         }
 

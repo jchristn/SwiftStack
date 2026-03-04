@@ -31,10 +31,10 @@ class Program
     {
         SwiftStackApp app = new SwiftStackApp("My test application");
 
+        // Use app.Rest.Route to add a route by specifying the HTTP method as a string
         app.Rest.Route("GET", "/", async (req) => "Hello world");
 
-        app.Rest.Route("POST", "/loopback", async (req) => req.Data);
-
+        // Use app.Rest.Get to add a GET route with query parameter handling
         app.Rest.Get("/search", async (req) =>
         {
             string query = req.Query["q"];
@@ -49,10 +49,97 @@ class Program
             };
         });
 
+        // Use app.Rest.Post<T> to add a POST route with automatic body deserialization
+        app.Rest.Post<User>("/users", async (req) =>
+        {
+            User user = req.GetData<User>();
+            return new { Id = Guid.NewGuid(), user.Email };
+        });
+
+        // Use app.Rest.Post (non-generic) to add a POST route without body deserialization;
+        // access the raw request body through req.Http.Request
+        app.Rest.Post("/upload", async (req) =>
+        {
+            string rawBody = req.Http.Request.DataAsString;
+            return new { Received = rawBody };
+        });
+
+        await app.Rest.Run();
+    }
+}
+
+public class User
+{
+    public string Email { get; set; }
+    public string Name { get; set; }
+}
+```
+</details>
+
+---
+
+## 🔧 REST Routes Without Body Deserialization
+
+<details>
+<summary>Click to expand</summary>
+
+By default, `Post<T>`, `Put<T>`, and `Patch<T>` automatically deserialize the request body into type `T`. If you want to handle the raw request body yourself — for example, when receiving binary data, form data, or content you want to parse manually — use the non-generic overloads instead. The request body is accessible directly through `HttpContextBase`.
+
+```csharp
+using SwiftStack;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        SwiftStackApp app = new SwiftStackApp("Raw body example");
+
+        // POST without automatic deserialization
+        app.Rest.Post("/upload", async (req) =>
+        {
+            string rawBody = req.Http.Request.DataAsString;
+            byte[] rawBytes = req.Http.Request.Data;
+            return new { Length = rawBytes.Length, ContentType = req.Http.Request.ContentType };
+        });
+
+        // PUT without automatic deserialization
+        app.Rest.Put("/upload/{id}", async (req) =>
+        {
+            string id = req.Parameters["id"];
+            string rawBody = req.Http.Request.DataAsString;
+            return new { Id = id, Body = rawBody };
+        });
+
+        // PATCH without automatic deserialization
+        app.Rest.Patch("/upload/{id}", async (req) =>
+        {
+            string id = req.Parameters["id"];
+            string rawBody = req.Http.Request.DataAsString;
+            return new { Id = id, Body = rawBody };
+        });
+
+        // DELETE also supports both patterns
+        app.Rest.Delete("/upload/{id}", async (req) => null);
+
         await app.Rest.Run();
     }
 }
 ```
+
+All non-generic overloads also support OpenAPI documentation:
+
+```csharp
+app.Rest.Post("/upload", async (req) =>
+{
+    string rawBody = req.Http.Request.DataAsString;
+    return new { Body = rawBody };
+},
+api => api
+    .WithTag("Uploads")
+    .WithSummary("Upload raw content")
+    .WithDescription("Accepts raw request body without automatic deserialization"));
+```
+
 </details>
 
 ---

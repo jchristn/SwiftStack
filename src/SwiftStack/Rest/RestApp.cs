@@ -352,7 +352,41 @@
         }
 
         /// <summary>
-        /// Add a POST route.
+        /// Add a POST route without request body deserialization.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Post(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
+        {
+            RegisterNoBodyRoute(HttpMethod.POST, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a POST route without request body deserialization, with OpenAPI documentation.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Post(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.POST, path, handler, requireAuthentication, metadata);
+        }
+
+        /// <summary>
+        /// Add a POST route with request body deserialization.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -367,7 +401,7 @@
         }
 
         /// <summary>
-        /// Add a POST route with OpenAPI documentation.
+        /// Add a POST route with request body deserialization and OpenAPI documentation.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -386,7 +420,41 @@
         }
 
         /// <summary>
-        /// Add a PUT route.
+        /// Add a PUT route without request body deserialization.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Put(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
+        {
+            RegisterNoBodyRoute(HttpMethod.PUT, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a PUT route without request body deserialization, with OpenAPI documentation.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Put(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.PUT, path, handler, requireAuthentication, metadata);
+        }
+
+        /// <summary>
+        /// Add a PUT route with request body deserialization.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -401,7 +469,7 @@
         }
 
         /// <summary>
-        /// Add a PUT route with OpenAPI documentation.
+        /// Add a PUT route with request body deserialization and OpenAPI documentation.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -420,7 +488,41 @@
         }
 
         /// <summary>
-        /// Add a PATCH route.
+        /// Add a PATCH route without request body deserialization.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Patch(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            bool requireAuthentication = false)
+        {
+            RegisterNoBodyRoute(HttpMethod.PATCH, path, handler, requireAuthentication, null);
+        }
+
+        /// <summary>
+        /// Add a PATCH route without request body deserialization, with OpenAPI documentation.
+        /// The request body can be accessed directly through the HttpContextBase.
+        /// </summary>
+        /// <param name="path">Path.</param>
+        /// <param name="handler">Route body.</param>
+        /// <param name="openApi">Action to configure OpenAPI metadata.</param>
+        /// <param name="requireAuthentication">True to require authentication.</param>
+        public void Patch(
+            string path,
+            Func<AppRequest, Task<object>> handler,
+            Action<OpenApiRouteMetadata> openApi,
+            bool requireAuthentication = false)
+        {
+            OpenApiRouteMetadata metadata = new OpenApiRouteMetadata();
+            openApi?.Invoke(metadata);
+            RegisterNoBodyRoute(HttpMethod.PATCH, path, handler, requireAuthentication, metadata);
+        }
+
+        /// <summary>
+        /// Add a PATCH route with request body deserialization.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
@@ -435,7 +537,7 @@
         }
 
         /// <summary>
-        /// Add a PATCH route with OpenAPI documentation.
+        /// Add a PATCH route with request body deserialization and OpenAPI documentation.
         /// </summary>
         /// <typeparam name="T">Request body type.</typeparam>
         /// <param name="path">Path.</param>
