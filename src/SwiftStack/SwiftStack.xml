@@ -193,9 +193,14 @@
             Boolean to indicate if the app is running.
             </summary>
         </member>
+        <member name="P:SwiftStack.RabbitMq.RabbitMqApp.QuietStartup">
+            <summary>
+            Set to true to disable log messages on startup.
+            </summary>
+        </member>
         <member name="P:SwiftStack.RabbitMq.RabbitMqApp.Header">
             <summary>
-            Header to include in emitted log messages.  
+            Header to include in emitted log messages.
             Default is [RabbitMqApp].
             </summary>
         </member>

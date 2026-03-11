@@ -140,7 +140,7 @@
             Rest = new RestApp(this);
             Rest.QuietStartup = quiet;
 
-            _Logging.Info(_Header + "started application " + Name);
+            if (!quiet) _Logging.Info(_Header + "started application " + Name);
         }
 
         #endregion

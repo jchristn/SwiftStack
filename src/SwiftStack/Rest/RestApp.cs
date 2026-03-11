@@ -195,7 +195,7 @@
                 {
                     using (_Webserver = new Webserver(_WebserverSettings, DefaultInternalRoute))
                     {
-                        _App.Logging.Debug(_Header + "starting webserver on " + _WebserverSettings.Prefix);
+                        if (!QuietStartup) _App.Logging.Debug(_Header + "starting webserver on " + _WebserverSettings.Prefix);
 
                         if (!string.IsNullOrEmpty(FaviconFile))
                         {
@@ -756,7 +756,7 @@
 
             List<ParameterRoute> routes = requireAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
             routes.Add(new ParameterRoute(httpMethod, path, wrappedHandler, ExceptionRoute));
-            _App.Logging.Debug(_Header + "added route " + method + " " + path);
+            if (!QuietStartup) _App.Logging.Debug(_Header + "added route " + method + " " + path);
         }
 
         #endregion
@@ -776,7 +776,7 @@
             // Add route to appropriate collection
             List<ParameterRoute> routes = requireAuthentication ? _AuthenticatedRoutes : _UnauthenticatedRoutes;
             routes.Add(new ParameterRoute(method, path, handler, ExceptionRoute));
-            _App.Logging.Debug(_Header + "added route " + method + " " + path);
+            if (!QuietStartup) _App.Logging.Debug(_Header + "added route " + method + " " + path);
         }
 
         private void RegisterNoBodyRoute(

@@ -22,7 +22,12 @@
         public bool IsRunning { get; private set; } = false;
 
         /// <summary>
-        /// Header to include in emitted log messages.  
+        /// Set to true to disable log messages on startup.
+        /// </summary>
+        public bool QuietStartup { get; set; } = false;
+
+        /// <summary>
+        /// Header to include in emitted log messages.
         /// Default is [RabbitMqApp].
         /// </summary>
         public string Header
