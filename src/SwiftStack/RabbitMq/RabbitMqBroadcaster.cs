@@ -118,10 +118,17 @@
 
                 _ConnectionFactory = null;
 
-                _Channel?.CloseAsync().Wait();
-                _Channel?.Dispose();
-                _Connection?.CloseAsync().Wait();
-                _Connection?.Dispose();
+                if (_Channel != null)
+                {
+                    try { _Channel.CloseAsync().Wait(TimeSpan.FromSeconds(2)); } catch { }
+                    try { _Channel.Dispose(); } catch { }
+                }
+
+                if (_Connection != null)
+                {
+                    try { _Connection.CloseAsync().Wait(TimeSpan.FromSeconds(2)); } catch { }
+                    try { _Connection.Dispose(); } catch { }
+                }
 
                 _IsInitialized = false;
             }

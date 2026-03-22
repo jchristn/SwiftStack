@@ -213,7 +213,7 @@
         /// Dispose.
         /// </summary>
         /// <param name="disposing">Disposing.</param>
-        protected virtual async void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_Disposed)
             {
@@ -222,7 +222,7 @@
                     if (_WebsocketServer != null && _WebsocketServer.IsListening)
                         _WebsocketServer?.Stop();
 
-                    _TokenSource.Cancel();
+                    _TokenSource?.Cancel();
 
                     // Wait for the websocket task with a timeout to avoid hanging
                     if (_WebsocketTask != null)
@@ -230,7 +230,14 @@
                         _WebsocketTask.Wait(TimeSpan.FromMilliseconds(500));
                     }
 
-                    _TokenSource.Dispose();
+                    _TokenSource?.Dispose();
+
+                    // Clear event handlers to prevent preventing GC of subscribers
+                    OnConnection = null;
+                    OnDisconnection = null;
+                    DefaultRoute = null;
+                    NotFoundRoute = null;
+                    ExceptionRoute = null;
                 }
 
                 _WebsocketSettings = null;

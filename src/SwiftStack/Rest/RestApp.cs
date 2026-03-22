@@ -12,6 +12,7 @@
     using System.Threading.Tasks;
     using SerializationHelper;
     using SyslogLogging;
+    using SwiftStack.Rest.Middleware;
     using SwiftStack.Rest.OpenApi;
     using WatsonWebserver;
     using WatsonWebserver.Core;
@@ -127,6 +128,20 @@
         /// Favicon.ico file.
         /// </summary>
         public string FaviconFile { get; set; } = "./assets/favicon.ico";
+
+        /// <summary>
+        /// Middleware pipeline for the REST application.
+        /// Use the Use() extension method to register middleware.
+        /// Middleware must be registered before calling Run().
+        /// </summary>
+        public MiddlewarePipeline Middleware { get; } = new MiddlewarePipeline();
+
+        /// <summary>
+        /// Request timeout settings.
+        /// Use UseTimeout() to configure.
+        /// Null when timeouts are not enabled.
+        /// </summary>
+        public RestTimeoutSettings TimeoutSettings { get; internal set; } = null;
 
         /// <summary>
         /// OpenAPI settings. Null if OpenAPI is not enabled.
@@ -281,13 +296,13 @@
         /// Dispose.
         /// </summary>
         /// <param name="disposing">Disposing.</param>
-        protected virtual async void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_Disposed)
             {
                 if (disposing)
                 {
-                    _TokenSource.Cancel();
+                    _TokenSource?.Cancel();
 
                     // Wait for the webserver task with a timeout to avoid hanging
                     if (_WebserverTask != null)
@@ -295,7 +310,7 @@
                         _WebserverTask.Wait(TimeSpan.FromMilliseconds(500));
                     }
 
-                    _TokenSource.Dispose();
+                    _TokenSource?.Dispose();
                 }
 
                 _WebserverSettings = null;
@@ -788,17 +803,53 @@
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
+                CancellationTokenSource timeoutCts = null;
+                CancellationToken requestToken = _Token;
+
                 try
                 {
-                    AppRequest dynamicReq = new AppRequest(ctx, _App.Serializer, null);
+                    if (TimeoutSettings != null && TimeoutSettings.DefaultTimeout > TimeSpan.Zero)
+                    {
+                        timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_Token);
+                        timeoutCts.CancelAfter(TimeoutSettings.DefaultTimeout);
+                        requestToken = timeoutCts.Token;
+                    }
+
+                    AppRequest dynamicReq = new AppRequest(ctx, _App.Serializer, null, requestToken);
                     dynamicReq.Metadata = ctx.Metadata;
 
-                    object result = await handler(dynamicReq);
-                    await ProcessResult(ctx, result);
+                    Func<Task> terminalHandler = async () =>
+                    {
+                        object result = await handler(dynamicReq).ConfigureAwait(false);
+                        await ProcessResult(ctx, result).ConfigureAwait(false);
+                    };
+
+                    if (Middleware.HasMiddleware)
+                    {
+                        await Middleware.Execute(ctx, terminalHandler, requestToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await terminalHandler().ConfigureAwait(false);
+                    }
+                }
+                catch (OperationCanceledException) when (timeoutCts != null && timeoutCts.IsCancellationRequested && !_Token.IsCancellationRequested)
+                {
+                    ctx.Response.StatusCode = 408;
+                    ctx.Response.ContentType = Constants.JsonContentType;
+                    await ctx.Response.Send(_App.Serializer.SerializeJson(new ApiErrorResponse
+                    {
+                        Error = ApiResultEnum.RequestTimeout,
+                        Message = "The request timed out."
+                    }, true)).ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
-                    await HandleException(ctx, ex);
+                    await HandleException(ctx, ex).ConfigureAwait(false);
+                }
+                finally
+                {
+                    timeoutCts?.Dispose();
                 }
             };
 
@@ -823,8 +874,18 @@
         {
             Func<HttpContextBase, Task> routeHandler = async (ctx) =>
             {
+                CancellationTokenSource timeoutCts = null;
+                CancellationToken requestToken = _Token;
+
                 try
                 {
+                    if (TimeoutSettings != null && TimeoutSettings.DefaultTimeout > TimeSpan.Zero)
+                    {
+                        timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(_Token);
+                        timeoutCts.CancelAfter(TimeoutSettings.DefaultTimeout);
+                        requestToken = timeoutCts.Token;
+                    }
+
                     T requestData = null;
                     if (!string.IsNullOrEmpty(ctx.Request.DataAsString))
                     {
@@ -845,15 +906,41 @@
                         }
                     }
 
-                    AppRequest dynamicReq = new AppRequest(ctx, _App.Serializer, requestData);
+                    AppRequest dynamicReq = new AppRequest(ctx, _App.Serializer, requestData, requestToken);
                     dynamicReq.Metadata = ctx.Metadata;
 
-                    object result = await handler(dynamicReq);
-                    await ProcessResult(ctx, result);
+                    Func<Task> terminalHandler = async () =>
+                    {
+                        object result = await handler(dynamicReq).ConfigureAwait(false);
+                        await ProcessResult(ctx, result).ConfigureAwait(false);
+                    };
+
+                    if (Middleware.HasMiddleware)
+                    {
+                        await Middleware.Execute(ctx, terminalHandler, requestToken).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await terminalHandler().ConfigureAwait(false);
+                    }
+                }
+                catch (OperationCanceledException) when (timeoutCts != null && timeoutCts.IsCancellationRequested && !_Token.IsCancellationRequested)
+                {
+                    ctx.Response.StatusCode = 408;
+                    ctx.Response.ContentType = Constants.JsonContentType;
+                    await ctx.Response.Send(_App.Serializer.SerializeJson(new ApiErrorResponse
+                    {
+                        Error = ApiResultEnum.RequestTimeout,
+                        Message = "The request timed out."
+                    }, true)).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    await HandleException(ctx, e);
+                    await HandleException(ctx, e).ConfigureAwait(false);
+                }
+                finally
+                {
+                    timeoutCts?.Dispose();
                 }
             };
 

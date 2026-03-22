@@ -85,6 +85,8 @@
                     return "The request is invalid.  Please check your URL, headers, query, HTTP method, and request body.";
                 case ApiResultEnum.DeserializationError:
                     return "The supplied object could not be deserialized.";
+                case ApiResultEnum.RequestTimeout:
+                    return "The request timed out.";
                 default:
                     return "An API error of type " + result + " was encountered.";
             }
@@ -110,6 +112,8 @@
                     return 429;
                 case ApiResultEnum.DeserializationError:
                     return 400;
+                case ApiResultEnum.RequestTimeout:
+                    return 408;
                 case ApiResultEnum.InternalError:
                 default:
                     return 500;  // Default to internal server error for undefined mappings

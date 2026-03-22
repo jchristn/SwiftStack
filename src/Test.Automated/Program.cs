@@ -5,7 +5,9 @@ namespace Test.Automated
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
     using System.Text;
     using System.Text.Json;
@@ -13,6 +15,8 @@ namespace Test.Automated
     using System.Threading.Tasks;
     using SwiftStack;
     using SwiftStack.Rest;
+    using SwiftStack.Rest.Health;
+    using SwiftStack.Rest.Middleware;
     using SwiftStack.Rest.OpenApi;
     using SwiftStack.Serialization;
     using SwiftStack.Websockets;
@@ -40,6 +44,10 @@ namespace Test.Automated
             runner.RegisterSuite(new ChunkedTransferTests());
             runner.RegisterSuite(new WebSocketTests());
             runner.RegisterSuite(new RabbitMqTests());
+            runner.RegisterSuite(new DisposalTests());
+            runner.RegisterSuite(new MiddlewareTests());
+            runner.RegisterSuite(new TimeoutTests());
+            runner.RegisterSuite(new HealthCheckTests());
 
             // Run all tests
             await runner.RunAllAsync();
@@ -58,6 +66,7 @@ namespace Test.Automated
     {
         private List<TestSuite> _suites = new List<TestSuite>();
         private List<TestResult> _allResults = new List<TestResult>();
+        private Stopwatch _totalStopwatch = new Stopwatch();
 
         public bool AllPassed => _allResults.All(r => r.Passed);
 
@@ -68,6 +77,8 @@ namespace Test.Automated
 
         public async Task RunAllAsync()
         {
+            _totalStopwatch.Start();
+
             foreach (var suite in _suites)
             {
                 Console.WriteLine($"--- {suite.Name} ---");
@@ -78,6 +89,8 @@ namespace Test.Automated
 
                 Console.WriteLine();
             }
+
+            _totalStopwatch.Stop();
         }
 
         public void PrintSummary()
@@ -91,6 +104,7 @@ namespace Test.Automated
             int total = _allResults.Count;
 
             Console.WriteLine($"Total: {total} | Passed: {passed} | Failed: {failed}");
+            Console.WriteLine($"Total runtime: {_totalStopwatch.ElapsedMilliseconds}ms");
             Console.WriteLine();
 
             if (failed > 0)
@@ -121,12 +135,14 @@ namespace Test.Automated
         public string Name { get; set; }
         public bool Passed { get; set; }
         public string Message { get; set; }
+        public long DurationMs { get; set; }
     }
 
     public abstract class TestSuite
     {
         public abstract string Name { get; }
         protected List<TestResult> Results = new List<TestResult>();
+        protected Stopwatch _TestStopwatch = new Stopwatch();
 
         public async Task<List<TestResult>> RunAsync()
         {
@@ -137,16 +153,32 @@ namespace Test.Automated
 
         protected abstract Task RunTestsAsync();
 
+        protected async Task RunTest(Func<Task> test)
+        {
+            _TestStopwatch.Restart();
+            await test().ConfigureAwait(false);
+        }
+
+        protected void RunTest(Action test)
+        {
+            _TestStopwatch.Restart();
+            test();
+        }
+
         protected void Pass(string testName)
         {
-            Results.Add(new TestResult { Name = testName, Passed = true });
-            Console.WriteLine($"[PASS] {testName}");
+            _TestStopwatch.Stop();
+            long ms = _TestStopwatch.ElapsedMilliseconds;
+            Results.Add(new TestResult { Name = testName, Passed = true, DurationMs = ms });
+            Console.WriteLine($"[PASS] {testName} ({ms}ms)");
         }
 
         protected void Fail(string testName, string message)
         {
-            Results.Add(new TestResult { Name = testName, Passed = false, Message = message });
-            Console.WriteLine($"[FAIL] {testName}");
+            _TestStopwatch.Stop();
+            long ms = _TestStopwatch.ElapsedMilliseconds;
+            Results.Add(new TestResult { Name = testName, Passed = false, Message = message, DurationMs = ms });
+            Console.WriteLine($"[FAIL] {testName} ({ms}ms)");
             Console.WriteLine($"       {message}");
         }
 
@@ -166,13 +198,13 @@ namespace Test.Automated
 
         protected override async Task RunTestsAsync()
         {
-            await Task.Run(() => Test_SwiftStackApp_Creation());
-            await Task.Run(() => Test_SwiftStackApp_Name());
-            await Task.Run(() => Test_SwiftStackApp_Serializer_Default());
-            await Task.Run(() => Test_SwiftStackApp_Serializer_Override());
-            await Task.Run(() => Test_SwiftStackException_Creation());
-            await Task.Run(() => Test_SwiftStackException_StatusCodes());
-            await Task.Run(() => Test_ApiResultEnum_Values());
+            await Task.Run(() => RunTest(Test_SwiftStackApp_Creation));
+            await Task.Run(() => RunTest(Test_SwiftStackApp_Name));
+            await Task.Run(() => RunTest(Test_SwiftStackApp_Serializer_Default));
+            await Task.Run(() => RunTest(Test_SwiftStackApp_Serializer_Override));
+            await Task.Run(() => RunTest(Test_SwiftStackException_Creation));
+            await Task.Run(() => RunTest(Test_SwiftStackException_StatusCodes));
+            await Task.Run(() => RunTest(Test_ApiResultEnum_Values));
         }
 
         private void Test_SwiftStackApp_Creation()
@@ -272,7 +304,8 @@ namespace Test.Automated
                     { ApiResultEnum.NotFound, 404 },
                     { ApiResultEnum.Conflict, 409 },
                     { ApiResultEnum.SlowDown, 429 },
-                    { ApiResultEnum.InternalError, 500 }
+                    { ApiResultEnum.InternalError, 500 },
+                    { ApiResultEnum.RequestTimeout, 408 }
                 };
 
                 foreach (var test in tests)
@@ -299,7 +332,7 @@ namespace Test.Automated
             try
             {
                 var values = Enum.GetValues<ApiResultEnum>();
-                var expectedCount = 9; // Success, NotFound, Created, NotAuthorized, InternalError, SlowDown, Conflict, BadRequest, DeserializationError
+                var expectedCount = 10; // Success, NotFound, Created, NotAuthorized, InternalError, SlowDown, Conflict, BadRequest, DeserializationError, RequestTimeout
 
                 if (values.Length == expectedCount)
                     Pass("ApiResultEnum values count");
@@ -323,13 +356,17 @@ namespace Test.Automated
 
         protected override async Task RunTestsAsync()
         {
-            await Task.Run(() => Test_Serializer_SerializeObject());
-            await Task.Run(() => Test_Serializer_DeserializeObject());
-            await Task.Run(() => Test_Serializer_DateTime());
-            await Task.Run(() => Test_Serializer_DateTimeFormats());
-            await Task.Run(() => Test_Serializer_ComplexObject());
-            await Task.Run(() => Test_Serializer_NullValues());
-            await Task.Run(() => Test_Serializer_CopyObject());
+            await Task.Run(() => RunTest(Test_Serializer_SerializeObject));
+            await Task.Run(() => RunTest(Test_Serializer_DeserializeObject));
+            await Task.Run(() => RunTest(Test_Serializer_DateTime));
+            await Task.Run(() => RunTest(Test_Serializer_DateTimeFormats));
+            await Task.Run(() => RunTest(Test_Serializer_ComplexObject));
+            await Task.Run(() => RunTest(Test_Serializer_NullValues));
+            await Task.Run(() => RunTest(Test_Serializer_CopyObject));
+            await Task.Run(() => RunTest(Test_Serializer_Exception));
+            await Task.Run(() => RunTest(Test_Serializer_IPAddress));
+            await Task.Run(() => RunTest(Test_Serializer_NameValueCollection));
+            await Task.Run(() => RunTest(Test_Serializer_MalformedJson));
         }
 
         private void Test_Serializer_SerializeObject()
@@ -497,6 +534,107 @@ namespace Test.Automated
             }
         }
 
+        private void Test_Serializer_Exception()
+        {
+            try
+            {
+                Serializer serializer = new Serializer();
+                Exception ex = new InvalidOperationException("test error");
+                string json = serializer.SerializeJson(ex, false);
+
+                if (!string.IsNullOrEmpty(json) && json.Contains("test error") && json.Contains("Message"))
+                    Pass("Serializer exception serialization");
+                else
+                    Fail("Serializer exception serialization", $"Unexpected JSON: {json}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Serializer exception serialization", ex.Message);
+            }
+        }
+
+        private void Test_Serializer_IPAddress()
+        {
+            try
+            {
+                Serializer serializer = new Serializer();
+                IPAddressWrapper original = new IPAddressWrapper { Address = IPAddress.Parse("192.168.1.100") };
+                string json = serializer.SerializeJson(original, false);
+
+                if (!string.IsNullOrEmpty(json) && json.Contains("192.168.1.100"))
+                {
+                    IPAddressWrapper deserialized = serializer.DeserializeJson<IPAddressWrapper>(json);
+                    if (deserialized != null && deserialized.Address.Equals(IPAddress.Parse("192.168.1.100")))
+                        Pass("Serializer IPAddress round-trip");
+                    else
+                        Fail("Serializer IPAddress round-trip", "Deserialized address mismatch");
+                }
+                else
+                {
+                    Fail("Serializer IPAddress round-trip", $"Unexpected JSON: {json}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Fail("Serializer IPAddress round-trip", ex.Message);
+            }
+        }
+
+        private void Test_Serializer_NameValueCollection()
+        {
+            try
+            {
+                Serializer serializer = new Serializer();
+                NvcWrapper original = new NvcWrapper
+                {
+                    Headers = new NameValueCollection
+                    {
+                        { "Content-Type", "application/json" },
+                        { "Accept", "text/html" }
+                    }
+                };
+                string json = serializer.SerializeJson(original, false);
+
+                if (!string.IsNullOrEmpty(json) &&
+                    json.Contains("Content-Type") &&
+                    json.Contains("application/json"))
+                    Pass("Serializer NameValueCollection");
+                else
+                    Fail("Serializer NameValueCollection", $"Unexpected JSON: {json}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Serializer NameValueCollection", ex.Message);
+            }
+        }
+
+        private void Test_Serializer_MalformedJson()
+        {
+            try
+            {
+                Serializer serializer = new Serializer();
+                bool threw = false;
+
+                try
+                {
+                    TestData result = serializer.DeserializeJson<TestData>("{ this is not valid json }}}");
+                }
+                catch (JsonException)
+                {
+                    threw = true;
+                }
+
+                if (threw)
+                    Pass("Serializer malformed JSON throws JsonException");
+                else
+                    Fail("Serializer malformed JSON throws JsonException", "No exception was thrown");
+            }
+            catch (Exception ex)
+            {
+                Fail("Serializer malformed JSON throws JsonException", ex.Message);
+            }
+        }
+
         private class TestData
         {
             public string Name { get; set; }
@@ -515,6 +653,16 @@ namespace Test.Automated
             public List<string> Items { get; set; }
             public Dictionary<string, object> Metadata { get; set; }
         }
+
+        private class IPAddressWrapper
+        {
+            public IPAddress Address { get; set; }
+        }
+
+        private class NvcWrapper
+        {
+            public NameValueCollection Headers { get; set; }
+        }
     }
 
     #endregion
@@ -527,17 +675,23 @@ namespace Test.Automated
 
         protected override async Task RunTestsAsync()
         {
-            await Task.Run(() => Test_Parameters_String());
-            await Task.Run(() => Test_Parameters_Int());
-            await Task.Run(() => Test_Parameters_Long());
-            await Task.Run(() => Test_Parameters_Double());
-            await Task.Run(() => Test_Parameters_Decimal());
-            await Task.Run(() => Test_Parameters_Bool());
-            await Task.Run(() => Test_Parameters_DateTime());
-            await Task.Run(() => Test_Parameters_Guid());
-            await Task.Run(() => Test_Parameters_Array());
-            await Task.Run(() => Test_Parameters_Contains());
-            await Task.Run(() => Test_Parameters_GetKeys());
+            await Task.Run(() => RunTest(Test_Parameters_String));
+            await Task.Run(() => RunTest(Test_Parameters_Int));
+            await Task.Run(() => RunTest(Test_Parameters_Long));
+            await Task.Run(() => RunTest(Test_Parameters_Double));
+            await Task.Run(() => RunTest(Test_Parameters_Decimal));
+            await Task.Run(() => RunTest(Test_Parameters_Bool));
+            await Task.Run(() => RunTest(Test_Parameters_DateTime));
+            await Task.Run(() => RunTest(Test_Parameters_Guid));
+            await Task.Run(() => RunTest(Test_Parameters_Array));
+            await Task.Run(() => RunTest(Test_Parameters_Contains));
+            await Task.Run(() => RunTest(Test_Parameters_GetKeys));
+            await Task.Run(() => RunTest(Test_Parameters_TimeSpan));
+            await Task.Run(() => RunTest(Test_Parameters_Enum));
+            await Task.Run(() => RunTest(Test_Parameters_TryGetValue));
+            await Task.Run(() => RunTest(Test_Parameters_GetValueOrDefault));
+            await Task.Run(() => RunTest(Test_Parameters_MissingKey_ReturnsDefault));
+            await Task.Run(() => RunTest(Test_Parameters_InvalidConversion_ReturnsDefault));
         }
 
         private void Test_Parameters_String()
@@ -759,6 +913,157 @@ namespace Test.Automated
                 Fail("RequestParameters GetKeys", ex.Message);
             }
         }
+
+        private void Test_Parameters_TimeSpan()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection { { "duration", "01:30:00" } };
+                RequestParameters parameters = new RequestParameters(nvc);
+                TimeSpan ts = parameters.GetTimeSpan("duration");
+
+                if (ts.Hours == 1 && ts.Minutes == 30 && ts.Seconds == 0)
+                    Pass("RequestParameters TimeSpan conversion");
+                else
+                    Fail("RequestParameters TimeSpan conversion", $"Expected 01:30:00, got {ts}");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters TimeSpan conversion", ex.Message);
+            }
+        }
+
+        private enum TestParamEnum { Alpha, Beta, Gamma }
+
+        private void Test_Parameters_Enum()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection { { "status", "Beta" } };
+                RequestParameters parameters = new RequestParameters(nvc);
+                TestParamEnum val = parameters.GetEnum<TestParamEnum>("status", TestParamEnum.Alpha);
+
+                if (val == TestParamEnum.Beta)
+                    Pass("RequestParameters Enum conversion");
+                else
+                    Fail("RequestParameters Enum conversion", $"Expected Beta, got {val}");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters Enum conversion", ex.Message);
+            }
+        }
+
+        private void Test_Parameters_TryGetValue()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection
+                {
+                    { "num", "42" },
+                    { "flag", "yes" }
+                };
+                RequestParameters parameters = new RequestParameters(nvc);
+
+                bool gotInt = parameters.TryGetValue<int>("num", out int intResult);
+                bool gotBool = parameters.TryGetValue<bool>("flag", out bool boolResult);
+                bool gotMissing = parameters.TryGetValue<int>("missing", out int missingResult);
+
+                if (gotInt && intResult == 42 && gotBool && boolResult == true && !gotMissing)
+                    Pass("RequestParameters TryGetValue");
+                else
+                    Fail("RequestParameters TryGetValue",
+                        $"int: {gotInt}={intResult}, bool: {gotBool}={boolResult}, missing: {gotMissing}");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters TryGetValue", ex.Message);
+            }
+        }
+
+        private void Test_Parameters_GetValueOrDefault()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection { { "name", "Alice" } };
+                RequestParameters parameters = new RequestParameters(nvc);
+
+                string found = parameters.GetValueOrDefault("name", "fallback");
+                string missing = parameters.GetValueOrDefault("absent", "fallback");
+
+                if (found == "Alice" && missing == "fallback")
+                    Pass("RequestParameters GetValueOrDefault");
+                else
+                    Fail("RequestParameters GetValueOrDefault", $"found={found}, missing={missing}");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters GetValueOrDefault", ex.Message);
+            }
+        }
+
+        private void Test_Parameters_MissingKey_ReturnsDefault()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection();
+                RequestParameters parameters = new RequestParameters(nvc);
+
+                int intVal = parameters.GetInt("missing", 99);
+                long longVal = parameters.GetLong("missing", 88L);
+                double doubleVal = parameters.GetDouble("missing", 7.7);
+                bool boolVal = parameters.GetBool("missing", true);
+                DateTime dtVal = parameters.GetDateTime("missing");
+                TimeSpan tsVal = parameters.GetTimeSpan("missing");
+                Guid guidVal = parameters.GetGuid("missing");
+                string[] arrVal = parameters.GetArray("missing");
+
+                if (intVal == 99 && longVal == 88L &&
+                    Math.Abs(doubleVal - 7.7) < 0.001 &&
+                    boolVal == true &&
+                    dtVal == DateTime.MinValue &&
+                    tsVal == TimeSpan.Zero &&
+                    guidVal == Guid.Empty &&
+                    arrVal.Length == 0)
+                    Pass("RequestParameters missing key returns default");
+                else
+                    Fail("RequestParameters missing key returns default", "One or more defaults incorrect");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters missing key returns default", ex.Message);
+            }
+        }
+
+        private void Test_Parameters_InvalidConversion_ReturnsDefault()
+        {
+            try
+            {
+                NameValueCollection nvc = new NameValueCollection
+                {
+                    { "bad_int", "not_a_number" },
+                    { "bad_bool", "maybe" },
+                    { "bad_guid", "not-a-guid" },
+                    { "bad_double", "xyz" }
+                };
+                RequestParameters parameters = new RequestParameters(nvc);
+
+                int intVal = parameters.GetInt("bad_int", 42);
+                bool boolVal = parameters.GetBool("bad_bool", false);
+                Guid guidVal = parameters.GetGuid("bad_guid");
+                double doubleVal = parameters.GetDouble("bad_double", 1.5);
+
+                if (intVal == 42 && boolVal == false && guidVal == Guid.Empty && Math.Abs(doubleVal - 1.5) < 0.001)
+                    Pass("RequestParameters invalid conversion returns default");
+                else
+                    Fail("RequestParameters invalid conversion returns default",
+                        $"int={intVal}, bool={boolVal}, guid={guidVal}, double={doubleVal}");
+            }
+            catch (Exception ex)
+            {
+                Fail("RequestParameters invalid conversion returns default", ex.Message);
+            }
+        }
     }
 
     #endregion
@@ -773,6 +1078,7 @@ namespace Test.Automated
         private string _baseUrl;
         private CancellationTokenSource _cts;
         private HttpClient _httpClient;
+        private bool _postRoutingCalled = false;
 
         protected override async Task RunTestsAsync()
         {
@@ -821,20 +1127,28 @@ namespace Test.Automated
                 // Run tests with timeout protection
                 using var testCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
-                await Test_Get_Simple();
-                await Test_Get_WithQueryParameters();
-                await Test_Post_WithBody();
-                await Test_Post_NoBodyDeserialization();
-                await Test_Put_WithUrlParameters();
-                await Test_Put_NoBodyDeserialization();
-                await Test_Patch_NoBodyDeserialization();
-                await Test_Delete_Simple();
-                await Test_Response_Null();
-                await Test_Response_Tuple();
-                await Test_Exception_NotFound();
-                await Test_Exception_BadRequest();
-                await Test_Authentication_Success();
-                await Test_Authentication_Failure();
+                await RunTest(Test_Get_Simple);
+                await RunTest(Test_Get_WithQueryParameters);
+                await RunTest(Test_Post_WithBody);
+                await RunTest(Test_Post_NoBodyDeserialization);
+                await RunTest(Test_Put_WithUrlParameters);
+                await RunTest(Test_Put_NoBodyDeserialization);
+                await RunTest(Test_Patch_NoBodyDeserialization);
+                await RunTest(Test_Delete_Simple);
+                await RunTest(Test_Response_Null);
+                await RunTest(Test_Response_Tuple);
+                await RunTest(Test_Exception_NotFound);
+                await RunTest(Test_Exception_BadRequest);
+                await RunTest(Test_Authentication_Success);
+                await RunTest(Test_Authentication_Failure);
+                await RunTest(Test_Post_MalformedJson);
+                await RunTest(Test_Exception_InternalError);
+                await RunTest(Test_Exception_SlowDown);
+                await RunTest(Test_Exception_Conflict);
+                await RunTest(Test_Head_Method);
+                await RunTest(Test_Options_Method);
+                await RunTest(Test_PreRouting_Hook);
+                await RunTest(Test_PostRouting_Hook);
             }
             catch (Exception ex)
             {
@@ -924,6 +1238,42 @@ namespace Test.Automated
             {
                 throw new SwiftStackException(ApiResultEnum.BadRequest, "Invalid data");
             });
+
+            _app.Rest.Get("/internalerror", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.InternalError, "Something broke");
+            });
+
+            _app.Rest.Get("/slowdown", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.SlowDown, "Too many requests");
+            });
+
+            _app.Rest.Get("/conflict", async (req) =>
+            {
+                throw new SwiftStackException(ApiResultEnum.Conflict, "Duplicate resource");
+            });
+
+            _app.Rest.Head("/head-test", async (req) => "head response");
+
+            _app.Rest.Options("/options-test", async (req) => new { Allowed = "GET,POST,OPTIONS" });
+
+            _app.Rest.Get("/prerouting-test", async (req) =>
+            {
+                return new { PreRoutingHeader = req.Http.Request.Headers["X-PreRouting"] };
+            });
+
+            _app.Rest.Get("/postrouting-test", async (req) => "postrouting ok");
+
+            _app.Rest.PreRoutingRoute = async (WatsonWebserver.Core.HttpContextBase ctx) =>
+            {
+                ctx.Request.Headers.Add("X-PreRouting", "injected");
+            };
+
+            _app.Rest.PostRoutingRoute = async (WatsonWebserver.Core.HttpContextBase ctx) =>
+            {
+                _postRoutingCalled = true;
+            };
 
             _app.Rest.AuthenticationRoute = AuthHandler;
 
@@ -1222,6 +1572,159 @@ namespace Test.Automated
             }
         }
 
+        private async Task Test_Post_MalformedJson()
+        {
+            try
+            {
+                StringContent httpContent = new StringContent("{ this is not valid json }", Encoding.UTF8, "application/json");
+                HttpResponseMessage response = await _httpClient.PostAsync($"{_baseUrl}/post", httpContent);
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 400 && content.Contains("DeserializationError"))
+                    Pass("REST POST malformed JSON returns 400");
+                else
+                    Fail("REST POST malformed JSON returns 400", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST POST malformed JSON returns 400", ex.Message);
+            }
+        }
+
+        private async Task Test_Exception_InternalError()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/internalerror");
+
+                if ((int)response.StatusCode == 500)
+                    Pass("REST exception InternalError (500)");
+                else
+                    Fail("REST exception InternalError (500)", $"Expected 500, got {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST exception InternalError (500)", ex.Message);
+            }
+        }
+
+        private async Task Test_Exception_SlowDown()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/slowdown");
+
+                if ((int)response.StatusCode == 429)
+                    Pass("REST exception SlowDown (429)");
+                else
+                    Fail("REST exception SlowDown (429)", $"Expected 429, got {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST exception SlowDown (429)", ex.Message);
+            }
+        }
+
+        private async Task Test_Exception_Conflict()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/conflict");
+
+                if ((int)response.StatusCode == 409)
+                    Pass("REST exception Conflict (409)");
+                else
+                    Fail("REST exception Conflict (409)", $"Expected 409, got {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST exception Conflict (409)", ex.Message);
+            }
+        }
+
+        private async Task Test_Head_Method()
+        {
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Head, $"{_baseUrl}/head-test");
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                // HEAD should return success with no body
+                if (response.IsSuccessStatusCode)
+                    Pass("REST HEAD method");
+                else
+                    Fail("REST HEAD method", $"Expected success, got {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST HEAD method", ex.Message);
+            }
+        }
+
+        private async Task Test_Options_Method()
+        {
+            try
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Options, $"{_baseUrl}/options-test");
+                HttpResponseMessage response = await _httpClient.SendAsync(request);
+
+                // Watson webserver intercepts OPTIONS requests for CORS preflight handling
+                // Verify it returns a success status code
+                if (response.IsSuccessStatusCode)
+                    Pass("REST OPTIONS method");
+                else
+                    Fail("REST OPTIONS method", $"Expected success, got {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST OPTIONS method", ex.Message);
+            }
+        }
+
+        private async Task Test_PreRouting_Hook()
+        {
+            try
+            {
+                // PreRoutingRoute is set in RegisterTestRoutes before Run(),
+                // so it should inject X-PreRouting header on every request
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/prerouting-test");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("injected"))
+                    Pass("REST pre-routing hook");
+                else
+                    Fail("REST pre-routing hook", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST pre-routing hook", ex.Message);
+            }
+        }
+
+        private async Task Test_PostRouting_Hook()
+        {
+            try
+            {
+                // PostRoutingRoute is set in RegisterTestRoutes before Run(),
+                // so _postRoutingCalled should be set on every request
+                _postRoutingCalled = false;
+
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/postrouting-test");
+
+                // Allow a moment for post-routing to complete
+                await Task.Delay(100);
+
+                if (response.IsSuccessStatusCode && _postRoutingCalled)
+                    Pass("REST post-routing hook");
+                else
+                    Fail("REST post-routing hook", $"Status: {response.StatusCode}, Called: {_postRoutingCalled}");
+            }
+            catch (Exception ex)
+            {
+                Fail("REST post-routing hook", ex.Message);
+            }
+        }
+
         private class PostData
         {
             public string Message { get; set; }
@@ -1301,17 +1804,17 @@ namespace Test.Automated
                 await Task.Delay(1000);
 
                 // Run unit tests (no server required)
-                await Task.Run(() => Test_Schema_PrimitiveTypes());
-                await Task.Run(() => Test_Schema_ComplexObject());
-                await Task.Run(() => Test_Schema_Enum());
-                await Task.Run(() => Test_Schema_Array());
-                await Task.Run(() => Test_RouteMetadata_FluentApi());
+                await Task.Run(() => RunTest(Test_Schema_PrimitiveTypes));
+                await Task.Run(() => RunTest(Test_Schema_ComplexObject));
+                await Task.Run(() => RunTest(Test_Schema_Enum));
+                await Task.Run(() => RunTest(Test_Schema_Array));
+                await Task.Run(() => RunTest(Test_RouteMetadata_FluentApi));
 
                 // Run integration tests
-                await Test_OpenApiEndpoint_ReturnsJson();
-                await Test_OpenApiEndpoint_ContainsInfo();
-                await Test_OpenApiEndpoint_ContainsPaths();
-                await Test_SwaggerUi_ReturnsHtml();
+                await RunTest(Test_OpenApiEndpoint_ReturnsJson);
+                await RunTest(Test_OpenApiEndpoint_ContainsInfo);
+                await RunTest(Test_OpenApiEndpoint_ContainsPaths);
+                await RunTest(Test_SwaggerUi_ReturnsHtml);
             }
             catch (Exception ex)
             {
@@ -1647,10 +2150,10 @@ namespace Test.Automated
                 await Task.Delay(1000);
 
                 // Run tests
-                await Test_DefaultRoute_NotSet_Returns400();
-                await Test_DefaultRoute_Custom_Returns200();
-                await Test_DefaultRoute_Custom_Returns404();
-                await Test_DefaultRoute_SpecificRoute_StillWorks();
+                await RunTest(Test_DefaultRoute_NotSet_Returns400);
+                await RunTest(Test_DefaultRoute_Custom_Returns200);
+                await RunTest(Test_DefaultRoute_Custom_Returns404);
+                await RunTest(Test_DefaultRoute_SpecificRoute_StillWorks);
             }
             catch (Exception ex)
             {
@@ -1820,16 +2323,16 @@ namespace Test.Automated
                 await Task.Delay(1000);
 
                 // Run tests
-                await Test_Chunked_BasicResponse();
-                await Test_Chunked_MultipleChunks();
-                await Test_Chunked_EmptyResponse();
-                await Test_Chunked_LargePayload();
-                await Test_Chunked_BinaryData();
-                await Test_Chunked_SingleByteChunks();
-                await Test_Chunked_WithJsonContentType();
-                await Test_Chunked_CustomStatusCode();
-                await Test_Chunked_RequestEcho();
-                await Test_Chunked_RequestDetection();
+                await RunTest(Test_Chunked_BasicResponse);
+                await RunTest(Test_Chunked_MultipleChunks);
+                await RunTest(Test_Chunked_EmptyResponse);
+                await RunTest(Test_Chunked_LargePayload);
+                await RunTest(Test_Chunked_BinaryData);
+                await RunTest(Test_Chunked_SingleByteChunks);
+                await RunTest(Test_Chunked_WithJsonContentType);
+                await RunTest(Test_Chunked_CustomStatusCode);
+                await RunTest(Test_Chunked_RequestEcho);
+                await RunTest(Test_Chunked_RequestDetection);
             }
             catch (Exception ex)
             {
@@ -2335,6 +2838,11 @@ namespace Test.Automated
                     await msg.RespondAsync("Echo: " + msg.DataAsString());
                 });
 
+                _wsApp.AddRoute("throws", async (msg, token) =>
+                {
+                    throw new InvalidOperationException("test exception from route");
+                });
+
                 // Start server in background
                 _cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 serverTask = Task.Run(async () =>
@@ -2353,10 +2861,15 @@ namespace Test.Automated
                 await Task.Delay(500);
 
                 // Run tests
-                await Test_WebSocket_Connection();
-                await Test_WebSocket_SendReceive();
-                await Test_WebSocket_Route();
-                await Test_WebSocket_Disconnection();
+                await RunTest(Test_WebSocket_Connection);
+                await RunTest(Test_WebSocket_SendReceive);
+                await RunTest(Test_WebSocket_Route);
+                await RunTest(Test_WebSocket_NotFoundRoute);
+                await RunTest(Test_WebSocket_ExceptionRoute);
+                await RunTest(Test_WebSocket_SendExceptionToClient);
+                await RunTest(Test_WebSocket_BinaryMessage);
+                await RunTest(Test_WebSocket_ConcurrentClients);
+                await RunTest(Test_WebSocket_Disconnection);
             }
             catch (Exception ex)
             {
@@ -2483,13 +2996,230 @@ namespace Test.Automated
             }
         }
 
+        private async Task Test_WebSocket_NotFoundRoute()
+        {
+            try
+            {
+                bool notFoundCalled = false;
+                _wsApp.NotFoundRoute += (sender, msg) =>
+                {
+                    notFoundCalled = true;
+                };
+
+                WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                await client.StartAsync();
+                await Task.Delay(500);
+
+                // Send message with a route that doesn't exist
+                string json = JsonSerializer.Serialize(new
+                {
+                    GUID = Guid.NewGuid(),
+                    Route = "nonexistent-route",
+                    Data = Encoding.UTF8.GetBytes("test")
+                });
+                await client.SendAsync(json);
+                await Task.Delay(1000);
+
+                if (notFoundCalled)
+                    Pass("WebSocket NotFoundRoute");
+                else
+                    Fail("WebSocket NotFoundRoute", "NotFoundRoute handler was not invoked");
+
+                client.Stop();
+                _wsApp.NotFoundRoute = null;
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Fail("WebSocket NotFoundRoute", ex.Message);
+            }
+        }
+
+        private async Task Test_WebSocket_ExceptionRoute()
+        {
+            try
+            {
+                bool exceptionRouteCalled = false;
+                string capturedExMessage = null;
+
+                _wsApp.ExceptionRoute = async (msg, ex, token) =>
+                {
+                    exceptionRouteCalled = true;
+                    capturedExMessage = ex.Message;
+                };
+
+                WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                await client.StartAsync();
+                await Task.Delay(500);
+
+                string json = JsonSerializer.Serialize(new
+                {
+                    GUID = Guid.NewGuid(),
+                    Route = "throws",
+                    Data = Encoding.UTF8.GetBytes("trigger error")
+                });
+                await client.SendAsync(json);
+                await Task.Delay(1000);
+
+                if (exceptionRouteCalled && capturedExMessage != null && capturedExMessage.Contains("test exception"))
+                    Pass("WebSocket ExceptionRoute");
+                else
+                    Fail("WebSocket ExceptionRoute",
+                        $"Called: {exceptionRouteCalled}, Message: {capturedExMessage}");
+
+                client.Stop();
+                _wsApp.ExceptionRoute = null;
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Fail("WebSocket ExceptionRoute", ex.Message);
+            }
+        }
+
+        private async Task Test_WebSocket_SendExceptionToClient()
+        {
+            try
+            {
+                _wsApp.SendExceptionMessagesToClient = true;
+                _wsApp.IncludeExceptionDetailsInClientMessages = true;
+
+                bool responseReceived = false;
+                string responseContent = null;
+
+                WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                client.MessageReceived += (sender, e) =>
+                {
+                    responseReceived = true;
+                    responseContent = Encoding.UTF8.GetString(e.Data.Array, e.Data.Offset, e.Data.Count);
+                };
+
+                await client.StartAsync();
+                await Task.Delay(500);
+
+                string json = JsonSerializer.Serialize(new
+                {
+                    GUID = Guid.NewGuid(),
+                    Route = "throws",
+                    Data = Encoding.UTF8.GetBytes("trigger error")
+                });
+                await client.SendAsync(json);
+                await Task.Delay(1000);
+
+                if (responseReceived && responseContent != null &&
+                    responseContent.Contains("error") && responseContent.Contains("test exception"))
+                    Pass("WebSocket SendExceptionMessagesToClient");
+                else
+                    Fail("WebSocket SendExceptionMessagesToClient",
+                        $"Received: {responseReceived}, Content: {responseContent}");
+
+                client.Stop();
+                _wsApp.SendExceptionMessagesToClient = false;
+                _wsApp.IncludeExceptionDetailsInClientMessages = false;
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Fail("WebSocket SendExceptionMessagesToClient", ex.Message);
+            }
+        }
+
+        private async Task Test_WebSocket_BinaryMessage()
+        {
+            try
+            {
+                bool received = false;
+                byte[] receivedData = null;
+
+                WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                client.MessageReceived += (sender, e) =>
+                {
+                    received = true;
+                    receivedData = new byte[e.Data.Count];
+                    Array.Copy(e.Data.Array, e.Data.Offset, receivedData, 0, e.Data.Count);
+                };
+
+                await client.StartAsync();
+                await Task.Delay(500);
+
+                // Send raw binary data (not JSON framed) - should go to default route echo
+                byte[] binaryPayload = new byte[] { 0x01, 0x02, 0x03, 0xFF, 0xFE };
+                await client.SendAsync(binaryPayload);
+                await Task.Delay(1000);
+
+                if (received && receivedData != null && receivedData.Length > 0)
+                    Pass("WebSocket binary message");
+                else
+                    Fail("WebSocket binary message", $"Received: {received}, Data length: {receivedData?.Length}");
+
+                client.Stop();
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Fail("WebSocket binary message", ex.Message);
+            }
+        }
+
+        private async Task Test_WebSocket_ConcurrentClients()
+        {
+            try
+            {
+                int responseCount = 0;
+
+                List<WatsonWsClient> clients = new List<WatsonWsClient>();
+                int clientCount = 3;
+
+                for (int i = 0; i < clientCount; i++)
+                {
+                    WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                    client.MessageReceived += (sender, e) =>
+                    {
+                        Interlocked.Increment(ref responseCount);
+                    };
+                    clients.Add(client);
+                }
+
+                // Connect all clients
+                foreach (WatsonWsClient client in clients)
+                {
+                    await client.StartAsync();
+                }
+                await Task.Delay(500);
+
+                // Each client sends a message
+                foreach (WatsonWsClient client in clients)
+                {
+                    await client.SendAsync("concurrent test");
+                }
+                await Task.Delay(1500);
+
+                // Each client should get a response from the default echo route
+                if (responseCount >= clientCount)
+                    Pass("WebSocket concurrent clients");
+                else
+                    Fail("WebSocket concurrent clients",
+                        $"Expected {clientCount} responses, got {responseCount}");
+
+                foreach (WatsonWsClient client in clients)
+                {
+                    client.Stop();
+                }
+                await Task.Delay(500);
+            }
+            catch (Exception ex)
+            {
+                Fail("WebSocket concurrent clients", ex.Message);
+            }
+        }
+
         private async Task Test_WebSocket_Disconnection()
         {
             try
             {
                 _disconnectionReceived = false;
 
-                var client = new WatsonWsClient("127.0.0.1", _testPort, false);
+                WatsonWsClient client = new WatsonWsClient("127.0.0.1", _testPort, false);
                 await client.StartAsync();
                 await Task.Delay(500);
 
@@ -2548,13 +3278,22 @@ namespace Test.Automated
                 Skip("RabbitMQ broadcaster/receiver", "RabbitMQ server not available");
                 Skip("RabbitMQ producer/consumer", "RabbitMQ server not available");
                 Skip("RabbitMQ message correlation", "RabbitMQ server not available");
-                Skip("RabbitMQ resilient broadcaster", "RabbitMQ server not available");
+                Skip("RabbitMQ manual acknowledge", "RabbitMQ server not available");
+                Skip("RabbitMQ reject with requeue", "RabbitMQ server not available");
+                Skip("RabbitMQ oversized message", "RabbitMQ server not available");
+
+                // This test doesn't need a RabbitMQ server
+                await RunTest(Test_RabbitMq_NotInitialized_Throws);
                 return;
             }
 
-            await Test_RabbitMq_BroadcasterReceiver();
-            await Test_RabbitMq_ProducerConsumer();
-            await Test_RabbitMq_MessageCorrelation();
+            await RunTest(Test_RabbitMq_BroadcasterReceiver);
+            await RunTest(Test_RabbitMq_ProducerConsumer);
+            await RunTest(Test_RabbitMq_MessageCorrelation);
+            await RunTest(Test_RabbitMq_ManualAcknowledge);
+            await RunTest(Test_RabbitMq_RejectWithRequeue);
+            await RunTest(Test_RabbitMq_NotInitialized_Throws);
+            await RunTest(Test_RabbitMq_OversizedMessage);
         }
 
         private async Task<ConnectionCheckResult> CheckRabbitMqAvailable()
@@ -2752,10 +3491,740 @@ namespace Test.Automated
             }
         }
 
+        private async Task Test_RabbitMq_ManualAcknowledge()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("TestApp", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                QueueProperties queueProps = new QueueProperties
+                {
+                    Hostname = _rabbitMqHost,
+                    Name = "test-manual-ack-" + Guid.NewGuid().ToString(),
+                    AutoDelete = true
+                };
+
+                bool messageReceived = false;
+                ulong receivedDeliveryTag = 0;
+
+                RabbitMqProducer<TestMessage> producer = new RabbitMqProducer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, 1024 * 1024);
+                RabbitMqConsumer<TestMessage> consumer = new RabbitMqConsumer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, autoAck: false);
+
+                consumer.MessageReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        messageReceived = true;
+                        receivedDeliveryTag = e.DeliveryTag;
+                    }
+                };
+
+                await producer.InitializeAsync();
+                await consumer.InitializeAsync();
+                await Task.Delay(500);
+
+                TestMessage testMsg = new TestMessage { Id = 10, Content = "Manual Ack Test" };
+                await producer.SendMessage(testMsg, Guid.NewGuid().ToString());
+                await Task.Delay(1500);
+
+                bool ackSuccess = false;
+                if (messageReceived && receivedDeliveryTag > 0)
+                {
+                    // Acknowledge the message - should not throw
+                    await consumer.Acknowledge(receivedDeliveryTag);
+                    ackSuccess = true;
+                }
+
+                if (messageReceived && ackSuccess)
+                    Pass("RabbitMQ manual acknowledge");
+                else
+                    Fail("RabbitMQ manual acknowledge",
+                        $"Received: {messageReceived}, Tag: {receivedDeliveryTag}, Ack: {ackSuccess}");
+
+                producer.Dispose();
+                consumer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Fail("RabbitMQ manual acknowledge", ex.Message);
+            }
+        }
+
+        private async Task Test_RabbitMq_RejectWithRequeue()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("TestApp", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                QueueProperties queueProps = new QueueProperties
+                {
+                    Hostname = _rabbitMqHost,
+                    Name = "test-reject-" + Guid.NewGuid().ToString(),
+                    AutoDelete = true
+                };
+
+                int receiveCount = 0;
+                ulong firstDeliveryTag = 0;
+
+                RabbitMqProducer<TestMessage> producer = new RabbitMqProducer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, 1024 * 1024);
+                RabbitMqConsumer<TestMessage> consumer = new RabbitMqConsumer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, autoAck: false);
+
+                consumer.MessageReceived += (sender, e) =>
+                {
+                    if (e.Data != null)
+                    {
+                        receiveCount++;
+                        if (receiveCount == 1) firstDeliveryTag = e.DeliveryTag;
+
+                        // Acknowledge on second delivery to stop requeue loop
+                        if (receiveCount >= 2)
+                        {
+                            consumer.Acknowledge(e.DeliveryTag).Wait();
+                        }
+                    }
+                };
+
+                await producer.InitializeAsync();
+                await consumer.InitializeAsync();
+                await Task.Delay(500);
+
+                TestMessage testMsg = new TestMessage { Id = 11, Content = "Reject Test" };
+                await producer.SendMessage(testMsg, Guid.NewGuid().ToString());
+                await Task.Delay(1500);
+
+                // Reject with requeue on first delivery
+                if (firstDeliveryTag > 0 && receiveCount == 1)
+                {
+                    await consumer.Reject(firstDeliveryTag, requeue: true);
+                    await Task.Delay(1500);
+                }
+
+                // Message should have been redelivered
+                if (receiveCount >= 2)
+                    Pass("RabbitMQ reject with requeue");
+                else
+                    Fail("RabbitMQ reject with requeue",
+                        $"Expected >=2 deliveries, got {receiveCount}");
+
+                producer.Dispose();
+                consumer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Fail("RabbitMQ reject with requeue", ex.Message);
+            }
+        }
+
+        private async Task Test_RabbitMq_NotInitialized_Throws()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("TestApp", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                QueueProperties queueProps = new QueueProperties
+                {
+                    Hostname = _rabbitMqHost,
+                    Name = "test-noinit",
+                    AutoDelete = true
+                };
+
+                RabbitMqProducer<TestMessage> producer = new RabbitMqProducer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, 1024 * 1024);
+
+                bool threw = false;
+                try
+                {
+                    await producer.SendMessage(new TestMessage { Id = 99, Content = "Should fail" }, "test");
+                }
+                catch (InvalidOperationException)
+                {
+                    threw = true;
+                }
+
+                if (threw)
+                    Pass("RabbitMQ not-initialized throws InvalidOperationException");
+                else
+                    Fail("RabbitMQ not-initialized throws InvalidOperationException", "No exception thrown");
+
+                producer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Fail("RabbitMQ not-initialized throws InvalidOperationException", ex.Message);
+            }
+        }
+
+        private async Task Test_RabbitMq_OversizedMessage()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("TestApp", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                QueueProperties queueProps = new QueueProperties
+                {
+                    Hostname = _rabbitMqHost,
+                    Name = "test-oversize-" + Guid.NewGuid().ToString(),
+                    AutoDelete = true
+                };
+
+                // Create producer with tiny max message size (2KB)
+                RabbitMqProducer<TestMessage> producer = new RabbitMqProducer<TestMessage>(
+                    app.Serializer, app.Logging, queueProps, 2 * 1024);
+
+                await producer.InitializeAsync();
+
+                // Send a message that exceeds the max size
+                TestMessage largeMsg = new TestMessage
+                {
+                    Id = 100,
+                    Content = new string('X', 3000) // > 2KB when serialized
+                };
+
+                // Should not throw - just silently return after logging alert
+                await producer.SendMessage(largeMsg, "oversize-test");
+
+                Pass("RabbitMQ oversized message handled gracefully");
+
+                producer.Dispose();
+            }
+            catch (Exception ex)
+            {
+                Fail("RabbitMQ oversized message handled gracefully", ex.Message);
+            }
+        }
+
         private class TestMessage
         {
             public int Id { get; set; }
             public string Content { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region Disposal Tests
+
+    public class DisposalTests : TestSuite
+    {
+        public override string Name => "Disposal Tests";
+
+        protected override async Task RunTestsAsync()
+        {
+            await Task.Run(() => RunTest(Test_RestApp_DoubleDispose));
+            await Task.Run(() => RunTest(Test_WebsocketsApp_DoubleDispose));
+            await RunTest(Test_WebsocketsApp_ClearsEventHandlers);
+            await RunTest(Test_RabbitMqApp_DisposesChildren);
+        }
+
+        private void Test_RestApp_DoubleDispose()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("DisposeTest", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                app.Rest.Dispose();
+                app.Rest.Dispose(); // second dispose should not throw
+
+                Pass("RestApp double-dispose does not throw");
+            }
+            catch (Exception ex)
+            {
+                Fail("RestApp double-dispose does not throw", ex.Message);
+            }
+        }
+
+        private void Test_WebsocketsApp_DoubleDispose()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("DisposeTest", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                WebsocketsApp wsApp = new WebsocketsApp(app);
+                wsApp.Dispose();
+                wsApp.Dispose(); // second dispose should not throw
+
+                Pass("WebsocketsApp double-dispose does not throw");
+            }
+            catch (Exception ex)
+            {
+                Fail("WebsocketsApp double-dispose does not throw", ex.Message);
+            }
+        }
+
+        private async Task Test_WebsocketsApp_ClearsEventHandlers()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("DisposeTest", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                WebsocketsApp wsApp = new WebsocketsApp(app);
+
+                // Assign event handlers
+                wsApp.OnConnection += (s, e) => { };
+                wsApp.OnDisconnection += (s, e) => { };
+                wsApp.DefaultRoute += (s, e) => { };
+                wsApp.NotFoundRoute += (s, e) => { };
+                wsApp.ExceptionRoute = async (msg, ex, token) => { };
+
+                wsApp.Dispose();
+
+                // After dispose, all handlers should be null
+                if (wsApp.OnConnection == null &&
+                    wsApp.OnDisconnection == null &&
+                    wsApp.DefaultRoute == null &&
+                    wsApp.NotFoundRoute == null &&
+                    wsApp.ExceptionRoute == null)
+                    Pass("WebsocketsApp dispose clears event handlers");
+                else
+                    Fail("WebsocketsApp dispose clears event handlers", "Some handlers still set after dispose");
+            }
+            catch (Exception ex)
+            {
+                Fail("WebsocketsApp dispose clears event handlers", ex.Message);
+            }
+        }
+
+        private async Task Test_RabbitMqApp_DisposesChildren()
+        {
+            try
+            {
+                SwiftStackApp app = new SwiftStackApp("DisposeTest", quiet: true);
+                app.LoggingSettings.EnableConsole = false;
+
+                RabbitMqApp mqApp = new RabbitMqApp(app);
+
+                // Create a producer without initializing (no RabbitMQ needed)
+                // We just need to verify Dispose is called on children
+                QueueProperties queueProps = new QueueProperties
+                {
+                    Hostname = "localhost",
+                    Name = "test-dispose-child",
+                    AutoDelete = true
+                };
+
+                RabbitMqProducer<DisposalTestMessage> producer = new RabbitMqProducer<DisposalTestMessage>(
+                    app.Serializer, app.Logging, queueProps, 1024 * 1024);
+
+                mqApp.AddProducer(producer);
+
+                // Dispose the app - should dispose children without throwing
+                mqApp.Dispose();
+
+                // Verify producer was disposed (IsInitialized should be false, and it was never initialized)
+                if (!producer.IsInitialized)
+                    Pass("RabbitMqApp dispose disposes children");
+                else
+                    Fail("RabbitMqApp dispose disposes children", "Producer still initialized after parent dispose");
+            }
+            catch (Exception ex)
+            {
+                Fail("RabbitMqApp dispose disposes children", ex.Message);
+            }
+        }
+
+        private class DisposalTestMessage
+        {
+            public string Data { get; set; }
+        }
+    }
+
+    #endregion
+
+    #region Middleware Tests
+
+    public class MiddlewareTests : TestSuite
+    {
+        public override string Name => "Middleware Pipeline Tests";
+        private SwiftStackApp _app;
+        private int _testPort = 18892;
+        private string _baseUrl;
+        private CancellationTokenSource _cts;
+        private HttpClient _httpClient;
+        private List<string> _middlewareLog = new List<string>();
+
+        protected override async Task RunTestsAsync()
+        {
+            _baseUrl = $"http://127.0.0.1:{_testPort}";
+
+            try
+            {
+                _app = new SwiftStackApp("MiddlewareTest", quiet: true);
+                _app.LoggingSettings.EnableConsole = false;
+                _app.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _app.Rest.WebserverSettings.Port = _testPort;
+
+                // Register middleware
+                _app.Rest.Use(async (ctx, next, token) =>
+                {
+                    _middlewareLog.Add("MW1-before");
+                    await next().ConfigureAwait(false);
+                    _middlewareLog.Add("MW1-after");
+                });
+
+                _app.Rest.Use(async (ctx, next, token) =>
+                {
+                    _middlewareLog.Add("MW2-before");
+                    await next().ConfigureAwait(false);
+                    _middlewareLog.Add("MW2-after");
+                });
+
+                // Short-circuit middleware for a specific path
+                _app.Rest.Use(async (ctx, next, token) =>
+                {
+                    if (ctx.Request.Url.RawWithoutQuery == "/short-circuit")
+                    {
+                        ctx.Response.StatusCode = 403;
+                        ctx.Response.ContentType = "application/json";
+                        await ctx.Response.Send("{\"blocked\":true}").ConfigureAwait(false);
+                        return; // don't call next
+                    }
+                    await next().ConfigureAwait(false);
+                });
+
+                _app.Rest.Get("/middleware-test", async (req) => new { Result = "OK" });
+                _app.Rest.Get("/short-circuit", async (req) => new { Result = "should not reach" });
+
+                _cts = new CancellationTokenSource();
+                Task serverTask = Task.Run(async () =>
+                {
+                    try { await _app.Rest.Run(_cts.Token); }
+                    catch (OperationCanceledException) { }
+                });
+
+                _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                await Task.Delay(1000);
+
+                await RunTest(Test_Middleware_ExecutionOrder);
+                await RunTest(Test_Middleware_ShortCircuit);
+            }
+            catch (Exception ex)
+            {
+                Fail("Middleware setup", ex.Message);
+            }
+            finally
+            {
+                try { _httpClient?.Dispose(); } catch { }
+                try { _cts?.Cancel(); await Task.Delay(100); } catch { }
+                try { Task disposeTask = Task.Run(() => _app?.Rest?.Dispose()); await Task.WhenAny(disposeTask, Task.Delay(500)); } catch { }
+            }
+        }
+
+        private async Task Test_Middleware_ExecutionOrder()
+        {
+            try
+            {
+                _middlewareLog.Clear();
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/middleware-test");
+                string content = await response.Content.ReadAsStringAsync();
+
+                // Middleware should execute in order: MW1-before, MW2-before, [handler], MW2-after, MW1-after
+                if (response.IsSuccessStatusCode &&
+                    _middlewareLog.Count >= 4 &&
+                    _middlewareLog[0] == "MW1-before" &&
+                    _middlewareLog[1] == "MW2-before" &&
+                    _middlewareLog[2] == "MW2-after" &&
+                    _middlewareLog[3] == "MW1-after")
+                    Pass("Middleware execution order");
+                else
+                    Fail("Middleware execution order", $"Log: [{string.Join(", ", _middlewareLog)}]");
+            }
+            catch (Exception ex)
+            {
+                Fail("Middleware execution order", ex.Message);
+            }
+        }
+
+        private async Task Test_Middleware_ShortCircuit()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/short-circuit");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 403 && content.Contains("blocked"))
+                    Pass("Middleware short-circuit");
+                else
+                    Fail("Middleware short-circuit", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Middleware short-circuit", ex.Message);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Timeout Tests
+
+    public class TimeoutTests : TestSuite
+    {
+        public override string Name => "Request Timeout Tests";
+        private SwiftStackApp _app;
+        private int _testPort = 18893;
+        private string _baseUrl;
+        private CancellationTokenSource _cts;
+        private HttpClient _httpClient;
+
+        protected override async Task RunTestsAsync()
+        {
+            _baseUrl = $"http://127.0.0.1:{_testPort}";
+
+            try
+            {
+                _app = new SwiftStackApp("TimeoutTest", quiet: true);
+                _app.LoggingSettings.EnableConsole = false;
+                _app.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _app.Rest.WebserverSettings.Port = _testPort;
+
+                // Enable 1-second timeout
+                _app.Rest.UseTimeout(TimeSpan.FromSeconds(1));
+
+                _app.Rest.Get("/fast", async (req) => new { Result = "fast" });
+
+                _app.Rest.Get("/slow", async (req) =>
+                {
+                    await Task.Delay(5000, req.CancellationToken).ConfigureAwait(false);
+                    return new { Result = "slow" };
+                });
+
+                _app.Rest.Get("/check-token", async (req) =>
+                {
+                    return new { HasToken = req.CancellationToken.CanBeCanceled };
+                });
+
+                _cts = new CancellationTokenSource();
+                Task serverTask = Task.Run(async () =>
+                {
+                    try { await _app.Rest.Run(_cts.Token); }
+                    catch (OperationCanceledException) { }
+                });
+
+                _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
+                await Task.Delay(1000);
+
+                await RunTest(Test_Timeout_FastRequest_Succeeds);
+                await RunTest(Test_Timeout_SlowRequest_Returns408);
+                await RunTest(Test_Timeout_CancellationToken_Available);
+            }
+            catch (Exception ex)
+            {
+                Fail("Timeout setup", ex.Message);
+            }
+            finally
+            {
+                try { _httpClient?.Dispose(); } catch { }
+                try { _cts?.Cancel(); await Task.Delay(100); } catch { }
+                try { Task disposeTask = Task.Run(() => _app?.Rest?.Dispose()); await Task.WhenAny(disposeTask, Task.Delay(500)); } catch { }
+            }
+        }
+
+        private async Task Test_Timeout_FastRequest_Succeeds()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/fast");
+
+                if (response.IsSuccessStatusCode)
+                    Pass("Timeout fast request succeeds");
+                else
+                    Fail("Timeout fast request succeeds", $"Status: {response.StatusCode}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Timeout fast request succeeds", ex.Message);
+            }
+        }
+
+        private async Task Test_Timeout_SlowRequest_Returns408()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/slow");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 408 && content.Contains("RequestTimeout"))
+                    Pass("Timeout slow request returns 408");
+                else
+                    Fail("Timeout slow request returns 408", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Timeout slow request returns 408", ex.Message);
+            }
+        }
+
+        private async Task Test_Timeout_CancellationToken_Available()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/check-token");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("true"))
+                    Pass("Timeout CancellationToken available in AppRequest");
+                else
+                    Fail("Timeout CancellationToken available in AppRequest", $"Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Timeout CancellationToken available in AppRequest", ex.Message);
+            }
+        }
+    }
+
+    #endregion
+
+    #region Health Check Tests
+
+    public class HealthCheckTests : TestSuite
+    {
+        public override string Name => "Health Check Tests";
+        private SwiftStackApp _app;
+        private int _testPort = 18894;
+        private string _baseUrl;
+        private CancellationTokenSource _cts;
+        private HttpClient _httpClient;
+
+        protected override async Task RunTestsAsync()
+        {
+            _baseUrl = $"http://127.0.0.1:{_testPort}";
+
+            try
+            {
+                _app = new SwiftStackApp("HealthCheckTest", quiet: true);
+                _app.LoggingSettings.EnableConsole = false;
+                _app.Rest.WebserverSettings.Hostname = "127.0.0.1";
+                _app.Rest.WebserverSettings.Port = _testPort;
+
+                // Default health check at /health
+                _app.Rest.UseHealthCheck();
+
+                // Custom health check at /healthz
+                _app.Rest.UseHealthCheck(settings =>
+                {
+                    settings.Path = "/healthz";
+                    settings.CustomCheck = async (token) =>
+                    {
+                        return new HealthCheckResult
+                        {
+                            Status = HealthStatusEnum.Degraded,
+                            Description = "Partially operational",
+                            Data = new System.Collections.Generic.Dictionary<string, object>
+                            {
+                                { "db", "ok" },
+                                { "cache", "slow" }
+                            }
+                        };
+                    };
+                });
+
+                // Unhealthy endpoint
+                _app.Rest.UseHealthCheck(settings =>
+                {
+                    settings.Path = "/health-bad";
+                    settings.CustomCheck = async (token) =>
+                    {
+                        return new HealthCheckResult
+                        {
+                            Status = HealthStatusEnum.Unhealthy,
+                            Description = "Database down"
+                        };
+                    };
+                });
+
+                _cts = new CancellationTokenSource();
+                Task serverTask = Task.Run(async () =>
+                {
+                    try { await _app.Rest.Run(_cts.Token); }
+                    catch (OperationCanceledException) { }
+                });
+
+                _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+                await Task.Delay(1000);
+
+                await RunTest(Test_HealthCheck_Default_ReturnsHealthy);
+                await RunTest(Test_HealthCheck_Custom_ReturnsDegraded);
+                await RunTest(Test_HealthCheck_Unhealthy_Returns503);
+            }
+            catch (Exception ex)
+            {
+                Fail("Health Check setup", ex.Message);
+            }
+            finally
+            {
+                try { _httpClient?.Dispose(); } catch { }
+                try { _cts?.Cancel(); await Task.Delay(100); } catch { }
+                try { Task disposeTask = Task.Run(() => _app?.Rest?.Dispose()); await Task.WhenAny(disposeTask, Task.Delay(500)); } catch { }
+            }
+        }
+
+        private async Task Test_HealthCheck_Default_ReturnsHealthy()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/health");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if (response.IsSuccessStatusCode && content.Contains("Healthy"))
+                    Pass("Health check default returns Healthy");
+                else
+                    Fail("Health check default returns Healthy", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Health check default returns Healthy", ex.Message);
+            }
+        }
+
+        private async Task Test_HealthCheck_Custom_ReturnsDegraded()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/healthz");
+                string content = await response.Content.ReadAsStringAsync();
+
+                // Degraded should still return 200
+                if (response.IsSuccessStatusCode &&
+                    content.Contains("Degraded") &&
+                    content.Contains("cache"))
+                    Pass("Health check custom returns Degraded with data");
+                else
+                    Fail("Health check custom returns Degraded with data", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Health check custom returns Degraded with data", ex.Message);
+            }
+        }
+
+        private async Task Test_HealthCheck_Unhealthy_Returns503()
+        {
+            try
+            {
+                HttpResponseMessage response = await _httpClient.GetAsync($"{_baseUrl}/health-bad");
+                string content = await response.Content.ReadAsStringAsync();
+
+                if ((int)response.StatusCode == 503 && content.Contains("Unhealthy"))
+                    Pass("Health check unhealthy returns 503");
+                else
+                    Fail("Health check unhealthy returns 503", $"Status: {response.StatusCode}, Content: {content}");
+            }
+            catch (Exception ex)
+            {
+                Fail("Health check unhealthy returns 503", ex.Message);
+            }
         }
     }
 

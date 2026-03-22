@@ -10,8 +10,11 @@ MIT Licensed • No ceremony • Just build.
 
 ---
 
-## ✨ New in v0.4.x
+## ✨ New in v0.4.8
 
+- **Middleware pipeline** for composable request processing
+- **Request timeout support** with automatic 408 responses
+- **Health check endpoints** with Healthy/Degraded/Unhealthy status
 - **Default route support** for custom catch-all handling of unmatched requests
 - **OpenAPI 3.0 and Swagger UI support** for REST APIs
 
@@ -461,6 +464,142 @@ app.Rest.UseOpenApi(openApi =>
     openApi.Servers.Add(new OpenApiServer("https://staging-api.example.com", "Staging"));
 });
 ```
+
+</details>
+
+---
+
+## 🔗 Middleware Pipeline
+
+<details>
+<summary>Click to expand</summary>
+
+SwiftStack supports composable middleware that wraps route handlers. Middleware executes in registration order and can inspect/modify requests, short-circuit the pipeline, or run logic after the handler completes.
+
+```csharp
+using SwiftStack;
+using SwiftStack.Rest.Middleware;
+
+SwiftStackApp app = new SwiftStackApp("Middleware Example");
+
+// Logging middleware
+app.Rest.Use(async (ctx, next, token) =>
+{
+    Console.WriteLine($"Request: {ctx.Request.Method} {ctx.Request.Url.RawWithoutQuery}");
+    await next();
+    Console.WriteLine($"Response: {ctx.Response.StatusCode}");
+});
+
+// Auth middleware that short-circuits unauthorized requests
+app.Rest.Use(async (ctx, next, token) =>
+{
+    if (ctx.Request.Url.RawWithoutQuery.StartsWith("/admin") &&
+        ctx.Request.Headers["X-Api-Key"] != "secret")
+    {
+        ctx.Response.StatusCode = 403;
+        await ctx.Response.Send("{\"error\": \"Forbidden\"}");
+        return; // short-circuit — don't call next()
+    }
+    await next();
+});
+
+app.Rest.Get("/", async (req) => "Hello World");
+app.Rest.Get("/admin/stats", async (req) => new { Users = 42 });
+
+await app.Rest.Run();
+```
+
+Middleware must be registered before calling `Run()`. Call `next()` to continue the pipeline, or return without calling `next()` to short-circuit.
+
+</details>
+
+---
+
+## ⏱ Request Timeouts
+
+<details>
+<summary>Click to expand</summary>
+
+Enable automatic request timeouts that return HTTP 408 when a handler exceeds the configured duration. The cancellation token is available to route handlers via `req.CancellationToken` for cooperative cancellation.
+
+```csharp
+using SwiftStack;
+
+SwiftStackApp app = new SwiftStackApp("Timeout Example");
+
+// Set a 30-second timeout for all requests
+app.Rest.UseTimeout(TimeSpan.FromSeconds(30));
+
+// Fast handler — completes normally
+app.Rest.Get("/fast", async (req) => new { Result = "OK" });
+
+// Slow handler — uses the cancellation token for cooperative cancellation
+app.Rest.Get("/slow", async (req) =>
+{
+    await Task.Delay(60000, req.CancellationToken); // will be cancelled after 30s
+    return new { Result = "done" };
+});
+
+await app.Rest.Run();
+```
+
+When a request times out, the client receives:
+```json
+{
+    "Error": "RequestTimeout",
+    "Description": "The request timed out.",
+    "Message": "The request timed out."
+}
+```
+
+</details>
+
+---
+
+## 🏥 Health Check Endpoints
+
+<details>
+<summary>Click to expand</summary>
+
+Add health check endpoints that report application status. Supports default, custom, and multiple health check paths.
+
+```csharp
+using SwiftStack;
+using SwiftStack.Rest.Health;
+
+SwiftStackApp app = new SwiftStackApp("Health Check Example");
+
+// Default health check at /health — returns {"Status": "Healthy"}
+app.Rest.UseHealthCheck();
+
+// Custom health check with data
+app.Rest.UseHealthCheck(settings =>
+{
+    settings.Path = "/healthz";
+    settings.CustomCheck = async (token) =>
+    {
+        bool dbOk = await CheckDatabase(token);
+        return new HealthCheckResult
+        {
+            Status = dbOk ? HealthStatusEnum.Healthy : HealthStatusEnum.Unhealthy,
+            Description = dbOk ? "All systems operational" : "Database unavailable",
+            Data = new Dictionary<string, object>
+            {
+                { "database", dbOk ? "ok" : "down" },
+                { "uptime", Environment.TickCount64 / 1000 }
+            }
+        };
+    };
+});
+
+await app.Rest.Run();
+```
+
+| Status | HTTP Code | Description |
+|--------|-----------|-------------|
+| `Healthy` | 200 | Application is operating normally |
+| `Degraded` | 200 | Operational but with reduced performance |
+| `Unhealthy` | 503 | Unable to serve requests properly |
 
 </details>
 

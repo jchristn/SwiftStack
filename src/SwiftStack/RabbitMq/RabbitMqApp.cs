@@ -93,14 +93,36 @@
         /// Dispose.
         /// </summary>
         /// <param name="disposing">Disposing.</param>
-        protected virtual async void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (!_Disposed)
             {
                 if (disposing)
                 {
-                    _TokenSource.Cancel();
-                    _TokenSource.Dispose();
+                    _TokenSource?.Cancel();
+
+                    // Dispose all managed interfaces (producers, consumers, broadcasters, receivers)
+                    lock (_InterfaceLock)
+                    {
+                        foreach (object iface in _Interfaces)
+                        {
+                            if (iface is IDisposable disposable)
+                            {
+                                try
+                                {
+                                    disposable.Dispose();
+                                }
+                                catch
+                                {
+                                    // Best-effort cleanup during disposal
+                                }
+                            }
+                        }
+
+                        _Interfaces.Clear();
+                    }
+
+                    _TokenSource?.Dispose();
                 }
 
                 _Disposed = true;

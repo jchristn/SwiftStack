@@ -786,6 +786,11 @@
             DeserializationError.
             </summary>
         </member>
+        <member name="F:SwiftStack.Rest.ApiResultEnum.RequestTimeout">
+            <summary>
+            RequestTimeout.
+            </summary>
+        </member>
         <member name="T:SwiftStack.Rest.AppRequest">
             <summary>
             Application request.
@@ -826,15 +831,27 @@
             Authentication and authorization result.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.AppRequest.CancellationToken">
+            <summary>
+            Cancellation token for the request.
+            When request timeouts are enabled via UseTimeout(), this token will be cancelled
+            when the timeout expires. Pass this token to async operations within your route handler
+            to enable cooperative cancellation.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.AppRequest.Metadata">
             <summary>
             User-supplied metadata.
             </summary>
         </member>
-        <member name="M:SwiftStack.Rest.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SwiftStack.Serialization.ISerializer,System.Object)">
+        <member name="M:SwiftStack.Rest.AppRequest.#ctor(WatsonWebserver.Core.HttpContextBase,SwiftStack.Serialization.ISerializer,System.Object,System.Threading.CancellationToken)">
             <summary>
             Application request.
             </summary>
+            <param name="ctx">HTTP context.</param>
+            <param name="serializer">Serializer instance.</param>
+            <param name="data">Deserialized request data, or null.</param>
+            <param name="cancellationToken">Cancellation token for the request. When timeouts are enabled, this token is cancelled on timeout.</param>
         </member>
         <member name="M:SwiftStack.Rest.AppRequest.GetData``1">
             <summary>
@@ -920,6 +937,155 @@
             <summary>
             Authentication and authorization result.
             </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.Health.HealthCheckResult">
+            <summary>
+            Result of a health check.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckResult.Status">
+            <summary>
+            Health status.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckResult.Description">
+            <summary>
+            Optional description of the health status.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckResult.Data">
+            <summary>
+            Optional key-value metadata, such as uptime, version, or dependency statuses.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.Health.HealthCheckSettings">
+            <summary>
+            Settings for the health check endpoint.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckSettings.Path">
+            <summary>
+            Path for the health check endpoint.
+            Default is /health.
+            Must start with /.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckSettings.RequireAuthentication">
+            <summary>
+            Whether the health check endpoint requires authentication.
+            Default is false.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.Health.HealthCheckSettings.CustomCheck">
+            <summary>
+            Optional custom health check delegate.
+            When null, the default returns a healthy status.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.Health.HealthStatusEnum">
+            <summary>
+            Health status of the application.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.Health.HealthStatusEnum.Healthy">
+            <summary>
+            The application is healthy and operating normally.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.Health.HealthStatusEnum.Degraded">
+            <summary>
+            The application is operational but experiencing degraded performance or partial failures.
+            </summary>
+        </member>
+        <member name="F:SwiftStack.Rest.Health.HealthStatusEnum.Unhealthy">
+            <summary>
+            The application is unhealthy and unable to serve requests properly.
+            </summary>
+        </member>
+        <member name="T:SwiftStack.Rest.Health.RestAppHealthExtensions">
+            <summary>
+            Extension methods for RestApp to enable health check endpoints.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.Health.RestAppHealthExtensions.UseHealthCheck(SwiftStack.Rest.RestApp,System.Action{SwiftStack.Rest.Health.HealthCheckSettings})">
+            <summary>
+            Enables a health check endpoint for the REST application.
+            When no custom check is configured, returns a healthy status with HTTP 200.
+            Custom checks can return Degraded (HTTP 200) or Unhealthy (HTTP 503).
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="configure">Optional action to configure health check settings.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app is null.</exception>
+        </member>
+        <member name="T:SwiftStack.Rest.Middleware.MiddlewarePipeline">
+            <summary>
+            Manages an ordered list of middleware delegates and executes them as a pipeline.
+            Middleware is registered before the server starts and executed per-request.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.Middleware.MiddlewarePipeline.Add(SwiftStack.Rest.Middleware.RestMiddlewareDelegate)">
+            <summary>
+            Add a middleware delegate to the end of the pipeline.
+            Must be called before the server starts.
+            </summary>
+            <param name="middleware">The middleware delegate to add.</param>
+        </member>
+        <member name="P:SwiftStack.Rest.Middleware.MiddlewarePipeline.HasMiddleware">
+            <summary>
+            True if the pipeline has one or more middleware registered.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.Middleware.MiddlewarePipeline.Execute(WatsonWebserver.Core.HttpContextBase,System.Func{System.Threading.Tasks.Task},System.Threading.CancellationToken)">
+            <summary>
+            Execute the middleware pipeline, terminating with the provided handler.
+            When no middleware is registered, the terminal handler is called directly.
+            </summary>
+            <param name="context">The HTTP context.</param>
+            <param name="terminalHandler">The route handler to invoke at the end of the pipeline.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
+        </member>
+        <member name="T:SwiftStack.Rest.Middleware.RestAppMiddlewareExtensions">
+            <summary>
+            Extension methods for RestApp to register middleware.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.Middleware.RestAppMiddlewareExtensions.Use(SwiftStack.Rest.RestApp,SwiftStack.Rest.Middleware.RestMiddlewareDelegate)">
+            <summary>
+            Add a middleware delegate to the REST request pipeline.
+            Middleware executes in registration order, wrapping the route handler.
+            Call next() to continue the pipeline, or return without calling next() to short-circuit.
+            Must be called before Run().
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="middleware">The middleware delegate.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app or middleware is null.</exception>
+        </member>
+        <member name="M:SwiftStack.Rest.Middleware.RestAppMiddlewareExtensions.Use(SwiftStack.Rest.RestApp,System.Func{WatsonWebserver.Core.HttpContextBase,System.Func{System.Threading.Tasks.Task},System.Threading.Tasks.Task})">
+            <summary>
+            Add a middleware delegate to the REST request pipeline (convenience overload without CancellationToken).
+            Middleware executes in registration order, wrapping the route handler.
+            Call next() to continue the pipeline, or return without calling next() to short-circuit.
+            Must be called before Run().
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="middleware">The middleware delegate.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app or middleware is null.</exception>
+        </member>
+        <member name="T:SwiftStack.Rest.Middleware.RestMiddlewareDelegate">
+            <summary>
+            Delegate for REST middleware.
+            Middleware receives the HTTP context, a delegate to invoke the next middleware in the pipeline,
+            and a cancellation token.
+            Call next() to continue the pipeline, or return without calling next() to short-circuit.
+            </summary>
+            <param name="context">The HTTP context for the current request.</param>
+            <param name="next">Delegate to invoke the next middleware or route handler.</param>
+            <param name="token">Cancellation token.</param>
+            <returns>Task.</returns>
         </member>
         <member name="T:SwiftStack.Rest.OpenApi.OpenApiContact">
             <summary>
@@ -2515,6 +2681,20 @@
             Favicon.ico file.
             </summary>
         </member>
+        <member name="P:SwiftStack.Rest.RestApp.Middleware">
+            <summary>
+            Middleware pipeline for the REST application.
+            Use the Use() extension method to register middleware.
+            Middleware must be registered before calling Run().
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestApp.TimeoutSettings">
+            <summary>
+            Request timeout settings.
+            Use UseTimeout() to configure.
+            Null when timeouts are not enabled.
+            </summary>
+        </member>
         <member name="P:SwiftStack.Rest.RestApp.OpenApiSettings">
             <summary>
             OpenAPI settings. Null if OpenAPI is not enabled.
@@ -2768,6 +2948,46 @@
             </summary>
             <returns>The OpenAPI JSON document as a string.</returns>
             <exception cref="T:System.InvalidOperationException">Thrown when OpenAPI is not enabled.</exception>
+        </member>
+        <member name="T:SwiftStack.Rest.RestAppTimeoutExtensions">
+            <summary>
+            Extension methods for RestApp to configure request timeouts.
+            </summary>
+        </member>
+        <member name="M:SwiftStack.Rest.RestAppTimeoutExtensions.UseTimeout(SwiftStack.Rest.RestApp,System.TimeSpan)">
+            <summary>
+            Enable request timeouts with the specified default timeout duration.
+            Requests that exceed the timeout will receive a 408 Request Timeout response.
+            The cancellation token is available to route handlers via AppRequest.CancellationToken.
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="defaultTimeout">Default timeout for all requests.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app is null.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Thrown when timeout is negative.</exception>
+        </member>
+        <member name="M:SwiftStack.Rest.RestAppTimeoutExtensions.UseTimeout(SwiftStack.Rest.RestApp,System.Action{SwiftStack.Rest.RestTimeoutSettings})">
+            <summary>
+            Enable request timeouts with configurable settings.
+            Requests that exceed the timeout will receive a 408 Request Timeout response.
+            The cancellation token is available to route handlers via AppRequest.CancellationToken.
+            </summary>
+            <param name="app">The REST application.</param>
+            <param name="configure">Action to configure timeout settings.</param>
+            <returns>The REST application for method chaining.</returns>
+            <exception cref="T:System.ArgumentNullException">Thrown when app or configure is null.</exception>
+        </member>
+        <member name="T:SwiftStack.Rest.RestTimeoutSettings">
+            <summary>
+            Settings for request timeout behavior.
+            </summary>
+        </member>
+        <member name="P:SwiftStack.Rest.RestTimeoutSettings.DefaultTimeout">
+            <summary>
+            Default timeout for all requests.
+            When set to TimeSpan.Zero (the default), no timeout is applied.
+            Must be zero or a positive value.
+            </summary>
         </member>
         <member name="T:SwiftStack.Serialization.ArraySegmentByteConverter">
             <summary>

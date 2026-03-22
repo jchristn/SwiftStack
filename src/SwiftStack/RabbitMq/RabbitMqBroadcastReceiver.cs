@@ -113,10 +113,17 @@
 
                 _ConnectionFactory = null;
 
-                _ConsumerChannel?.CloseAsync().Wait();
-                _ConsumerChannel?.Dispose();
-                _Connection?.CloseAsync().Wait();
-                _Connection?.Dispose();
+                if (_ConsumerChannel != null)
+                {
+                    try { _ConsumerChannel.CloseAsync().Wait(TimeSpan.FromSeconds(2)); } catch { }
+                    try { _ConsumerChannel.Dispose(); } catch { }
+                }
+
+                if (_Connection != null)
+                {
+                    try { _Connection.CloseAsync().Wait(TimeSpan.FromSeconds(2)); } catch { }
+                    try { _Connection.Dispose(); } catch { }
+                }
 
                 _Consumer = null;
 

@@ -44,6 +44,10 @@
         /// <summary>
         /// DeserializationError.
         /// </summary>
-        DeserializationError
+        DeserializationError,
+        /// <summary>
+        /// RequestTimeout.
+        /// </summary>
+        RequestTimeout
     }
 }
